@@ -1,5 +1,5 @@
 var div = document.getElementById('sphere');
-/* https://seabox.informatik.uni-kiel.de/d/ef70b81e93/ */
+
 var PSV = new PhotoSphereViewer({
     panorama: '/images/spheres/example.jpg',
     container: div,
