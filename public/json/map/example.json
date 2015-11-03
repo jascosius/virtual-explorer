@@ -1,6 +1,0 @@
-{ "topleft" : {"longitude" : "123", "latitude" : "234"},
-  "bottomright" : {"longitude" : "345", "latitude" : "434"},
-  "spheres" : {
-    "example" : { "longitude" : "1234", "latitude" : "1234"} ,
-    "example2" : { "longitude" : "1235", "latitude" : "1234"}}}
-

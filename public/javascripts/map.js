@@ -1,59 +1,60 @@
-//$.getJSON( "/json/map/example.json", function( data ) {
-//    console.log(data);
-//    console.log(data.bottomright.longitude);
-//    console.log(data.spheres.example.latitude)
-//});
+var create_map = function( data ) {
 
-//var map = L.map('map').setView([55,0], 2);
-//map.attributionControl.setPrefix('');
-//
-//L.tileLayer('/images/maps/cau/{z}/{x}/{y}.png', {
-//    minZoom: 0,
-//    maxZoom: 8,
-//    tileSize: 256,
-//    continuousWorld: true,
-//    attribution: 'CAU Kiel'
-//}).addTo(map);
+    L.Icon.Default.imagePath = '/images/leaflet';
 
-// entrance
-//L.marker([72.60712, -20.39062]).addTo(map)
-//    .bindPopup("Eingang zum Fachschaftsraum").openPopup();
+    var northWest = L.latLng(54.349024, 10.101001),
+        southEast = L.latLng(54.335277, 10.129754),
+        bounds = L.latLngBounds(northWest, southEast);
 
-// main entrance
-//L.marker([-76.84082, 83.67188]).addTo(map)
-//    .bindPopup("<h1>Haupteingang LMS 6</h1> Übergang zu LMS 2, LMS 4 und LMS 8");
-//
-//addCustomMarker();
-//
-//function addCustomMarker() {
-//    if(window.location.hash.indexOf("mark") !== -1) {
-//        hash = window.location.hash.split('/');
-//        L.marker([hash[2], hash[3]]).addTo(map)
-//            .bindPopup("<h1>Ziel</h1>").openPopup();
-//        map.setView([hash[2], hash[3]], 2);
-//    }
-//}
+    var map = L.map('map', {
+        center: [54.3389585, 10.1190736],
+        zoom: 16,
+        maxBounds: bounds
+    });
 
-L.Icon.Default.imagePath = '/images/leaflet';
+    // create the tile layer with correct attribution
+    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {
+        minZoom: 16,
+        maxZoom: 19,
+        attribution: osmAttrib
+    });
 
-var northWest = L.latLng(54.349024, 10.101001),
-    southEast = L.latLng(54.335277, 10.129754),
-    bounds = L.latLngBounds(northWest, southEast);
+    map.addLayer(osm);
+    var spheres = data.spheres;
+    for (key in spheres) {
+        console.log(key);
+        console.log(spheres[key].longitude);
+        var latitude = spheres[key].latitude;
+        var longitude = spheres[key].longitude;
+        var name = spheres[key].name.de_DE;
+        var marker = L.marker([latitude, longitude]).addTo(map)
+        marker.bindPopup(name);
+        marker.on('mouseover', function (e) {
+            this.openPopup();
+            map.options.maxZoom = 20;
+            active_marker = key;
+        });
+        marker.on('mouseout', function (e) {
+            this.closePopup();
+            map.options.maxZoom = 19;
+            active_marker = null;
+        });
+    }
 
-var map = L.map('map', {
-    center: [54.3389585, 10.1190736],
-    zoom: 16,
-    maxBounds: bounds
-});
+    var active_marker;
+    var sphere_id;
 
-// create the tile layer with correct attribution
-var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-var osm = new L.TileLayer(osmUrl, {
-    minZoom: 16,
-    maxZoom: 19,
-    attribution: osmAttrib
-});
-map.addLayer(osm);
+    map.on('zoomstart', function() {
+        sphere_id = active_marker;
+    });
 
-L.marker([54.346000, 10.110000]).addTo(map).bindPopup("Testkram").openPopup();
+    map.on('zoomend', function() {
+        if(map.getZoom() === 20) {
+            alert("Go to sphere (ID:" + sphere_id +").");
+        }
+    });
+}
+
+$.getJSON( "/json/map/map_44c2e9bdcaf4c29b.json", create_map );
