@@ -1,3 +1,8 @@
+/**
+ *
+ * @param id - id of the html element
+ * @param data - map_.....json object
+ */
 var createMap = function( id, data ) {
 
     var minZoom = 16;

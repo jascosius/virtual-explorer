@@ -1,3 +1,7 @@
+/**
+ *
+ * @param id - id of the html element
+ */
 var loadMap = function(id) {
     $('body').append($('<div/>', {
         id: id,
