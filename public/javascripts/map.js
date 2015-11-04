@@ -29,8 +29,9 @@ var createMap = function( id, data ) {
     for (key in spheres) {
         var latitude = spheres[key].latitude;
         var longitude = spheres[key].longitude;
-        var name = spheres[key].name.de_DE;
-        var marker = L.marker([latitude, longitude]).addTo(map)
+        var lng = $.i18n.lng();
+        var name = spheres[key].name[lng];
+        var marker = L.marker([latitude, longitude]).addTo(map);
         marker.bindPopup(name);
         marker.on('mouseover', function (e) {
             this.openPopup();
@@ -61,4 +62,4 @@ var createMap = function( id, data ) {
             loadSphere(sphere_id);
         }
     });
-}
+};

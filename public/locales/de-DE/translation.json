@@ -1,0 +1,6 @@
+{
+  "test": "Test",
+  "app": {
+    "test": "__count__ Test"
+  }
+}
