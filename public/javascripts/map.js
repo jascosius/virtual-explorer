@@ -1,4 +1,7 @@
-var create_map = function( data ) {
+var createMap = function( id, data ) {
+
+    var minZoom = 16;
+    var maxZoom = 19;
 
     L.Icon.Default.imagePath = '/images/leaflet';
 
@@ -6,9 +9,9 @@ var create_map = function( data ) {
         southEast = L.latLng(54.335277, 10.129754),
         bounds = L.latLngBounds(northWest, southEast);
 
-    var map = L.map('map', {
+    var map = L.map(id, {
         center: [54.3389585, 10.1190736],
-        zoom: 16,
+        zoom: minZoom,
         maxBounds: bounds
     });
 
@@ -16,8 +19,8 @@ var create_map = function( data ) {
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {
-        minZoom: 16,
-        maxZoom: 19,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
         attribution: osmAttrib
     });
 
@@ -33,13 +36,16 @@ var create_map = function( data ) {
         marker.bindPopup(name);
         marker.on('mouseover', function (e) {
             this.openPopup();
-            map.options.maxZoom = 20;
+            map.options.maxZoom = maxZoom + 1;
             active_marker = key;
         });
         marker.on('mouseout', function (e) {
             this.closePopup();
-            map.options.maxZoom = 19;
+            map.options.maxZoom = maxZoom;
             active_marker = null;
+        });
+        marker.on('click', function (e) {
+            alert('hallo');
         });
     }
 
@@ -51,10 +57,9 @@ var create_map = function( data ) {
     });
 
     map.on('zoomend', function() {
-        if(map.getZoom() === 20) {
-            alert("Go to sphere (ID:" + sphere_id +").");
+        if(map.getZoom() === (maxZoom + 1)) {
+            removeMap(id);
+            loadSphere(sphere_id);
         }
     });
 }
-
-$.getJSON( "/json/map/map_44c2e9bdcaf4c29b.json", create_map );
