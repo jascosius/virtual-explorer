@@ -1,6 +1,7 @@
 *.iml
 .idea/
 *.css
+!public/stylesheets/leaflet.css
 *.html
 *.htm
 node_modules
