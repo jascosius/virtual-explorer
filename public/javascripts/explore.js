@@ -14,7 +14,6 @@ var loadSphere = function(id) {
         class: 'fullsize'
     }));
     $.getJSON( "/json/spheres/sphere_"+id+".json", function (data) {
-        console.log(data);
         createSphere(id,data);
     });
 }

@@ -27,8 +27,6 @@ var createMap = function( id, data ) {
     map.addLayer(osm);
     var spheres = data.spheres;
     for (key in spheres) {
-        console.log(key);
-        console.log(spheres[key].longitude);
         var latitude = spheres[key].latitude;
         var longitude = spheres[key].longitude;
         var name = spheres[key].name.de_DE;
@@ -45,7 +43,8 @@ var createMap = function( id, data ) {
             active_marker = null;
         });
         marker.on('click', function (e) {
-            alert('hallo');
+            removeMap(id);
+            loadSphere(key);
         });
     }
 
