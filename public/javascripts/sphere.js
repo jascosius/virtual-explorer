@@ -2,8 +2,6 @@ var createSphere = function(id,data) {
 
     var div = document.getElementById(id);
 
-    console.log(data.image.highres);
-
     var PSV = new PhotoSphereViewer({
         panorama: data.image.highres,
         container: div,
