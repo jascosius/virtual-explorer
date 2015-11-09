@@ -23,7 +23,6 @@ var removeMap = function(id) {
 };
 
 $.i18n.init({ lng: "de-DE" });
-console.log($.i18n.lng());
 loadMap("44c2e9bdcaf4c29b");
 
 
