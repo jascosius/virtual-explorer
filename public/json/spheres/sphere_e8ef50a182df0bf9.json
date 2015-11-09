@@ -1,1 +1,11 @@
-{ "image" : { "highres" : "/images/spheres/e8ef50a182df0bf9.jpg"} , "name": "sphere.e8ef50a182df0bf9.name", "latitude" : "54.338856" , "longitude" : "10.122494", "north" : "123px", "objects" : {}}
+{
+  "id": "e8ef50a182df0bf9",
+  "image": {
+    "highres": "/images/spheres/e8ef50a182df0bf9.jpg"
+  },
+  "name": "sphere.e8ef50a182df0bf9.name",
+  "latitude": "54.338856",
+  "longitude": "10.122494",
+  "north": "123px",
+  "objects": {}
+}
