@@ -31,11 +31,11 @@ var createMap = function( id, data ) {
 
     map.addLayer(osm);
     var spheres = data.spheres;
-    for (key in spheres) {
-        var latitude = spheres[key].latitude;
-        var longitude = spheres[key].longitude;
-        var name = spheres[key].name.de_DE;
-        var marker = L.marker([latitude, longitude]).addTo(map)
+    $.each( spheres, function (key, value) {
+        var latitude = value.latitude;
+        var longitude = value.longitude;
+        var name = $.i18n.t('sphere.'+key);
+        var marker = L.marker([latitude, longitude]).addTo(map);
         marker.bindPopup(name);
         marker.on('mouseover', function (e) {
             this.openPopup();
@@ -51,7 +51,7 @@ var createMap = function( id, data ) {
             removeMap(id);
             loadSphere(key);
         });
-    }
+    });
 
     var active_marker;
     var sphere_id;
@@ -66,4 +66,4 @@ var createMap = function( id, data ) {
             loadSphere(sphere_id);
         }
     });
-}
+};
