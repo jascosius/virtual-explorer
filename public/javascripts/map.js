@@ -29,7 +29,7 @@ var createMap = function( id, data ) {
     $.each( spheres, function (key, value) {
         var latitude = value.latitude;
         var longitude = value.longitude;
-        var name = $.i18n.t('sphere.'+key);
+        var name = $.i18n.t(value.name);
         var marker = L.marker([latitude, longitude]).addTo(map);
         marker.bindPopup(name);
         marker.on('mouseover', function (e) {
