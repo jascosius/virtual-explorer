@@ -7,8 +7,6 @@ var mapPath = './public/json/maps/map_spheres_44c2e9bdcaf4c29b.json';
 // to the callback handleFiles.
 fs.readdir(spherePath, handleSphereFiles);
 
-newSphere = {};
-
 function handleSphereFiles(err, files) {
     if (err) throw err;
     var i;
@@ -19,7 +17,7 @@ function handleSphereFiles(err, files) {
     var fileReadOptions = {
         'encoding': 'utf-8'
     };
-    console.log(files);
+    var newSphere = {};
 
     for (i = 0; i < files.length; ++i) {
         fileName = files[i];
@@ -32,6 +30,8 @@ function handleSphereFiles(err, files) {
 
             var dataObject = JSON.parse(data);
 
+            //creates the spheres json object
+            // including the id, name, longitude, latitude of each sphere_...json object
             newSphere[dataObject.id] = {};
             newSphere[dataObject.id].name = dataObject.name;
             newSphere[dataObject.id].longitude = dataObject.longitude;
@@ -39,7 +39,7 @@ function handleSphereFiles(err, files) {
         }
     }
 
-    //writes the generated newSphere object to the sphereData.json file
+    //writes the generated newSphere object to the map_spheres....json file
     fs.writeFileSync(mapPath, JSON.stringify(newSphere))
 }
 
