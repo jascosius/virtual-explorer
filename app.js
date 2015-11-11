@@ -59,5 +59,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
+//loops through the spheres folder to extract sphere id, longitude and latitude from each file
+var jsonFileExtracter = require('./javascripts/jsonFileExtracter.js');
 
 module.exports = app;

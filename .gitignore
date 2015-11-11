@@ -6,3 +6,4 @@
 *.htm
 node_modules
 public/images/spheres/
+public/json/maps/map_spheres_*
