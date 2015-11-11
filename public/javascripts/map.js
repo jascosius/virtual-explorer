@@ -2,8 +2,9 @@
  *
  * @param id - id of the html element
  * @param data - map_.....json object
+ * @param spheres - all spheres on the map
  */
-var createMap = function( id, data ) {
+var createMap = function( id, data, spheres ) {
 
     var minZoom = 16;
     var maxZoom = 19;
@@ -30,7 +31,6 @@ var createMap = function( id, data ) {
     });
 
     map.addLayer(osm);
-    var spheres = data.spheres;
     $.each( spheres, function (key, value) {
         var latitude = value.latitude;
         var longitude = value.longitude;

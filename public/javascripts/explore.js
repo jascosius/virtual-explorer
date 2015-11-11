@@ -7,8 +7,10 @@ var loadMap = function(id) {
         id: id,
         class: 'fullsize'
     }));
-    $.getJSON( "/json/maps/map_44c2e9bdcaf4c29b.json", function (data) {
-        createMap(id,data);
+    $.getJSON( "/json/maps/map_"+id+".json", function (data) {
+        $.getJSON( "/json/maps/map_spheres_"+id+".json", function (spheres) {
+            createMap(id,data,spheres);
+        });
     });
 };
 
