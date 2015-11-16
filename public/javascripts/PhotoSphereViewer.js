@@ -323,7 +323,7 @@ var PhotoSphereViewer = function(args) {
 
 			if (pano_size.cropped_y == null)
 				pano_size.cropped_y = (pano_size.full_height - pano_size.cropped_height) / 2;
-
+			
 			// Size limit for mobile compatibility
 			var max_width = 2048;
 			if (isWebGLSupported()) {
