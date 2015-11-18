@@ -4,7 +4,10 @@
  * @param data - map_.....json object
  * @param spheres - all spheres on the map
  */
-var createMap = function( id, data, spheres ) {
+//var events = require('events');
+//var eventEmitter = new events.EventEmitter();
+
+var createMap = function (id, data, spheres) {
 
     var minZoom = 16;
     var maxZoom = 19;
@@ -31,7 +34,7 @@ var createMap = function( id, data, spheres ) {
     });
 
     map.addLayer(osm);
-    $.each( spheres, function (key, value) {
+    $.each(spheres, function (key, value) {
         var latitude = value.latitude;
         var longitude = value.longitude;
         var name = $.i18n.t(value.name);
@@ -48,7 +51,6 @@ var createMap = function( id, data, spheres ) {
             active_marker = null;
         });
         marker.on('click', function (e) {
-            removeMap(id);
             loadSphere(key);
         });
     });
@@ -56,13 +58,12 @@ var createMap = function( id, data, spheres ) {
     var active_marker;
     var sphere_id;
 
-    map.on('zoomstart', function() {
+    map.on('zoomstart', function () {
         sphere_id = active_marker;
     });
 
-    map.on('zoomend', function() {
-        if(map.getZoom() === (maxZoom + 1)) {
-            removeMap(id);
+    map.on('zoomend', function () {
+        if (map.getZoom() === (maxZoom + 1)) {
             loadSphere(sphere_id);
         }
     });

@@ -2,6 +2,9 @@
  *
  * @param id - id of the html element
  */
+var startMap = "44c2e9bdcaf4c29b";
+var currentMap = startMap;
+
 var loadMap = function(id) {
     $('body').append($('<div/>', {
         id: id,
@@ -14,22 +17,26 @@ var loadMap = function(id) {
     });
 };
 
+var removeMap = function(id) {
+    $('#'+id).remove();
+}
+
 var loadSphere = function(id) {
     $('body').append($('<div/>', {
         id: id,
-        class: 'fullsize'
+        class: 'fullsize invisible',
     }));
     $.getJSON( "/json/spheres/sphere_"+id+".json", function (data) {
-        createSphere(id,data);
+        createSphere(id,data,photoSphereOnReady);
     });
-};
-
-var removeMap = function(id) {
-    $('#'+id).remove();
+    var photoSphereOnReady = function () {
+        $("#"+id).removeClass('invisible')
+        removeMap(currentMap);
+    };
 };
 
 $.i18n.init({ lng: "de-DE" });
-loadMap("44c2e9bdcaf4c29b");
+loadMap(startMap);
 
 
 
