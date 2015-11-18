@@ -4,9 +4,6 @@
  * @param data - map_.....json object
  * @param spheres - all spheres on the map
  */
-//var events = require('events');
-//var eventEmitter = new events.EventEmitter();
-
 var createMap = function (id, data, spheres) {
 
     var minZoom = 16;
@@ -38,8 +35,10 @@ var createMap = function (id, data, spheres) {
         var latitude = value.latitude;
         var longitude = value.longitude;
         var name = $.i18n.t(value.name);
+
         var marker = L.marker([latitude, longitude]).addTo(map);
         marker.bindPopup(name);
+
         marker.on('mouseover', function (e) {
             this.openPopup();
             map.options.maxZoom = maxZoom + 1;
