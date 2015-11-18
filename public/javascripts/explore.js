@@ -2,8 +2,8 @@
  *
  * @param id - id of the html element
  */
-var startMap = "44c2e9bdcaf4c29b";
-var currentMap = startMap;
+var start_map = "44c2e9bdcaf4c29b";
+var current_map = start_ap;
 
 var loadMap = function(id) {
     $('body').append($('<div/>', {
@@ -31,12 +31,12 @@ var loadSphere = function(id) {
     });
     var photoSphereOnReady = function () {
         $("#"+id).removeClass('invisible')
-        removeMap(currentMap);
+        removeMap(current_map);
     };
 };
 
 $.i18n.init({ lng: "de-DE" });
-loadMap(startMap);
+loadMap(start_map);
 
 
 
