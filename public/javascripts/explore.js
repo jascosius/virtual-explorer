@@ -6,15 +6,19 @@ var start_map = "44c2e9bdcaf4c29b";
 var current_map = start_map;
 
 var loadMap = function(id) {
+    var callback = function(sphere_id){
+        loadSphere(sphere_id);
+    };
     $('body').append($('<div/>', {
         id: id,
         class: 'fullsize'
     }));
     $.getJSON( "/json/maps/map_"+id+".json", function (data) {
         $.getJSON( "/json/maps/map_spheres_"+id+".json", function (spheres) {
-            createMap(id,data,spheres);
+            createMap(id,data,spheres,callback);
         });
     });
+
 };
 
 var removeMap = function(id) {

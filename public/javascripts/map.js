@@ -4,7 +4,7 @@
  * @param data - map_.....json object
  * @param spheres - all spheres on the map
  */
-var createMap = function (id, data, spheres) {
+var createMap = function (id, data, spheres, callback) {
 
     var minZoom = 16;
     var maxZoom = 19;
@@ -50,7 +50,9 @@ var createMap = function (id, data, spheres) {
             active_marker = null;
         });
         marker.on('click', function (e) {
-            loadSphere(key);
+            callback(key);
+            //loadSphere(key);
+                                             //TODO: zoomIn animation
         });
     });
 
@@ -63,7 +65,8 @@ var createMap = function (id, data, spheres) {
 
     map.on('zoomend', function () {
         if (map.getZoom() === (maxZoom + 1)) {
-            loadSphere(sphere_id);
+            callback(sphere_id);
+            //loadSphere(sphere_id);
         }
     });
 };
