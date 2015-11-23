@@ -305,9 +305,22 @@ var SphereViewer = function(args) {
 		// Sphere
 		var geometry = new THREE.SphereGeometry(200, 32, 32);
 		var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
+
 		var mesh = new THREE.Mesh(geometry, material);
 		mesh.scale.x = -1;
 		scene.add(mesh);
+
+		var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		var cube = new THREE.Mesh( geometry, material );
+		cube.position.set(190, 0, 0);
+		scene.add( cube );
+
+		var geometry = new THREE.PlaneGeometry( 30,30);
+		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+		var plane = new THREE.Mesh( geometry, material );
+		plane.position.set(0, -100, 100);
+		scene.add( plane );
 
 		// Canvas container
 		canvas_container = document.createElement('div');
