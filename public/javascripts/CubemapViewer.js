@@ -27,19 +27,10 @@
  * Represents a panorama viewer.
  * @class
  * @param {object} args - Settings to apply to the viewer
- * @param {object} args.data - data object from json
- * @param {string} args.panorama - Panorama URL or path (absolute or relative)
+ * @param {object} args.data - Data with Panorama Details
+ * @param {object} args.image.cubemap - Path to Panorama Cubemap images
  * @param {HTMLElement} args.container - Panorama container (should be a `div` or equivalent)
  * @param {boolean} [args.autoload=true] - `true` to automatically load the panorama, `false` to load it later (with the {@link PhotoSphereViewer#load|`.load`} method)
- * @param {boolean} [args.usexmpdata=true] - `true` if Photo Sphere Viewer must read XMP data, `false` if it is not necessary
- * @param {object} [args.pano_size=null] - The panorama size, if cropped (unnecessary if XMP data can be read)
- * @param {number} [args.pano_size.full_width=null] - The full panorama width, before crop (the image width if `null`)
- * @param {number} [args.pano_size.full_height=null] - The full panorama height, before crop (the image height if `null`)
- * @param {number} [args.pano_size.cropped_width=null] - The cropped panorama width (the image width if `null`)
- * @param {number} [args.pano_size.cropped_height=null] - The cropped panorama height (the image height if `null`)
- * @param {number} [args.pano_size.cropped_x=null] - The cropped panorama horizontal offset relative to the full width (middle if `null`)
- * @param {number} [args.pano_size.cropped_y=null] - The cropped panorama vertical offset relative to the full height (middle if `null`)
- * @param {object} [args.default_position] - Defines the default position (the first point seen by the user)
  * @param {number|string} [args.default_position.long=0] - Default longitude, in radians (or in degrees if indicated, e.g. `'45deg'`)
  * @param {number|string} [args.default_position.lat=0] - Default latitude, in radians (or in degrees if indicated, e.g. `'45deg'`)
  * @param {number} [args.min_fov=30] - The minimal field of view, in degrees, between 1 and 179
@@ -79,15 +70,14 @@
  * @param {PhotoSphereViewer~onReady} [args.onready] - Function called once the panorama is ready and the first image is displayed
  **/
 
-var SphereViewer = function(args) {
-	console.log(args.data);
+var CubemapViewer = function(args) {
 	/**
 	 * Detects whether canvas is supported.
 	 * @private
 	 * @return {boolean} `true` if canvas is supported, `false` otherwise
 	 **/
 
-	var isCanvasSupported = function () {
+	var isCanvasSupported = function() {
 		var canvas = document.createElement('canvas');
 		return !!(canvas.getContext && canvas.getContext('2d'));
 	};
@@ -98,7 +88,7 @@ var SphereViewer = function(args) {
 	 * @return {boolean} `true` if WebGL is supported, `false` otherwise
 	 **/
 
-	var isWebGLSupported = function () {
+	var isWebGLSupported = function() {
 		var canvas = document.createElement('canvas');
 		return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
 	};
@@ -112,7 +102,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var addEvent = function (elt, evt, f) {
+	var addEvent = function(elt, evt, f) {
 		if (!!elt.addEventListener)
 			elt.addEventListener(evt, f, false);
 		else
@@ -128,7 +118,7 @@ var SphereViewer = function(args) {
 	 * @return {number} The checked number
 	 **/
 
-	var stayBetween = function (x, min, max) {
+	var stayBetween = function(x, min, max) {
 		return Math.max(min, Math.min(max, x));
 	};
 
@@ -142,10 +132,10 @@ var SphereViewer = function(args) {
 	 * @return {number} Square of the wanted distance
 	 **/
 
-	var dist = function (x1, y1, x2, y2) {
+	var dist = function(x1, y1, x2, y2) {
 		var x = x2 - x1;
 		var y = y2 - y1;
-		return x * x + y * y;
+		return x*x + y*y;
 	};
 
 	/**
@@ -156,9 +146,9 @@ var SphereViewer = function(args) {
 	 * @return {number} The wanted measure
 	 **/
 
-	var getAngleMeasure = function (angle, is_2pi_allowed) {
+	var getAngleMeasure = function(angle, is_2pi_allowed) {
 		is_2pi_allowed = (is_2pi_allowed !== undefined) ? !!is_2pi_allowed : false;
-		return (is_2pi_allowed && angle == 2 * Math.PI) ? 2 * Math.PI : angle - Math.floor(angle / (2.0 * Math.PI)) * 2.0 * Math.PI;
+		return (is_2pi_allowed && angle == 2 * Math.PI) ? 2 * Math.PI :  angle - Math.floor(angle / (2.0 * Math.PI)) * 2.0 * Math.PI;
 	};
 
 	/**
@@ -167,8 +157,28 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.load = function () {
+	this.load = function() {
 		container.innerHTML = '';
+
+		// Loading HTML: HTMLElement
+		if (!!loading_html && loading_html.nodeType === 1)
+			container.appendChild(loading_html);
+
+		// Loading HTML: string
+		else if (!!loading_html && typeof loading_html == 'string')
+			container.innerHTML = loading_html;
+
+		// Loading image
+		else if (!!loading_img) {
+			var loading = document.createElement('img');
+			loading.setAttribute('src', loading_img);
+			loading.setAttribute('alt', loading_msg);
+			container.appendChild(loading);
+		}
+
+		// Loading text
+		else
+			container.textContent = loading_msg;
 
 		// Adds a new container
 		root = document.createElement('div');
@@ -196,82 +206,7 @@ var SphereViewer = function(args) {
 			ratio: 0
 		};
 
-		createBuffer();
-	};
-
-	/**
-	 * Creates an image in the right dimensions.
-	 * @private
-	 * @return {void}
-	 **/
-
-	var createBuffer = function () {
-		console.log("createBuffer");
-		var img = new Image();
-
-		img.onload = function () {
-
-			// Size limit for mobile compatibility
-			var max_width = 2048;
-			if (isWebGLSupported()) {
-				var canvas = document.createElement('canvas');
-				var ctx = canvas.getContext('webgl');
-				max_width = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
-			}
-
-			// Buffer width (not too big)
-			var new_width = Math.min(pano_size.full_width, max_width);
-			var r = new_width / pano_size.full_width;
-
-			pano_size.full_width = new_width;
-			pano_size.cropped_width *= r;
-			pano_size.cropped_x *= r;
-			img.width = pano_size.cropped_width;
-
-			// Buffer height (proportional to the width)
-			pano_size.full_height *= r;
-			pano_size.cropped_height *= r;
-			pano_size.cropped_y *= r;
-			img.height = pano_size.cropped_height;
-
-			// Buffer creation
-			var buffer = document.createElement('canvas');
-			buffer.width = pano_size.full_width;
-			buffer.height = pano_size.full_height;
-
-			var ctx = buffer.getContext('2d');
-			ctx.drawImage(img, pano_size.cropped_x, pano_size.cropped_y, pano_size.cropped_width, pano_size.cropped_height);
-
-			loadTexture(buffer.toDataURL('image/jpeg'));
-		};
-
-		// CORS when the panorama is not given as a base64 string
-		if (!panorama.match(/^data:image\/[a-z]+;base64/))
-			img.setAttribute('crossOrigin', 'anonymous');
-
-		img.src = panorama;
-	};
-
-	/**
-	 * Loads the sphere texture.
-	 * @private
-	 * @param {string} path - Path to the panorama
-	 * @return {void}
-	 **/
-
-	var loadTexture = function (path) {
-		console.log("loadTexture");
-		var texture = new THREE.Texture();
-		var loader = new THREE.ImageLoader();
-
-		var onLoad = function (img) {
-			texture.needsUpdate = true;
-			texture.image = img;
-
-			createScene(texture);
-		};
-
-		loader.load(path, onLoad);
+		createScene();
 	};
 
 	/**
@@ -281,8 +216,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var createScene = function (texture) {
-		console.log("createScene");
+	var createScene = function(texture) {
 		// New size?
 		if (new_viewer_size.width !== undefined)
 			container.style.width = new_viewer_size.width.css;
@@ -303,24 +237,61 @@ var SphereViewer = function(args) {
 		scene.add(camera);
 
 		// Sphere
-		var geometry = new THREE.SphereGeometry(200, 32, 32);
-		var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
+		//var geometry = new THREE.SphereGeometry(200, 32, 32);
+		//var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
+		//var mesh = new THREE.Mesh(geometry, material);
+		//mesh.scale.x = -1;
+		//scene.add(mesh);
 
-		var mesh = new THREE.Mesh(geometry, material);
+
+		//Sevaral Tiles for every side
+/*		var geometry = new THREE.BoxGeometry(200, 200, 200, 8, 8, 8);
+
+		var l = geometry.faces.length / 2;
+		for( var i = 0; i < l; i ++ ) {
+			var j = 2 * i;
+			geometry.faces[ j ].materialIndex = i;
+			geometry.faces[ j + 1 ].materialIndex = i;
+		}
+
+		var materials = [];
+		var path = "/images/spheres/13bad6b1e478b951"
+		var directions = ["nx", "px", "ny", "py", "nz", "pz"];
+		for (var direction in directions){
+			for (var i = 0 ; i < 8; i++){
+				for (var j = 0; j < 8; j++){
+					var texture=THREE.ImageUtils.loadTexture('/images/spheres/13bad6b1e478b951/'+directions[direction]+"/"+i+"."+j+".jpg", {}, function() {
+						//render();
+					});
+					materials[direction*64+i*8+j]=new THREE.MeshBasicMaterial( {side:THREE.BackSide, map: texture, overdraw: true} );
+				}
+			}
+		}
+
+		//for ( var i = 0; i < geometry.faces.length; i ++ ) {
+		//	if (i === 4*64) {
+		//		geometry.faces[i].color.setHex(0xff0000);
+		//	} else {
+		//		geometry.faces[i].color.setHex(Math.random()/4 * 0xffffff);
+		//	}
+		//}
+		//var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side:THREE.BackSide, vertexColors: THREE.FaceColors} );
+		var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );*/
+
+
+		var directions = ["px", "nx", "py", "ny", "nz", "pz"];
+		var materials = [];
+		for (var direction in directions) {
+			var texture=THREE.ImageUtils.loadTexture(data.image.cubemap+'/'+directions[direction]+'/0.0.jpg',{},function() {
+				render();
+			});
+			materials.push(new THREE.MeshBasicMaterial({map: texture, overdraw: true}));
+		}
+		var geometry = new THREE.BoxGeometry(200,200,200);
+		var mesh = new THREE.Mesh(geometry,  new THREE.MeshFaceMaterial( materials ));
 		mesh.scale.x = -1;
+		mesh.position.set(0, 0, 0);
 		scene.add(mesh);
-
-		var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		var cube = new THREE.Mesh( geometry, material );
-		cube.position.set(190, 0, 0);
-		scene.add( cube );
-
-		var geometry = new THREE.PlaneGeometry( 30,30);
-		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-		var plane = new THREE.Mesh( geometry, material );
-		plane.position.set(0, -100, 100);
-		scene.add( plane );
 
 		// Canvas container
 		canvas_container = document.createElement('div');
@@ -385,13 +356,12 @@ var SphereViewer = function(args) {
 	};
 
 	/**
-	 * Renders an image.
-	 * @private
-	 * @return {void}
-	 **/
+	* Renders an image.
+	* @private
+	* @return {void}
+	**/
 
-	var render = function () {
-		console.log("render");
+	var render = function() {
 		var point = new THREE.Vector3();
 		point.setX(Math.cos(lat) * Math.sin(long));
 		point.setY(Math.sin(lat));
@@ -413,7 +383,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var startStereo = function () {
+	var startStereo = function() {
 		stereo_effect = new THREE.StereoEffect(renderer);
 		stereo_effect.eyeSeparation = 5;
 		stereo_effect.setSize(viewer_size.width, viewer_size.height);
@@ -438,7 +408,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var stopStereo = function () {
+	var stopStereo = function() {
 		stereo_effect = null;
 		renderer.setSize(viewer_size.width, viewer_size.height);
 
@@ -454,7 +424,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.toggleStereo = function () {
+	this.toggleStereo = function() {
 		if (stereo_effect !== null)
 			stopStereo();
 
@@ -463,23 +433,23 @@ var SphereViewer = function(args) {
 	};
 
 	/**
-	 * Automatically animates the panorama.
-	 * @private
-	 * @return {void}
-	 **/
+	* Automatically animates the panorama.
+	* @private
+	* @return {void}
+	**/
 
-	var anim = function () {
+	var anim = function() {
 		if (anim_delay !== false)
 			anim_timeout = setTimeout(startAutorotate, anim_delay);
 	};
 
 	/**
-	 * Automatically rotates the panorama.
-	 * @private
-	 * @return {void}
-	 **/
+	* Automatically rotates the panorama.
+	* @private
+	* @return {void}
+	**/
 
-	var autorotate = function () {
+	var autorotate = function() {
 		lat -= (lat - anim_lat_target) * anim_lat_offset;
 
 		long += anim_long_offset;
@@ -515,7 +485,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var startAutorotate = function () {
+	var startAutorotate = function() {
 		autorotate();
 
 		/**
@@ -533,7 +503,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var stopAutorotate = function () {
+	var stopAutorotate = function() {
 		clearTimeout(anim_timeout);
 		anim_timeout = null;
 
@@ -549,7 +519,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.toggleAutorotate = function () {
+	this.toggleAutorotate = function() {
 		clearTimeout(anim_timeout);
 
 		if (!!autorotate_timeout)
@@ -565,7 +535,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var fitToContainer = function () {
+	var fitToContainer = function() {
 		if (container.clientWidth != viewer_size.width || container.clientHeight != viewer_size.height) {
 			resize({
 				width: container.clientWidth,
@@ -580,7 +550,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.fitToContainer = function () {
+	this.fitToContainer = function() {
 		fitToContainer();
 	};
 
@@ -593,7 +563,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var resize = function (size) {
+	var resize = function(size) {
 		viewer_size.width = (size.width !== undefined) ? parseInt(size.width) : viewer_size.width;
 		viewer_size.height = (size.height !== undefined) ? parseInt(size.height) : viewer_size.height;
 		viewer_size.ratio = viewer_size.width / viewer_size.height;
@@ -619,7 +589,7 @@ var SphereViewer = function(args) {
 	 * @return {object} A longitude/latitude couple
 	 **/
 
-	this.getPosition = function () {
+	this.getPosition = function() {
 		return {
 			longitude: long,
 			latitude: lat
@@ -631,7 +601,7 @@ var SphereViewer = function(args) {
 	 * @return {object} A longitude/latitude couple
 	 **/
 
-	this.getPositionInDegrees = function () {
+	this.getPositionInDegrees = function() {
 		return {
 			longitude: long * 180.0 / Math.PI,
 			latitude: lat * 180.0 / Math.PI
@@ -646,7 +616,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var moveTo = function (longitude, latitude) {
+	var moveTo = function(longitude, latitude) {
 		var long_tmp = parseAngle(longitude);
 
 		if (!whole_circle)
@@ -673,7 +643,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.moveTo = function (longitude, latitude) {
+	this.moveTo = function(longitude, latitude) {
 		moveTo(longitude, latitude);
 	};
 
@@ -684,7 +654,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onMouseDown = function (evt) {
+	var onMouseDown = function(evt) {
 		startMove(parseInt(evt.clientX), parseInt(evt.clientY));
 	};
 
@@ -695,7 +665,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onTouchStart = function (evt) {
+	var onTouchStart = function(evt) {
 		// Move
 		if (evt.touches.length == 1) {
 			var touch = evt.touches[0];
@@ -723,7 +693,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var startMove = function (x, y) {
+	var startMove = function(x, y) {
 		mouse_x = x;
 		mouse_y = y;
 
@@ -739,7 +709,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var startTouchZoom = function (d) {
+	var startTouchZoom = function(d) {
 		touchzoom_dist = d;
 
 		touchzoom = true;
@@ -752,7 +722,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onMouseUp = function (evt) {
+	var onMouseUp = function(evt) {
 		mousedown = false;
 		touchzoom = false;
 	};
@@ -764,7 +734,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onMouseMove = function (evt) {
+	var onMouseMove = function(evt) {
 		evt.preventDefault();
 		move(parseInt(evt.clientX), parseInt(evt.clientY));
 	};
@@ -776,7 +746,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onTouchMove = function (evt) {
+	var onTouchMove = function(evt) {
 		// Move
 		if (evt.touches.length == 1 && mousedown) {
 			var touch = evt.touches[0];
@@ -813,7 +783,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var move = function (x, y) {
+	var move = function(x, y) {
 		if (mousedown) {
 			long += (x - mouse_x) * PSV_LONG_OFFSET;
 
@@ -837,7 +807,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var startDeviceOrientation = function () {
+	var startDeviceOrientation = function() {
 		sphoords.start();
 		stopAutorotate();
 
@@ -856,7 +826,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var stopDeviceOrientation = function () {
+	var stopDeviceOrientation = function() {
 		sphoords.stop();
 
 		triggerAction('device-orientation', false);
@@ -868,7 +838,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.toggleDeviceOrientation = function () {
+	this.toggleDeviceOrientation = function() {
 		if (sphoords.isEventAttached())
 			stopDeviceOrientation();
 
@@ -877,15 +847,15 @@ var SphereViewer = function(args) {
 	};
 
 	/**
-	 * The user moved their device.
-	 * @private
-	 * @param {object} coords - The spherical coordinates to look at
-	 * @param {number} coords.longitude - The longitude
-	 * @param {number} coords.latitude - The latitude
-	 * @return {void}
-	 **/
+	* The user moved their device.
+	* @private
+	* @param {object} coords - The spherical coordinates to look at
+	* @param {number} coords.longitude - The longitude
+	* @param {number} coords.latitude - The latitude
+	* @return {void}
+	**/
 
-	var onDeviceOrientation = function (coords) {
+	var onDeviceOrientation = function(coords) {
 		long = stayBetween(coords.longitude, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
 		lat = stayBetween(coords.latitude, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
 
@@ -899,7 +869,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var onMouseWheel = function (evt) {
+	var onMouseWheel = function(evt) {
 		evt.preventDefault();
 		evt.stopPropagation();
 
@@ -918,7 +888,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var zoom = function (level) {
+	var zoom = function(level) {
 		zoom_lvl = stayBetween(parseInt(Math.round(level)), 0, 100);
 
 		camera.fov = PSV_FOV_MAX + (zoom_lvl / 100) * (PSV_FOV_MIN - PSV_FOV_MAX);
@@ -941,7 +911,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.zoom = function (level) {
+	this.zoom = function(level) {
 		zoom(level);
 	};
 
@@ -951,7 +921,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.zoomIn = function () {
+	this.zoomIn = function() {
 		if (zoom_lvl < 100)
 			zoom(zoom_lvl + 1);
 	};
@@ -962,7 +932,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.zoomOut = function () {
+	this.zoomOut = function() {
 		if (zoom_lvl > 0)
 			zoom(zoom_lvl - 1);
 	};
@@ -973,7 +943,7 @@ var SphereViewer = function(args) {
 	 * @return {boolean} `true` if fullscreen is enabled, `false` otherwise
 	 **/
 
-	var isFullscreenEnabled = function () {
+	var isFullscreenEnabled = function() {
 		return (!!document.fullscreenElement || !!document.mozFullScreenElement || !!document.webkitFullscreenElement || !!document.msFullscreenElement);
 	};
 
@@ -983,7 +953,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var fullscreenToggled = function () {
+	var fullscreenToggled = function() {
 		// Fix the (weird and ugly) Chrome and IE behaviors
 		if (!!document.webkitFullscreenElement || !!document.msFullscreenElement) {
 			real_viewer_size.width = container.style.width;
@@ -1015,7 +985,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var enableFullscreen = function () {
+	var enableFullscreen = function() {
 		if (!!container.requestFullscreen)
 			container.requestFullscreen();
 
@@ -1035,7 +1005,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var disableFullscreen = function () {
+	var disableFullscreen = function() {
 		if (!!document.exitFullscreen)
 			document.exitFullscreen();
 
@@ -1055,7 +1025,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.toggleFullscreen = function () {
+	this.toggleFullscreen = function() {
 		// Switches to fullscreen mode
 		if (!isFullscreenEnabled())
 			enableFullscreen();
@@ -1071,7 +1041,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var showNavbar = function () {
+	var showNavbar = function() {
 		if (display_navbar)
 			navbar.show();
 	};
@@ -1083,7 +1053,7 @@ var SphereViewer = function(args) {
 	 * @return {number} The speed in radians
 	 **/
 
-	var parseAnimationSpeed = function (speed) {
+	var parseAnimationSpeed = function(speed) {
 		speed = speed.toString().trim();
 
 		// Speed extraction
@@ -1144,7 +1114,7 @@ var SphereViewer = function(args) {
 	 * @return {number} The angle in radians
 	 **/
 
-	var parseAngle = function (angle) {
+	var parseAngle = function(angle) {
 		angle = angle.toString().trim();
 
 		// Angle extraction
@@ -1166,7 +1136,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var setNewViewerSize = function (size) {
+	var setNewViewerSize = function(size) {
 		// Checks all the values
 		for (dim in size) {
 			// Only width and height matter
@@ -1183,9 +1153,9 @@ var SphereViewer = function(args) {
 
 				// We're good
 				new_viewer_size[dim] = {
-					css: size_value + size_unit,
-					unit: size_unit
-				};
+						css: size_value + size_unit,
+						unit: size_unit
+					};
 			}
 		}
 	};
@@ -1198,7 +1168,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	this.addAction = function (name, f) {
+	this.addAction = function(name, f) {
 		// New action?
 		if (!(name in actions))
 			actions[name] = [];
@@ -1214,7 +1184,7 @@ var SphereViewer = function(args) {
 	 * @return {void}
 	 **/
 
-	var triggerAction = function (name, arg) {
+	var triggerAction = function(name, arg) {
 		// Does the action have any function?
 		if ((name in actions) && !!actions[name].length) {
 			for (var i = 0, l = actions[name].length; i < l; ++i) {
@@ -1228,10 +1198,12 @@ var SphereViewer = function(args) {
 	};
 
 	// Required parameters
-	if (args === undefined || args.data === undefined || args.container === undefined) {
-		console.log('PhotoSphereViewer: no value given for data or container');
+	if (args === undefined || args.data === undefined || args.data.image === undefined || args.data.image.cubemap === undefined || args.container === undefined) {
+		console.log('PhotoSphereViewer: no value given for data, data.image.cubemap or container');
 		return;
 	}
+
+	var data = args.data;
 
 	// Movement speed
 	var PSV_LONG_OFFSET = (args.long_offset !== undefined) ? parseFloat(args.long_offset) : Math.PI / 360.0;
@@ -1354,8 +1326,7 @@ var SphereViewer = function(args) {
 		setNewViewerSize(args.size);
 
 	// Some useful attributes
-	var panorama = args.data.image.highres;
-	var pano_size = args.data.size;
+	var panorama = args.panorama;
 	var root, canvas_container;
 	var renderer = null, scene = null, camera = null, stereo_effect = null;
 	var mousedown = false, mouse_x = 0, mouse_y = 0;
@@ -1365,6 +1336,15 @@ var SphereViewer = function(args) {
 	var sphoords = new Sphoords();
 
 	var actions = {};
+
+	// Loading message
+	var loading_msg = (args.loading_msg !== undefined) ? args.loading_msg.toString() : 'Loading…';
+
+	// Loading image
+	var loading_img = (args.loading_img !== undefined) ? args.loading_img.toString() : null;
+
+	// Loading HTML
+	var loading_html = (args.loading_html !== undefined) ? args.loading_html : null;
 
 	// Function to call once panorama is ready?
 	if (args.onready !== undefined)

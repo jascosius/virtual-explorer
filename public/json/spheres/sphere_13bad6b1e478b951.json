@@ -1,15 +1,8 @@
 {
   "id": "13bad6b1e478b951",
   "image": {
-    "highres": "/images/spheres/13bad6b1e478b951.jpg"
-  },
-  "size": {
-    "full_width": 4608,
-    "full_height": 2304,
-    "cropped_width": 4608,
-    "cropped_height": 2304,
-    "cropped_x": 0,
-    "cropped_y": 0
+    "mercator": "/images/spheres/13bad6b1e478b951.jpg",
+    "cubemap": "/images/spheres/13bad6b1e478b951"
   },
   "name": "sphere.13bad6b1e478b951.name",
   "latitude": "54.337858",

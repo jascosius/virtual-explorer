@@ -7,9 +7,10 @@ var createSphere = function(id,data) {
 
     var div = document.getElementById(id);
 
-    var PSV = new SphereViewer({
+    var PSV = new CubemapViewer({
         data: data,
         container: div,
+        navbar: true,
     });
 
 }
