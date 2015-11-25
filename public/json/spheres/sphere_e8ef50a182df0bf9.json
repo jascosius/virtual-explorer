@@ -1,7 +1,8 @@
 {
   "id": "e8ef50a182df0bf9",
   "image": {
-    "highres": "/images/spheres/e8ef50a182df0bf9.jpg"
+    "mercator": "/images/spheres/e8ef50a182df0bf9.jpg",
+    "cubemap": "/images/spheres/e8ef50a182df0bf9"
   },
   "name": "sphere.e8ef50a182df0bf9.name",
   "latitude": "54.338856",

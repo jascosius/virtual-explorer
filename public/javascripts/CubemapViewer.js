@@ -27,18 +27,10 @@
  * Represents a panorama viewer.
  * @class
  * @param {object} args - Settings to apply to the viewer
- * @param {string} args.panorama - Panorama URL or path (absolute or relative)
+ * @param {object} args.data - Data with Panorama Details
+ * @param {object} args.image.cubemap - Path to Panorama Cubemap images
  * @param {HTMLElement} args.container - Panorama container (should be a `div` or equivalent)
  * @param {boolean} [args.autoload=true] - `true` to automatically load the panorama, `false` to load it later (with the {@link PhotoSphereViewer#load|`.load`} method)
- * @param {boolean} [args.usexmpdata=true] - `true` if Photo Sphere Viewer must read XMP data, `false` if it is not necessary
- * @param {object} [args.pano_size=null] - The panorama size, if cropped (unnecessary if XMP data can be read)
- * @param {number} [args.pano_size.full_width=null] - The full panorama width, before crop (the image width if `null`)
- * @param {number} [args.pano_size.full_height=null] - The full panorama height, before crop (the image height if `null`)
- * @param {number} [args.pano_size.cropped_width=null] - The cropped panorama width (the image width if `null`)
- * @param {number} [args.pano_size.cropped_height=null] - The cropped panorama height (the image height if `null`)
- * @param {number} [args.pano_size.cropped_x=null] - The cropped panorama horizontal offset relative to the full width (middle if `null`)
- * @param {number} [args.pano_size.cropped_y=null] - The cropped panorama vertical offset relative to the full height (middle if `null`)
- * @param {object} [args.default_position] - Defines the default position (the first point seen by the user)
  * @param {number|string} [args.default_position.long=0] - Default longitude, in radians (or in degrees if indicated, e.g. `'45deg'`)
  * @param {number|string} [args.default_position.lat=0] - Default latitude, in radians (or in degrees if indicated, e.g. `'45deg'`)
  * @param {number} [args.min_fov=30] - The minimal field of view, in degrees, between 1 and 179
@@ -78,7 +70,7 @@
  * @param {PhotoSphereViewer~onReady} [args.onready] - Function called once the panorama is ready and the first image is displayed
  **/
 
-var PhotoSphereViewer = function(args) {
+var CubemapViewer = function(args) {
 	/**
 	 * Detects whether canvas is supported.
 	 * @private
@@ -214,176 +206,7 @@ var PhotoSphereViewer = function(args) {
 			ratio: 0
 		};
 
-		// XMP data?
-		if (readxmp && !panorama.match(/^data:image\/[a-z]+;base64/))
-			loadXMP();
-
-		else
-			createBuffer();
-	};
-
-	/**
-	 * Returns the value of a given attribute in the panorama metadata.
-	 * @private
-	 * @param {string} data - The panorama metadata
-	 * @param {string} attr - The wanted attribute
-	 * @return {string} The value of the attribute
-	 **/
-
-	var getAttribute = function(data, attr) {
-		var a = data.indexOf('GPano:' + attr) + attr.length + 8, b = data.indexOf('"', a);
-		return data.substring(a, b);
-	};
-
-	/**
-	 * Loads the XMP data with AJAX.
-	 * @private
-	 * @return {void}
-	 **/
-
-	var loadXMP = function() {
-		var xhr = null;
-
-		if (window.XMLHttpRequest)
-			xhr = new XMLHttpRequest();
-
-		else if (window.ActiveXObject) {
-			try {
-				xhr = new ActiveXObject('Msxml2.XMLHTTP');
-			}
-			catch (e) {
-				xhr = new ActiveXObject('Microsoft.XMLHTTP');
-			}
-		}
-
-		else {
-			container.textContent = 'XHR is not supported, update your browser!';
-			return;
-		}
-
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && xhr.status == 200) {
-				// Metadata
-				var binary = xhr.responseText;
-				var a = binary.indexOf('<x:xmpmeta'), b = binary.indexOf('</x:xmpmeta>');
-				var data = binary.substring(a, b);
-
-				// No data retrieved
-				if (a == -1 || b == -1 || data.indexOf('GPano:') == -1) {
-					createBuffer(false);
-					return;
-				}
-
-				// Useful values
-				pano_size = {
-					full_width: parseInt(getAttribute(data, 'FullPanoWidthPixels')),
-					full_height: parseInt(getAttribute(data, 'FullPanoHeightPixels')),
-					cropped_width: parseInt(getAttribute(data, 'CroppedAreaImageWidthPixels')),
-					cropped_height: parseInt(getAttribute(data, 'CroppedAreaImageHeightPixels')),
-					cropped_x: parseInt(getAttribute(data, 'CroppedAreaLeftPixels')),
-					cropped_y: parseInt(getAttribute(data, 'CroppedAreaTopPixels')),
-				};
-
-				createBuffer();
-			}
-		};
-
-		xhr.open('GET', panorama, true);
-		xhr.send(null);
-	};
-
-	/**
-	 * Creates an image in the right dimensions.
-	 * @private
-	 * @return {void}
-	 **/
-
-	var createBuffer = function() {
-		var img = new Image();
-
-		img.onload = function() {
-			// Must the pano size be changed?
-			var default_pano_size = {
-				full_width: img.width,
-				full_height: img.height,
-				cropped_width: img.width,
-				cropped_height: img.height,
-				cropped_x: null,
-				cropped_y: null,
-			};
-
-			for (attr in pano_size) {
-				if (pano_size[attr] == null && default_pano_size[attr] !== undefined)
-					pano_size[attr] = default_pano_size[attr];
-			}
-
-			// Middle if cropped_x/y is null
-			if (pano_size.cropped_x == null)
-				pano_size.cropped_x = (pano_size.full_width - pano_size.cropped_width) / 2;
-
-			if (pano_size.cropped_y == null)
-				pano_size.cropped_y = (pano_size.full_height - pano_size.cropped_height) / 2;
-			
-			// Size limit for mobile compatibility
-			var max_width = 2048;
-			if (isWebGLSupported()) {
-				var canvas = document.createElement('canvas');
-				var ctx = canvas.getContext('webgl');
-				max_width = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
-			}
-
-			// Buffer width (not too big)
-			var new_width = Math.min(pano_size.full_width, max_width);
-			var r = new_width / pano_size.full_width;
-
-			pano_size.full_width = new_width;
-			pano_size.cropped_width *= r;
-			pano_size.cropped_x *= r;
-			img.width = pano_size.cropped_width;
-
-			// Buffer height (proportional to the width)
-			pano_size.full_height *= r;
-			pano_size.cropped_height *= r;
-			pano_size.cropped_y *= r;
-			img.height = pano_size.cropped_height;
-
-			// Buffer creation
-			var buffer = document.createElement('canvas');
-			buffer.width = pano_size.full_width;
-			buffer.height = pano_size.full_height;
-
-			var ctx = buffer.getContext('2d');
-			ctx.drawImage(img, pano_size.cropped_x, pano_size.cropped_y, pano_size.cropped_width, pano_size.cropped_height);
-
-			loadTexture(buffer.toDataURL('image/jpeg'));
-		};
-
-		// CORS when the panorama is not given as a base64 string
-		if (!panorama.match(/^data:image\/[a-z]+;base64/))
-			img.setAttribute('crossOrigin', 'anonymous');
-
-		img.src = panorama;
-	};
-
-	/**
-	 * Loads the sphere texture.
-	 * @private
-	 * @param {string} path - Path to the panorama
-	 * @return {void}
-	 **/
-
-	var loadTexture = function(path) {
-		var texture = new THREE.Texture();
-		var loader = new THREE.ImageLoader();
-
-		var onLoad = function(img) {
-			texture.needsUpdate = true;
-			texture.image = img;
-
-			createScene(texture);
-		}
-
-		loader.load(path, onLoad);
+		createScene();
 	};
 
 	/**
@@ -414,10 +237,60 @@ var PhotoSphereViewer = function(args) {
 		scene.add(camera);
 
 		// Sphere
-		var geometry = new THREE.SphereGeometry(200, 32, 32);
-		var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
-		var mesh = new THREE.Mesh(geometry, material);
+		//var geometry = new THREE.SphereGeometry(200, 32, 32);
+		//var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
+		//var mesh = new THREE.Mesh(geometry, material);
+		//mesh.scale.x = -1;
+		//scene.add(mesh);
+
+
+		//Sevaral Tiles for every side
+/*		var geometry = new THREE.BoxGeometry(200, 200, 200, 8, 8, 8);
+
+		var l = geometry.faces.length / 2;
+		for( var i = 0; i < l; i ++ ) {
+			var j = 2 * i;
+			geometry.faces[ j ].materialIndex = i;
+			geometry.faces[ j + 1 ].materialIndex = i;
+		}
+
+		var materials = [];
+		var path = "/images/spheres/13bad6b1e478b951"
+		var directions = ["nx", "px", "ny", "py", "nz", "pz"];
+		for (var direction in directions){
+			for (var i = 0 ; i < 8; i++){
+				for (var j = 0; j < 8; j++){
+					var texture=THREE.ImageUtils.loadTexture('/images/spheres/13bad6b1e478b951/'+directions[direction]+"/"+i+"."+j+".jpg", {}, function() {
+						//render();
+					});
+					materials[direction*64+i*8+j]=new THREE.MeshBasicMaterial( {side:THREE.BackSide, map: texture, overdraw: true} );
+				}
+			}
+		}
+
+		//for ( var i = 0; i < geometry.faces.length; i ++ ) {
+		//	if (i === 4*64) {
+		//		geometry.faces[i].color.setHex(0xff0000);
+		//	} else {
+		//		geometry.faces[i].color.setHex(Math.random()/4 * 0xffffff);
+		//	}
+		//}
+		//var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side:THREE.BackSide, vertexColors: THREE.FaceColors} );
+		var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );*/
+
+
+		var directions = ["px", "nx", "py", "ny", "nz", "pz"];
+		var materials = [];
+		for (var direction in directions) {
+			var texture=THREE.ImageUtils.loadTexture(data.image.cubemap+'/'+directions[direction]+'/0.0.jpg',{},function() {
+				render();
+			});
+			materials.push(new THREE.MeshBasicMaterial({map: texture, overdraw: true}));
+		}
+		var geometry = new THREE.BoxGeometry(200,200,200);
+		var mesh = new THREE.Mesh(geometry,  new THREE.MeshFaceMaterial( materials ));
 		mesh.scale.x = -1;
+		mesh.position.set(0, 0, 0);
 		scene.add(mesh);
 
 		// Canvas container
@@ -1325,10 +1198,12 @@ var PhotoSphereViewer = function(args) {
 	};
 
 	// Required parameters
-	if (args === undefined || args.panorama === undefined || args.container === undefined) {
-		console.log('PhotoSphereViewer: no value given for panorama or container');
+	if (args === undefined || args.data === undefined || args.data.image === undefined || args.data.image.cubemap === undefined || args.container === undefined) {
+		console.log('PhotoSphereViewer: no value given for data, data.image.cubemap or container');
 		return;
 	}
+
+	var data = args.data;
 
 	// Movement speed
 	var PSV_LONG_OFFSET = (args.long_offset !== undefined) ? parseFloat(args.long_offset) : Math.PI / 360.0;
@@ -1461,28 +1336,6 @@ var PhotoSphereViewer = function(args) {
 	var sphoords = new Sphoords();
 
 	var actions = {};
-
-	// Must we read XMP data?
-	var readxmp = (args.usexmpdata !== undefined) ? !!args.usexmpdata : true;
-
-	// Cropped size?
-	var pano_size = {
-		full_width: null,
-		full_height: null,
-		cropped_width: null,
-		cropped_height: null,
-		cropped_x: null,
-		cropped_y: null
-	};
-
-	if (args.pano_size !== undefined) {
-		for (attr in pano_size) {
-			if (args.pano_size[attr] !== undefined)
-				pano_size[attr] = parseInt(args.pano_size[attr]);
-		}
-
-		readxmp = false;
-	}
 
 	// Loading message
 	var loading_msg = (args.loading_msg !== undefined) ? args.loading_msg.toString() : 'Loading…';
