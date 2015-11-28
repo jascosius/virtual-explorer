@@ -281,9 +281,19 @@ var CubemapViewer = function(args) {
 
 		var directions = ["px", "nx", "py", "ny", "nz", "pz"];
 		var materials = [];
+		var count=directions.length;
 		for (var direction in directions) {
 			var texture=THREE.ImageUtils.loadTexture(data.image.cubemap+'/'+directions[direction]+'/0.0.jpg',{},function() {
-				render();
+				count--;
+				if(count == 0){
+					/**
+					 * Indicates that the loading is finished: the first image is rendered
+					 * @callback PhotoSphereViewer~onReady
+					 **/
+
+					triggerAction('ready');
+					render();
+				}
 			});
 			materials.push(new THREE.MeshBasicMaterial({map: texture, overdraw: true}));
 		}
@@ -346,13 +356,6 @@ var CubemapViewer = function(args) {
 
 		// Animation?
 		anim();
-
-		/**
-		 * Indicates that the loading is finished: the first image is rendered
-		 * @callback PhotoSphereViewer~onReady
-		 **/
-
-		triggerAction('ready');
 	};
 
 	/**

@@ -1,10 +1,16 @@
 {
   "sphere": {
     "13bad6b1e478b951": {
-      "name": "MathSem"
+      "name": "Vor dem FS-Raum"
     },
     "e8ef50a182df0bf9": {
       "name": "Büro"
+    },
+    "cc67c031b7dd4e8a": {
+      "name": "Hinter dem MathSem"
+    },
+    "d875d5d81bbbc835": {
+      "name": "Hinterausgang MathSem"
     }
   }
 }
