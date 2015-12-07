@@ -151,13 +151,12 @@ var CubemapViewer = function(args) {
 		return (is_2pi_allowed && angle == 2 * Math.PI) ? 2 * Math.PI :  angle - Math.floor(angle / (2.0 * Math.PI)) * 2.0 * Math.PI;
 	};
 
-	var getCartesian = function(radius, theta, phi) {
-		var z = radius * Math.sin(theta) * Math.cos(phi);
-		var x = radius * Math.sin(theta) * Math.sin(phi);
-		var y = radius * Math.cos(theta);
+	var getCartesian = function(radius, lat, long) {
+		var x = radius * Math.cos(lat) * Math.sin(long);
+		var y = radius * Math.sin(lat);
+		var z = radius * Math.cos(lat) * Math.cos(long);
 		return new THREE.Vector3(x,y,z);
 	};
-
 
 	/**
 	 * Starts to load the panorama.
@@ -316,16 +315,40 @@ var CubemapViewer = function(args) {
 		for (var key in data.arrows) {
 			var arrow = data.arrows[key];
 
-			var planeGeometry = new THREE.PlaneGeometry( 20, 20);
-			var planeTexture = THREE.ImageUtils.loadTexture('/images/objects/arrow.jpg');
-			var planeMaterial = new THREE.MeshBasicMaterial( {map: planeTexture, side: THREE.DoubleSide} );
+			var size = 30;
+			if (arrow.size !== undefined)
+				size = math.eval(arrow.size);
+			var arrow_texture = '/images/objects/arrow.png';
+			if (arrow.texture !== undefined)
+				texture = arrow.texture;
+			var radius = 90;
+			if (arrow.radius !== undefined)
+				radius = math.eval(arrow.radius);
+			var lat = -Math.PI/8;
+			if (arrow.lat !== undefined)
+				lat = math.eval(arrow.lat);
+			var long = math.eval(arrow.long);
+			var rotationX = Math.PI / 2;
+			if (arrow.rotationX !== undefined)
+				rotationX = rotationX - math.eval(arrow.rotationX);
+			var rotationY = 0;
+			if (arrow.rotationY !== undefined)
+				rotationY = - math.eval(arrow.rotationY);
+			var rotationZ = -long;
+			if (arrow.rotationZ !== undefined)
+				rotationZ = -rotationZ - math.eval(arrow.rotationZ);
+
+			var planeGeometry = new THREE.PlaneGeometry( size, size);
+			var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture);
+			var planeMaterial = new THREE.MeshBasicMaterial( {map: planeTexture, side: THREE.DoubleSide, transparent: true} );
 			var plane = new THREE.Mesh( planeGeometry, planeMaterial );
-			var rotation = math.eval(arrow.phi);
-			var vector = getCartesian(90,Math.PI*5/8,rotation);
+			var vector = getCartesian(radius,lat,long);
 			plane.position.add(vector);
-			plane.rotation.x = Math.PI / 2;
-			plane.rotation.z = -rotation;
+			plane.rotation.x = rotationX;
+			plane.rotation.y = rotationY;
+			plane.rotation.z = rotationZ;
 			plane.metadata = arrow;
+
 			scene.add( plane );
 			clickable_objects.push(plane);
 		}
@@ -393,10 +416,7 @@ var CubemapViewer = function(args) {
 	**/
 
 	var render = function() {
-		var point = new THREE.Vector3();
-		point.setX(Math.cos(lat) * Math.sin(long));
-		point.setY(Math.sin(lat));
-		point.setZ(Math.cos(lat) * Math.cos(long));
+		var point = getCartesian(1,lat,long);
 
 		camera.lookAt(point);
 
