@@ -8,5 +8,8 @@
   "latitude": "54.337858",
   "longitude": "10.120956",
   "north": "123px",
+  "arrows": {
+    "18ab9d9e4945ed33": {"phi": "2*PI*1/60", "next_sphere": "cc67c031b7dd4e8a"}
+  },
   "objects": {}
 }

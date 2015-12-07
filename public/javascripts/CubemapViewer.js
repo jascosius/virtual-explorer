@@ -151,6 +151,14 @@ var CubemapViewer = function(args) {
 		return (is_2pi_allowed && angle == 2 * Math.PI) ? 2 * Math.PI :  angle - Math.floor(angle / (2.0 * Math.PI)) * 2.0 * Math.PI;
 	};
 
+	var getCartesian = function(radius, theta, phi) {
+		var z = radius * Math.sin(theta) * Math.cos(phi);
+		var x = radius * Math.sin(theta) * Math.sin(phi);
+		var y = radius * Math.cos(theta);
+		return new THREE.Vector3(x,y,z);
+	};
+
+
 	/**
 	 * Starts to load the panorama.
 	 * @public
@@ -279,7 +287,8 @@ var CubemapViewer = function(args) {
 		var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );*/
 
 
-		var directions = ["px", "nx", "py", "ny", "nz", "pz"];
+		//var directions = ["px", "nx", "py", "ny", "nz", "pz"];
+		var directions = ["nx", "px", "py", "ny", "pz", "nz"];
 		var materials = [];
 		var count=directions.length;
 		for (var direction in directions) {
@@ -302,6 +311,25 @@ var CubemapViewer = function(args) {
 		mesh.scale.x = -1;
 		mesh.position.set(0, 0, 0);
 		scene.add(mesh);
+
+
+		for (var key in data.arrows) {
+			var arrow = data.arrows[key];
+
+			var planeGeometry = new THREE.PlaneGeometry( 20, 20);
+			var planeTexture = THREE.ImageUtils.loadTexture('/images/objects/arrow.jpg');
+			var planeMaterial = new THREE.MeshBasicMaterial( {map: planeTexture, side: THREE.DoubleSide} );
+			var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+			var rotation = math.eval(arrow.phi);
+			var vector = getCartesian(90,Math.PI*5/8,rotation);
+			plane.position.add(vector);
+			plane.rotation.x = Math.PI / 2;
+			plane.rotation.z = -rotation;
+			plane.metadata = arrow;
+			scene.add( plane );
+			clickable_objects.push(plane);
+		}
+
 
 		// Canvas container
 		canvas_container = document.createElement('div');
@@ -658,6 +686,21 @@ var CubemapViewer = function(args) {
 	 **/
 
 	var onMouseDown = function(evt) {
+
+		mouse.x = ( evt.clientX / viewer_size.width ) * 2 - 1;
+		mouse.y = - ( evt.clientY / viewer_size.height ) * 2 + 1;
+
+		raycaster.setFromCamera( mouse, camera );
+
+		var intersects = raycaster.intersectObjects( clickable_objects );
+
+		console.log(intersects);
+
+		if ( intersects.length > 0 ) {
+			intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+		}
+
+
 		startMove(parseInt(evt.clientX), parseInt(evt.clientY));
 	};
 
@@ -1335,6 +1378,15 @@ var CubemapViewer = function(args) {
 	var mousedown = false, mouse_x = 0, mouse_y = 0;
 	var touchzoom = false, touchzoom_dist = 0;
 	var autorotate_timeout = null, anim_timeout = null;
+
+	var raycaster;
+	var mouse;
+
+	//TODO: move
+	raycaster = new THREE.Raycaster();
+	mouse = new THREE.Vector2();
+
+	var clickable_objects = [];
 
 	var sphoords = new Sphoords();
 
