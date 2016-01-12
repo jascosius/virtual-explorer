@@ -249,9 +249,9 @@ var CubemapViewer = function (args) {
             clickable_objects.push(arrows[arrow_index])
         }
 
-        scene.add(buildGrid(2*Math.PI*1/12));
-        scene.add(createGridLabel(data.id,1000-10,-Math.PI/2,0,"#000000",true));
-        scene.add(createGridLabel(data.id,1000-10,Math.PI/2,0,"#000000",true));
+        scene.add(buildGrid());
+        scene.add(createGridLabel(data.id,1000-100,-Math.PI/2,0,"#000000",true));
+        scene.add(createGridLabel(data.id,1000-100,Math.PI/2,0,"#000000",true));
 
         var cube = createCube(data.id,data.image);
         scene.add(cube);
@@ -425,8 +425,8 @@ var CubemapViewer = function (args) {
                 }
             }
 
-            scene.add(createGridLabel(data.id,1000-10,-Math.PI/2,0,"#000000",true));
-            scene.add(createGridLabel(data.id,1000-10,Math.PI/2,0,"#000000",true));
+            scene.add(createGridLabel(data.id,1000-100,-Math.PI/2,0,"#000000",true));
+            scene.add(createGridLabel(data.id,1000-100,Math.PI/2,0,"#000000",true));
 
             var new_long = long;
             if (clickdata.next_camera_long !== undefined) {
@@ -440,52 +440,62 @@ var CubemapViewer = function (args) {
         });
     };
 
-    var buildGrid = function( step ) {
+    var buildGrid = function( ) {
+        var parts = 36; //Should be divisible by 4
+        var labelrate = 3; //Show label every "labelrate" line (Should be a divisor of parts)
         var distance = 1000;
-        var offset = 0.1;
+
+        var step = 2*Math.PI*1/parts;
         var dashed;
         var point1, point2;
+        var degreej,degreei;
         var j,i;
         var grid = new THREE.Object3D();
         var label;
 
         //latitude marker
-        for(j=0;j<Math.PI/2-offset; j+=step) {
-
-            label=Math.round((j/(Math.PI/2))*90) + '/90*π/2';
-            scene.add(createGridLabel(label,distance-10,j,0,"#FF0000",false));
-            scene.add(createGridLabel(label,distance-10,j,Math.PI,"#FF0000",false));
-            if(j!==0) {
-                scene.add(createGridLabel('-'+label,distance-10,-j,0,"#FF0000",false));
-                scene.add(createGridLabel('-'+label,distance-10,-j,Math.PI,"#FF0000",false));
+        for(j=0;j<parts/4;j++){//for(j=0;j<Math.PI/2-offset; j+=step) {
+            degreej=j*step;
+            dashed=true;
+            if(j%labelrate === 0) {
+                dashed=false;
+                label = Math.ceil((degreej / (Math.PI / 2)) * 90) + '/90*π/2';
+                scene.add(createGridLabel(label,distance-10,degreej,0,"#FF0000",false));
+                scene.add(createGridLabel(label,distance-10,degreej,Math.PI,"#FF0000",false));
+                if(j!==0) {
+                    scene.add(createGridLabel('-'+label,distance-10,-degreej,0,"#FF0000",false));
+                    scene.add(createGridLabel('-'+label,distance-10,-degreej,Math.PI,"#FF0000",false));
+                }
             }
-
-            dashed = j!==0;
-            for (i = 0; i < 2 * Math.PI-offset; i += step) {
-                point1 = getCartesian(distance, j, i);
-                point2 = getCartesian(distance, j, i + step);
+            for(i=0;i<parts;i++){//for (i = 0; i < 2 * Math.PI-offset; i += step) {
+                degreei=i*step;
+                point1 = getCartesian(distance, degreej, degreei);
+                point2 = getCartesian(distance, degreej, degreei + step);
                 grid.add(buildGridLine(point1, point2, 0xFF0000, dashed));
                 if(j!==0) {
-                    point1 = getCartesian(distance, -j, i);
-                    point2 = getCartesian(distance, -j, i + step);
+                    point1 = getCartesian(distance, -degreej, degreei);
+                    point2 = getCartesian(distance, -degreej, degreei + step);
                     grid.add(buildGridLine(point1, point2, 0xFF0000, dashed));
                 }
             }
         }
 
         //longitude marker
-        for(j=0; j<2*Math.PI-offset; j+=step) {
-
-            label=Math.floor((j/(2*Math.PI))*360+offset)  + '/360*2π';
-            scene.add(createGridLabel(label,distance-10,step/2,j,"#00FF00",false));
-
-            dashed = j!==0;
-            for (i = step; i < Math.PI/2-offset; i += step) {
-                point1 = getCartesian(distance, i, j);
-                point2 = getCartesian(distance, i - step, j);
+        for(j=0;j<parts;j++){//for(j=0; j<2*Math.PI-offset; j+=step) {
+            degreej=j*step;
+            dashed=true;
+            if(j%labelrate === 0) {
+                dashed = false;
+                label = Math.ceil((degreej / (2 * Math.PI)) * 360) + '/360*2π';
+                scene.add(createGridLabel(label, distance - 10, -labelrate*step/2, degreej, "#00FF00", false));
+            }
+            for(i=1;i<parts/4;i++){//for (i = step; i < Math.PI/2-offset; i += step) {
+                degreei=i*step;
+                point1 = getCartesian(distance, degreei, degreej);
+                point2 = getCartesian(distance, degreei - step, degreej);
                 grid.add(buildGridLine(point1, point2, 0x00FF00, dashed));
-                point1 = getCartesian(distance, -i, j);
-                point2 = getCartesian(distance, -i + step, j);
+                point1 = getCartesian(distance, -degreei, degreej);
+                point2 = getCartesian(distance, -degreei + step, degreej);
                 grid.add(buildGridLine(point1, point2, 0x00FF00, dashed));
             }
         }
