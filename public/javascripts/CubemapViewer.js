@@ -251,6 +251,7 @@ var CubemapViewer = function (args) {
 
         scene.add(buildGrid(2*Math.PI*1/12));
         scene.add(createGridLabel(data.id,1000-10,-Math.PI/2,0,"#000000",true));
+        scene.add(createGridLabel(data.id,1000-10,Math.PI/2,0,"#000000",true));
 
         var cube = createCube(data.id,data.image);
         scene.add(cube);
@@ -425,6 +426,7 @@ var CubemapViewer = function (args) {
             }
 
             scene.add(createGridLabel(data.id,1000-10,-Math.PI/2,0,"#000000",true));
+            scene.add(createGridLabel(data.id,1000-10,Math.PI/2,0,"#000000",true));
 
             var new_long = long;
             if (clickdata.next_camera_long !== undefined) {
@@ -450,7 +452,7 @@ var CubemapViewer = function (args) {
         //latitude marker
         for(j=0;j<Math.PI/2-offset; j+=step) {
 
-            label=Math.round((j/(Math.PI/2))*90) + '/90*π';
+            label=Math.round((j/(Math.PI/2))*90) + '/90*π/2';
             scene.add(createGridLabel(label,distance-10,j,0,"#FF0000",false));
             scene.add(createGridLabel(label,distance-10,j,Math.PI,"#FF0000",false));
             if(j!==0) {
