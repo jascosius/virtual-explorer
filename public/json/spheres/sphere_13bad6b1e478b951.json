@@ -9,7 +9,7 @@
   "longitude": "10.120956",
   "north": "123px",
   "arrows": {
-    "18ab9d9e4945ed33": {"long": "2*PI*23/60", "next_sphere": "cc67c031b7dd4e8a"}
+    "3ace2dd1a9d872a0": {"long": "2*PI*138/360", "next_sphere": "d875d5d81bbbc835", "next_camera_long": "2*PI*0/360"}
   },
   "objects": {}
 }

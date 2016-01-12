@@ -6,5 +6,8 @@
   },
   "name": "sphere.cc67c031b7dd4e8a.name",
   "latitude": "54.337625",
-  "longitude": "10.121006"
+  "longitude": "10.121006",
+  "arrows": {
+    "43dbf648a005f68e": {"long": "2*PI*190/360", "next_sphere": "d875d5d81bbbc835", "next_camera_long": "2*PI*180/360"}
+  }
 }
