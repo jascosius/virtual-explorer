@@ -401,6 +401,12 @@ var CubemapViewer = function (args) {
         $.getJSON( "/json/spheres/sphere_"+clickData.next_sphere+".json", function (newData) {
             data = newData;
 
+            var url = location.pathname;
+            var expectedUrl = "/sphere/" + data.id;
+            if (url !== expectedUrl) {
+                history.pushState({}, "Sphere", "/sphere/" + data.id);
+            }
+
             clickable_objects = [];
             var cube = createCube(data.id, data.image);
             scene.add(cube);
