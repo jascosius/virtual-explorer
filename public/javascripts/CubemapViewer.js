@@ -219,11 +219,10 @@ var CubemapViewer = function (args) {
     /**
      * Creates the 3D scene.
      * @private
-     * @param {THREE.Texture} texture - The sphere texture
      * @return {void}
      **/
 
-    var createScene = function (texture) {
+    var createScene = function () {
         // New size?
         if (new_viewer_size.width !== undefined)
             container.style.width = new_viewer_size.width.css;
@@ -248,10 +247,6 @@ var CubemapViewer = function (args) {
             scene.add(arrows[arrow_index]);
             clickable_objects.push(arrows[arrow_index])
         }
-
-        scene.add(buildGrid());
-        scene.add(createGridLabel(data.id,1000-100,-Math.PI/2,0,"#000000",true));
-        scene.add(createGridLabel(data.id,1000-100,Math.PI/2,0,"#000000",true));
 
         var cube = createCube(data.id,data.image);
         scene.add(cube);
@@ -402,14 +397,14 @@ var CubemapViewer = function (args) {
 
     };
 
-    var loadNewSphere = function(clickdata) {
-        var id = clickdata.next_sphere;
-        $.getJSON( "/json/spheres/sphere_"+id+".json", function (data) {
+    var loadNewSphere = function(clickData) {
+        $.getJSON( "/json/spheres/sphere_"+clickData.next_sphere+".json", function (newData) {
+            data = newData;
 
             clickable_objects = [];
-            var cube = createCube(id, data.image);
+            var cube = createCube(data.id, data.image);
             scene.add(cube);
-            var arrows = createArrows(id,data.arrows);
+            var arrows = createArrows(data.id,data.arrows);
             for (var arrow_index in arrows) {
                 scene.add(arrows[arrow_index]);
                 clickable_objects.push(arrows[arrow_index]);
@@ -418,29 +413,41 @@ var CubemapViewer = function (args) {
             for (var i=0; i<scene.children.length; ) {
                 var object = scene.children[i];
                 var belongsTo = object.userData.belongsTo;
-                if (belongsTo !== undefined && belongsTo !== null && belongsTo !== id ) {
+                if (belongsTo !== undefined && belongsTo !== null && belongsTo !== data.id ) {
                     scene.remove(object);
                 } else {
                     i++;
                 }
             }
 
-            scene.add(createGridLabel(data.id,1000-100,-Math.PI/2,0,"#000000",true));
-            scene.add(createGridLabel(data.id,1000-100,Math.PI/2,0,"#000000",true));
+            if(grid) {
+                addIdLabel();
+            }
 
             var new_long = long;
-            if (clickdata.next_camera_long !== undefined) {
-                new_long = math.eval(clickdata.next_camera_long);
+            if (clickData.next_camera_long !== undefined) {
+                new_long = math.eval(clickData.next_camera_long);
             }
             var new_lat = lat;
-            if (clickdata.next_camera_lat !== undefined) {
-                new_lat = math.eval(clickdata.next_camera_lat);
+            if (clickData.next_camera_lat !== undefined) {
+                new_lat = math.eval(clickData.next_camera_lat);
             }
             moveTo(new_long,new_lat);
         });
     };
 
-    var buildGrid = function( ) {
+    this.showGrid = function(bool) {
+        if(bool && !grid) {
+            grid = true;
+            addGrid();
+        } else if(!bool && grid){
+            grid = false;
+            removeGrid();
+        }
+        render();
+    };
+
+    var addGrid = function( ) {
         var parts = 36; //Should be divisible by 4
         var labelrate = 3; //Show label every "labelrate" line (Should be a divisor of parts)
         var distance = 1000;
@@ -451,7 +458,8 @@ var CubemapViewer = function (args) {
         var degreej,degreei;
         var j,i;
         var grid = new THREE.Object3D();
-        var label;
+        var label = new THREE.Object3D();
+        var text;
 
         //latitude marker
         for(j=0;j<parts/4;j++){//for(j=0;j<Math.PI/2-offset; j+=step) {
@@ -459,12 +467,12 @@ var CubemapViewer = function (args) {
             dashed=true;
             if(j%labelrate === 0) {
                 dashed=false;
-                label = Math.ceil((degreej / (Math.PI / 2)) * 90) + '/90*π/2';
-                scene.add(createGridLabel(label,distance-10,degreej,0,"#FF0000",false));
-                scene.add(createGridLabel(label,distance-10,degreej,Math.PI,"#FF0000",false));
+                text = Math.ceil((degreej / (Math.PI / 2)) * 90) + '/90*π/2';
+                label.add(createGridLabel(text,distance-10,degreej,0,"#FF0000",false));
+                label.add(createGridLabel(text,distance-10,degreej,Math.PI,"#FF0000",false));
                 if(j!==0) {
-                    scene.add(createGridLabel('-'+label,distance-10,-degreej,0,"#FF0000",false));
-                    scene.add(createGridLabel('-'+label,distance-10,-degreej,Math.PI,"#FF0000",false));
+                    label.add(createGridLabel('-'+text,distance-10,-degreej,0,"#FF0000",false));
+                    label.add(createGridLabel('-'+text,distance-10,-degreej,Math.PI,"#FF0000",false));
                 }
             }
             for(i=0;i<parts;i++){//for (i = 0; i < 2 * Math.PI-offset; i += step) {
@@ -486,8 +494,8 @@ var CubemapViewer = function (args) {
             dashed=true;
             if(j%labelrate === 0) {
                 dashed = false;
-                label = Math.ceil((degreej / (2 * Math.PI)) * 360) + '/360*2π';
-                scene.add(createGridLabel(label, distance - 10, -labelrate*step/2, degreej, "#00FF00", false));
+                text = Math.ceil((degreej / (2 * Math.PI)) * 360) + '/360*2π';
+                label.add(createGridLabel(text, distance - 10, -labelrate*step/2, degreej, "#00FF00", false));
             }
             for(i=1;i<parts/4;i++){//for (i = step; i < Math.PI/2-offset; i += step) {
                 degreei=i*step;
@@ -500,7 +508,13 @@ var CubemapViewer = function (args) {
             }
         }
 
-        return grid;
+        grid.userData.type = "grid";
+        label.userData.type = "grid";
+
+        scene.add(grid);
+        scene.add(label);
+
+        addIdLabel();
 
     };
 
@@ -541,6 +555,7 @@ var CubemapViewer = function (args) {
         if(long===Math.PI){
             mesh1.rotation.x = lat;
         }
+        mesh1.userData.type = "grid";
         return mesh1;
     };
 
@@ -558,8 +573,28 @@ var CubemapViewer = function (args) {
         geom.vertices.push( dst.clone() );
         geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
 
-        return new THREE.Line( geom, mat, THREE.LinePieces )
+        var line = new THREE.Line( geom, mat, THREE.LinePieces );
+        line.userData.type = "grid";
 
+        return line;
+
+    };
+
+    var addIdLabel = function() {
+        scene.add(createGridLabel(data.id, 1000 - 100, -Math.PI / 2, 0, "#000000", true));
+        scene.add(createGridLabel(data.id, 1000 - 100, Math.PI / 2, 0, "#000000", true));
+    }
+
+    var removeGrid = function() {
+        for (var i=0; i<scene.children.length; ) {
+            var object = scene.children[i];
+            var type = object.userData.type;
+            if (type !== undefined && type !== null && type === "grid" ) {
+                scene.remove(object);
+            } else {
+                i++;
+            }
+        }
     };
 
 
@@ -1420,6 +1455,7 @@ var CubemapViewer = function (args) {
     }
 
     var data = args.data;
+    var grid = false;
 
     // Movement speed
     var PSV_LONG_OFFSET = (args.long_offset !== undefined) ? parseFloat(args.long_offset) : Math.PI / 360.0;

@@ -4,11 +4,13 @@
  * @param data - sphere_.....json object
  * @param photoSphereOnReady - function called when sphere is loaded
  */
+
+var sphere;
 var createSphere = function(id,data,photoSphereOnReady) {
 
     var div = document.getElementById(id);
 
-    var PSV = new CubemapViewer({
+    sphere = new CubemapViewer({
         data: data,
         container: div,
         navbar: true,
