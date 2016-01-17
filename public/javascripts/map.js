@@ -31,12 +31,13 @@ var createMap = function (id, data, spheres, callback) {
     });
 
     map.addLayer(osm);
+    var markers = L.markerClusterGroup();
     $.each(spheres, function (key, value) {
         var latitude = value.latitude;
         var longitude = value.longitude;
         var name = $.i18n.t(value.name);
 
-        var marker = L.marker([latitude, longitude]).addTo(map);
+        var marker = L.marker([latitude, longitude]);
         marker.bindPopup(name);
 
         marker.on('mouseover', function (e) {
@@ -54,7 +55,10 @@ var createMap = function (id, data, spheres, callback) {
             //loadSphere(key);
                                              //TODO: zoomIn animation
         });
+        markers.addLayer(marker);
     });
+
+    map.addLayer(markers);
 
     var active_marker;
     var sphere_id;

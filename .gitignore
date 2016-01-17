@@ -1,9 +1,10 @@
 *.iml
 .idea/
 *.css
-!public/stylesheets/leaflet.css
+!public/stylesheets/lib/*
 *.html
 *.htm
 node_modules
 public/images/spheres/
 public/json/maps/map_spheres_*
+bower_components
