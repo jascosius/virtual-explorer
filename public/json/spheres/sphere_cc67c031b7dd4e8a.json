@@ -2,7 +2,8 @@
   "id": "cc67c031b7dd4e8a",
   "image": {
     "mercator": "/images/spheres/cc67c031b7dd4e8a/mercator.jpg",
-    "cubemap": "/images/spheres/cc67c031b7dd4e8a/cubemap"
+    "cubemap": "/images/spheres/cc67c031b7dd4e8a/cubemap",
+    "icon": "/images/spheres/cc67c031b7dd4e8a/icon.png"
   },
   "name": "sphere.cc67c031b7dd4e8a.name",
   "latitude": "54.337625",

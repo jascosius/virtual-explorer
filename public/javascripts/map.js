@@ -31,14 +31,25 @@ var createMap = function (id, data, spheres, callback) {
     });
 
     map.addLayer(osm);
-    var markers = L.markerClusterGroup();
+    var markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 3});
     $.each(spheres, function (key, value) {
+
+        var iconSize = 64;
+
+        var icon = L.icon({
+            iconUrl: value.icon,
+            iconSize: [iconSize,iconSize],
+            iconAnchor: [iconSize/2,iconSize/2],
+            popupAnchor: [0,-iconSize/2]
+        });
         var latitude = value.latitude;
         var longitude = value.longitude;
-        var name = $.i18n.t(value.name);
+        var marker = L.marker([latitude, longitude],{icon: icon});
 
-        var marker = L.marker([latitude, longitude]);
-        marker.bindPopup(name);
+        if(value.name !== undefined) {
+            var name = $.i18n.t(value.name);
+            marker.bindPopup(name);
+        }
 
         marker.on('mouseover', function (e) {
             this.openPopup();

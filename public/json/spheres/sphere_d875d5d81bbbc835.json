@@ -2,7 +2,8 @@
   "id": "d875d5d81bbbc835",
   "image": {
     "mercator": "/images/spheres/d875d5d81bbbc835/mercator.jpg",
-    "cubemap": "/images/spheres/d875d5d81bbbc835/cubemap"
+    "cubemap": "/images/spheres/d875d5d81bbbc835/cubemap",
+    "icon": "/images/spheres/d875d5d81bbbc835/icon.png"
   },
   "name": "sphere.d875d5d81bbbc835.name",
   "latitude": "54.337831",

@@ -36,6 +36,7 @@ function handleSphereFiles(err, files) {
             newSphere[dataObject.id].name = dataObject.name;
             newSphere[dataObject.id].longitude = dataObject.longitude;
             newSphere[dataObject.id].latitude = dataObject.latitude;
+            newSphere[dataObject.id].icon = dataObject.image.icon;
         }
     }
 

@@ -8,8 +8,11 @@ var current_sphere;
 
 console.log(id);
 console.log(type);
+console.log(location);
+$.i18n.init({ lng: "de-DE" ,resGetPath: '/locales/__lng__/__ns__.json'});
 
 var loadMap = function(id) {
+
     current_map = id;
     var callback = function(sphere_id){
         loadSphere(sphere_id);
@@ -63,8 +66,3 @@ if (type === 'map'){
 }else if (type === 'not specified'){
     loadMap(start_map);
 }
-
-//$.i18n.init({ lng: "de-DE" });
-
-
-
