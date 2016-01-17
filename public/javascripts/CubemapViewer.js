@@ -213,7 +213,7 @@ var CubemapViewer = function (args) {
             ratio: 0
         };
 
-        createScene();
+        createSetting();
     };
 
     /**
@@ -222,7 +222,7 @@ var CubemapViewer = function (args) {
      * @return {void}
      **/
 
-    var createScene = function () {
+    var createSetting = function () {
         // New size?
         if (new_viewer_size.width !== undefined)
             container.style.width = new_viewer_size.width.css;
@@ -236,20 +236,16 @@ var CubemapViewer = function (args) {
         renderer = (isWebGLSupported()) ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
         renderer.setSize(viewer_size.width, viewer_size.height);
 
-        scene = new THREE.Scene();
-
-        camera = new THREE.PerspectiveCamera(PSV_FOV_MAX, viewer_size.ratio, 1, 2000);
-        camera.position.set(0, 0, 0);
-        scene.add(camera);
-
-        var arrows = createArrows(data.id,data.arrows);
-        for (var arrow_index in arrows) {
-            scene.add(arrows[arrow_index]);
-            clickable_objects.push(arrows[arrow_index])
+        for (var i = 0; i <= 1; i++) {
+            scene[i] = new THREE.Scene();
+            camera[i] = new THREE.PerspectiveCamera(PSV_FOV_MAX, viewer_size.ratio, 1, 3000);
+            camera[i].position.set(0, 0, 0);
+            scene[i].add(camera[i]);
         }
 
-        var cube = createCube(data.id,data.image);
-        scene.add(cube);
+        actualIndex = 0;
+        loadObjects();
+        loadCube();
 
         // Canvas container
         canvas_container = document.createElement('div');
@@ -295,12 +291,10 @@ var CubemapViewer = function (args) {
         var canvas = renderer.domElement;
         canvas.style.display = 'block';
 
+        initFade();
+
         canvas_container.appendChild(canvas);
         render();
-
-        for (var object_index in scene.children) {
-            var object = scene.children[object_index];
-        }
 
         // Zoom?
         if (zoom_lvl > 0)
@@ -310,7 +304,13 @@ var CubemapViewer = function (args) {
         anim();
     };
 
-    var createCube = function (id,image) {
+
+    var loadCube = function () {
+        var cube = createCube(data.id, data.image, 1000 + Math.random() * 1000);
+        scene[actualIndex].add(cube);
+    }
+
+    var createCube = function (id, image) {
         var directions = ["nx", "px", "py", "ny", "pz", "nz"];
         var materials = [];
         var count = directions.length;
@@ -333,23 +333,24 @@ var CubemapViewer = function (args) {
         var mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
         mesh.scale.x = -1;
         mesh.position.set(0, 0, 0);
-        mesh.userData.belongsTo=id;
-        mesh.userData.type="cube";
-        mesh.userData.id=id;
-        mesh.name="Cube " + id;
+        mesh.userData.belongsTo = id;
+        mesh.userData.type = "cube";
+        mesh.userData.id = id;
+        mesh.name = "Cube " + id;
+        cube[actualIndex] = mesh;
         return mesh;
     };
 
-    var createArrows = function (id,arrows) {
+    var createArrows = function (id, arrows) {
         var arrows_array = [];
         for (var key in arrows) {
             var arrow = arrows[key];
-            arrows_array.push(createArrow(id,key,arrow))
+            arrows_array.push(createArrow(id, key, arrow))
         }
         return arrows_array;
     };
 
-    var createArrow = function (id,name,arrow) {
+    var createArrow = function (id, name, arrow) {
 
         var size = 30;
         if (arrow.size !== undefined)
@@ -387,7 +388,16 @@ var CubemapViewer = function (args) {
         plane.rotation.x = rotationX;
         plane.rotation.y = rotationY;
         plane.rotation.z = rotationZ;
-        plane.userData.clickaction = {type: "change_sphere", data: {next_sphere: arrow.next_sphere, next_camera_lat: arrow.next_camera_lat, next_camera_long: arrow.next_camera_long}};
+        plane.userData.clickaction = {type: "change_sphere",
+            data: {
+                this_arrow: name,
+                this_long: long,
+                this_lat: lat,
+                next_sphere: arrow.next_sphere,
+                next_camera_lat: arrow.next_camera_lat,
+                next_camera_long: arrow.next_camera_long
+            }
+        };
         plane.userData.belongsTo = id;
         plane.userData.id = name;
         plane.userData.type = "arrow";
@@ -397,96 +407,129 @@ var CubemapViewer = function (args) {
 
     };
 
-    var loadNewSphere = function(clickData) {
-        $.getJSON( "/json/spheres/sphere_"+clickData.next_sphere+".json", function (newData) {
+    var loadNewSphere = function (clickData) {
+        $.getJSON("/json/spheres/sphere_" + clickData.next_sphere + ".json", function (newData) {
+            actualIndex = 1 - actualIndex;
             data = newData;
-
+            clickable_objects = [];
+            loadCube();
             var url = location.pathname;
             var expectedUrl = "/sphere/" + data.id;
             if (url !== expectedUrl) {
                 history.pushState({}, "Sphere", "/sphere/" + data.id);
             }
 
-            clickable_objects = [];
-            var cube = createCube(data.id, data.image);
-            scene.add(cube);
-            var arrows = createArrows(data.id,data.arrows);
-            for (var arrow_index in arrows) {
-                scene.add(arrows[arrow_index]);
-                clickable_objects.push(arrows[arrow_index]);
-            }
+            deleteObjects(false);
 
-            for (var i=0; i<scene.children.length; ) {
-                var object = scene.children[i];
-                var belongsTo = object.userData.belongsTo;
-                if (belongsTo !== undefined && belongsTo !== null && belongsTo !== data.id ) {
-                    scene.remove(object);
-                } else {
-                    i++;
-                }
-            }
-
-            if(grid) {
-                addIdLabel();
-            }
-
-            var new_long = long;
+            var new_long = long[actualIndex];
             if (clickData.next_camera_long !== undefined) {
                 new_long = math.eval(clickData.next_camera_long);
             }
-            var new_lat = lat;
+            var new_lat = lat[actualIndex];
             if (clickData.next_camera_lat !== undefined) {
                 new_lat = math.eval(clickData.next_camera_lat);
             }
-            moveTo(new_long,new_lat);
+            moveTo(actualIndex, new_long, new_lat);
+
+            nextSphereAnimation(new_long,clickData.this_long);
+
+            if (grid) {
+                addGrid();
+            }
         });
     };
 
-    this.showGrid = function(bool) {
-        if(bool && !grid) {
-            grid = true;
-            addGrid();
-        } else if(!bool && grid){
-            grid = false;
-            removeGrid();
+    var loadObjects = function () {
+        clickableObjects = [];
+        var arrows = createArrows(data.id, data.arrows);
+        for (var arrow_index in arrows) {
+            scene[actualIndex].add(arrows[arrow_index]);
+            clickableObjects.push(arrows[arrow_index])
+        }
+    };
+
+    var deleteObjects = function (cube) {
+        for (var i = 0; i < scene[1 - actualIndex].children.length;) {
+            var object = scene[1 - actualIndex].children[i];
+            var belongsTo = object.userData.belongsTo;
+            if (belongsTo !== undefined && belongsTo !== null && belongsTo !== data.id && (cube || object.userData.type !== "cube")) {
+                scene[1 - actualIndex].remove(object);
+            } else {
+                i++;
+            }
+        }
+    };
+
+    var nextSphereAnimationSteps = 30;
+
+    var nextSphereAnimation = function (newLong,oldLong) {
+        nextSphereAnimationHelper(0, newLong,oldLong);
+    };
+
+    var nextSphereAnimationHelper = function (step, newLong,oldLong) {
+        step++;
+        quadmaterial.uniforms.mixRatio.value = Math.abs((1-actualIndex) - step/nextSphereAnimationSteps);
+
+        var oldCubePosition = getCartesian(step*50, 0, (oldLong+Math.PI)%(2*Math.PI));
+        var newCubePosition = getCartesian(nextSphereAnimationSteps*50 - step*50, 0, newLong);
+        cube[1 - actualIndex].position.set(oldCubePosition.x, oldCubePosition.y, oldCubePosition.z);
+        cube[actualIndex].position.set(newCubePosition.x, newCubePosition.y, newCubePosition.z);
+        if (step !== nextSphereAnimationSteps) {
+            setTimeout(nextSphereAnimationHelper, PSV_ANIM_TIMEOUT, step, newLong,oldLong);
+        } else {
+            loadObjects();
+            deleteObjects(true);
         }
         render();
     };
 
-    var addGrid = function( ) {
+    this.showGrid = function (bool) {
+        if (bool && !grid) {
+            grid = true;
+            addGrid(0);
+            addGrid(1);
+        } else if (!bool && grid) {
+            grid = false;
+            removeGrid(0);
+            removeGrid(1);
+        }
+        render();
+    };
+
+    var addGrid = function (index) {
         var parts = 36; //Should be divisible by 4
         var labelrate = 3; //Show label every "labelrate" line (Should be a divisor of parts)
         var distance = 1000;
 
-        var step = 2*Math.PI*1/parts;
+        var step = 2 * Math.PI * 1 / parts;
         var dashed;
         var point1, point2;
-        var degreej,degreei;
-        var j,i;
+        var degreej, degreei;
+        var j, i;
         var grid = new THREE.Object3D();
         var label = new THREE.Object3D();
         var text;
 
         //latitude marker
-        for(j=0;j<parts/4;j++){//for(j=0;j<Math.PI/2-offset; j+=step) {
-            degreej=j*step;
-            dashed=true;
-            if(j%labelrate === 0) {
-                dashed=false;
+        for (j = 0; j < parts / 4; j++) {
+            degreej = j * step;
+            dashed = true;
+            if (j % labelrate === 0) {
+                dashed = false;
                 text = Math.ceil((degreej / (Math.PI / 2)) * 90) + '/90*π/2';
-                label.add(createGridLabel(text,distance-10,degreej,0,"#FF0000",false));
-                label.add(createGridLabel(text,distance-10,degreej,Math.PI,"#FF0000",false));
-                if(j!==0) {
-                    label.add(createGridLabel('-'+text,distance-10,-degreej,0,"#FF0000",false));
-                    label.add(createGridLabel('-'+text,distance-10,-degreej,Math.PI,"#FF0000",false));
+                label.add(createGridLabel(text, distance - 10, degreej, 0, "#FF0000", false));
+                label.add(createGridLabel(text, distance - 10, degreej, Math.PI, "#FF0000", false));
+                if (j !== 0) {
+                    label.add(createGridLabel('-' + text, distance - 10, -degreej, 0, "#FF0000", false));
+                    label.add(createGridLabel('-' + text, distance - 10, -degreej, Math.PI, "#FF0000", false));
                 }
             }
-            for(i=0;i<parts;i++){//for (i = 0; i < 2 * Math.PI-offset; i += step) {
-                degreei=i*step;
+            for (i = 0; i < parts; i++) {//for (i = 0; i < 2 * Math.PI-offset; i += step) {
+                degreei = i * step;
                 point1 = getCartesian(distance, degreej, degreei);
                 point2 = getCartesian(distance, degreej, degreei + step);
                 grid.add(buildGridLine(point1, point2, 0xFF0000, dashed));
-                if(j!==0) {
+                if (j !== 0) {
                     point1 = getCartesian(distance, -degreej, degreei);
                     point2 = getCartesian(distance, -degreej, degreei + step);
                     grid.add(buildGridLine(point1, point2, 0xFF0000, dashed));
@@ -495,16 +538,16 @@ var CubemapViewer = function (args) {
         }
 
         //longitude marker
-        for(j=0;j<parts;j++){//for(j=0; j<2*Math.PI-offset; j+=step) {
-            degreej=j*step;
-            dashed=true;
-            if(j%labelrate === 0) {
+        for (j = 0; j < parts; j++) {
+            degreej = j * step;
+            dashed = true;
+            if (j % labelrate === 0) {
                 dashed = false;
                 text = Math.ceil((degreej / (2 * Math.PI)) * 360) + '/360*2π';
-                label.add(createGridLabel(text, distance - 10, -labelrate*step/2, degreej, "#00FF00", false));
+                label.add(createGridLabel(text, distance - 10, -labelrate * step / 2, degreej, "#00FF00", false));
             }
-            for(i=1;i<parts/4;i++){//for (i = step; i < Math.PI/2-offset; i += step) {
-                degreei=i*step;
+            for (i = 1; i < parts / 4; i++) {//for (i = step; i < Math.PI/2-offset; i += step) {
+                degreei = i * step;
                 point1 = getCartesian(distance, degreei, degreej);
                 point2 = getCartesian(distance, degreei - step, degreej);
                 grid.add(buildGridLine(point1, point2, 0x00FF00, dashed));
@@ -517,23 +560,23 @@ var CubemapViewer = function (args) {
         grid.userData.type = "grid";
         label.userData.type = "grid";
 
-        scene.add(grid);
-        scene.add(label);
+        scene[index].add(grid);
+        scene[index].add(label);
 
-        addIdLabel();
+        addIdLabel(index);
 
     };
 
-    var createGridLabel = function(text,radius,lat,long,color,isID) {
+    var createGridLabel = function (text, radius, lat, long, color, isID) {
         var canvas1 = document.createElement('canvas');
         var context1 = canvas1.getContext('2d');
         var width = 270;
-        if(isID) {
+        if (isID) {
             width = 500;
         }
-        var height=90;
-        canvas1.width=width;
-        canvas1.height=height;
+        var height = 90;
+        canvas1.width = width;
+        canvas1.height = height;
         context1.font = "50px Arial";
         context1.fillStyle = color;
         context1.fillText(text, 0, height);
@@ -542,61 +585,64 @@ var CubemapViewer = function (args) {
         var texture1 = new THREE.Texture(canvas1);
         texture1.needsUpdate = true;
 
-        var material1 = new THREE.MeshBasicMaterial( {map: texture1, side:THREE.DoubleSide } );
+        var material1 = new THREE.MeshBasicMaterial({map: texture1, side: THREE.DoubleSide});
         material1.transparent = true;
 
         var mesh1 = new THREE.Mesh(
             new THREE.PlaneGeometry(canvas1.width, canvas1.height),
             material1
         );
-        mesh1.position.add(getCartesian(radius,lat,long));
-        mesh1.rotation.y=Math.PI+long;
-        if(isID) {
+        mesh1.position.add(getCartesian(radius, lat, long));
+        mesh1.rotation.y = Math.PI + long;
+        if (isID) {
             mesh1.userData.belongsTo = text;
             mesh1.rotation.x = -lat;
         }
-        if(long===0) {
+        if (long === 0) {
             mesh1.rotation.x = -lat;
         }
-        if(long===Math.PI){
+        if (long === Math.PI) {
             mesh1.rotation.x = lat;
         }
         mesh1.userData.type = "grid";
         return mesh1;
     };
 
-    var buildGridLine = function( src, dst, colorHex, dashed ) {
+    var buildGridLine = function (src, dst, colorHex, dashed) {
         var geom = new THREE.Geometry(),
             mat;
 
-        if(dashed) {
-            mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 10, gapSize: 10 });
+        if (dashed) {
+            mat = new THREE.LineDashedMaterial({linewidth: 3, color: colorHex, dashSize: 10, gapSize: 10});
         } else {
-            mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+            mat = new THREE.LineBasicMaterial({linewidth: 3, color: colorHex});
         }
 
-        geom.vertices.push( src.clone() );
-        geom.vertices.push( dst.clone() );
+        geom.vertices.push(src.clone());
+        geom.vertices.push(dst.clone());
         geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
 
-        var line = new THREE.Line( geom, mat, THREE.LinePieces );
+        var line = new THREE.Line(geom, mat, THREE.LinePieces);
         line.userData.type = "grid";
 
         return line;
 
     };
 
-    var addIdLabel = function() {
-        scene.add(createGridLabel(data.id, 1000 - 100, -Math.PI / 2, 0, "#000000", true));
-        scene.add(createGridLabel(data.id, 1000 - 100, Math.PI / 2, 0, "#000000", true));
-    }
+    var addIdLabel = function (index) {
+        var idLabel0 = createGridLabel(data.id, 1000 - 100, -Math.PI / 2, 0, "#000000", true);
+        var idLabel1 = createGridLabel(data.id, 1000 - 100, Math.PI / 2, 0, "#000000", true);
 
-    var removeGrid = function() {
-        for (var i=0; i<scene.children.length; ) {
-            var object = scene.children[i];
+        scene[index].add(idLabel0);
+        scene[index].add(idLabel1);
+    };
+
+    var removeGrid = function (index) {
+        for (var i = 0; i < scene[index].children.length;) {
+            var object = scene[index].children[i];
             var type = object.userData.type;
-            if (type !== undefined && type !== null && type === "grid" ) {
-                scene.remove(object);
+            if (type !== undefined && type !== null && type === "grid") {
+                scene[index].remove(object);
             } else {
                 i++;
             }
@@ -611,16 +657,105 @@ var CubemapViewer = function (args) {
      **/
 
     var render = function () {
-        var point = getCartesian(1, lat, long);
+        var point0 = getCartesian(1, lat[0], long[0]);
+        var point1 = getCartesian(1, lat[1], long[1]);
 
-        camera.lookAt(point);
+        camera[0].lookAt(point0);
+        camera[1].lookAt(point1);
 
-        // Stereo?
+        // Stereo? TODO: 2 scene support
         if (stereo_effect !== null)
             stereo_effect.render(scene, camera);
 
-        else
-            renderer.render(scene, camera);
+        else {
+            renderer.render(scene[0], camera[0], rtTexture0);
+            renderer.render(scene[1], camera[1], rtTexture1);
+            renderer.render(quadscene, fadeCamera, null, true);
+        }
+        //renderer.render(scene, camera);
+    };
+
+    var initFade = function () {
+        // rendertargets
+        rtTexture0 = new THREE.WebGLRenderTarget(viewer_size.width, viewer_size.height, { // CHANGED
+            minFilter: THREE.LinearMipMapLinearFilter,
+            magFilter: THREE.LinearFilter,
+            format: THREE.RGBFormat
+        });
+        rtTexture0.wrapS = rtTexture0.wrapT = THREE.RepeatWrapping;
+        rtTexture0.repeat.set(1, -1);
+
+        rtTexture1 = rtTexture0.clone();
+
+        // Main screen
+        fadeCamera = new THREE.OrthographicCamera(viewer_size.width / -2, viewer_size.width / 2, viewer_size.height / 2, viewer_size.height / -2, -10000, 10000);
+        fadeCamera.position.z = 1000;
+        fadeCamera.scale.y = -1;
+        var quadgeometry = new THREE.PlaneGeometry(viewer_size.width, viewer_size.height);
+        quadmaterial = new THREE.ShaderMaterial({
+            side: THREE.BackSide,
+
+            uniforms: {
+
+                tDiffuse1: {
+                    type: "t",
+                    value: rtTexture0
+                },
+                tDiffuse2: {
+                    type: "t",
+                    value: rtTexture1
+                },
+                mixRatio: {
+                    type: "f",
+                    value: 0.5
+                },
+                opacity: {
+                    type: "f",
+                    value: 1.0
+                }
+
+            },
+            vertexShader: [
+
+                "varying vec2 vUv;",
+
+                "void main() {",
+
+                "vUv = vec2( uv.x, 1.0 - uv.y );",
+                "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+                "}"
+
+            ].join("\n"),
+            fragmentShader: [
+
+                "uniform float opacity;",
+                "uniform float mixRatio;",
+
+                "uniform sampler2D tDiffuse1;",
+                "uniform sampler2D tDiffuse2;",
+
+                "varying vec2 vUv;",
+
+                "void main() {",
+
+                "vec4 texel1 = texture2D( tDiffuse1, vUv );",
+                "vec4 texel2 = texture2D( tDiffuse2, vUv );",
+                "gl_FragColor = opacity * mix( texel1, texel2, mixRatio );",
+
+                "}"
+
+            ].join("\n")
+
+        });
+
+        quadmaterial.uniforms.mixRatio.value = 0;
+
+        var quad = new THREE.Mesh(quadgeometry, quadmaterial);
+
+        quadscene = new THREE.Scene();
+        quadscene.add(quad);
+        quadscene.add(fadeCamera);
     };
 
     /**
@@ -696,16 +831,31 @@ var CubemapViewer = function (args) {
      **/
 
     var autorotate = function () {
-        lat -= (lat - anim_lat_target) * anim_lat_offset;
+        lat[0] -= (lat[0] - anim_lat_target) * anim_lat_offset;
+        lat[1] -= (lat[1] - anim_lat_target) * anim_lat_offset;
 
-        long += anim_long_offset;
+        long[0] += anim_long_offset;
+        long[1] += anim_long_offset;
 
         var again = true;
 
         if (!whole_circle) {
-            long = stayBetween(long, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+            long[0] = stayBetween(long[0], PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+            long[1] = stayBetween(long[1], PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
 
-            if (long == PSV_MIN_LONGITUDE || long == PSV_MAX_LONGITUDE) {
+            if (long[0] == PSV_MIN_LONGITUDE || long[0] == PSV_MAX_LONGITUDE) {
+                // Must we reverse the animation or simply stop it?
+                if (reverse_anim)
+                    anim_long_offset *= -1;
+
+                else {
+                    //TODO: Animation for both cameras
+                    stopAutorotate();
+                    again = false;
+                }
+            }
+
+            if (long[1] == PSV_MIN_LONGITUDE || long[1] == PSV_MAX_LONGITUDE) {
                 // Must we reverse the animation or simply stop it?
                 if (reverse_anim)
                     anim_long_offset *= -1;
@@ -717,7 +867,8 @@ var CubemapViewer = function (args) {
             }
         }
 
-        long = getAngleMeasure(long, true);
+        long[0] = getAngleMeasure(long[0], true);
+        long[1] = getAngleMeasure(long[1], true);
 
         render();
 
@@ -814,9 +965,14 @@ var CubemapViewer = function (args) {
         viewer_size.height = (size.height !== undefined) ? parseInt(size.height) : viewer_size.height;
         viewer_size.ratio = viewer_size.width / viewer_size.height;
 
-        if (!!camera) {
-            camera.aspect = viewer_size.ratio;
-            camera.updateProjectionMatrix();
+        if (!!camera[0]) {
+            camera[0].aspect = viewer_size.ratio;
+            camera[0].updateProjectionMatrix();
+        }
+
+        if (!!camera[1]) {
+            camera[1].aspect = viewer_size.ratio;
+            camera[1].updateProjectionMatrix();
         }
 
         if (!!renderer) {
@@ -835,10 +991,10 @@ var CubemapViewer = function (args) {
      * @return {object} A longitude/latitude couple
      **/
 
-    this.getPosition = function () {
+    this.getPosition = function (index) {
         return {
-            longitude: long,
-            latitude: lat
+            longitude: long[index],
+            latitude: lat[index]
         };
     };
 
@@ -847,10 +1003,10 @@ var CubemapViewer = function (args) {
      * @return {object} A longitude/latitude couple
      **/
 
-    this.getPositionInDegrees = function () {
+    this.getPositionInDegrees = function (index) {
         return {
-            longitude: long * 180.0 / Math.PI,
-            latitude: lat * 180.0 / Math.PI
+            longitude: long[index] * 180.0 / Math.PI,
+            latitude: lat[index] * 180.0 / Math.PI
         };
     };
 
@@ -862,7 +1018,7 @@ var CubemapViewer = function (args) {
      * @return {void}
      **/
 
-    var moveTo = function (longitude, latitude) {
+    var moveTo = function (index, longitude, latitude) {
         var long_tmp = parseAngle(longitude);
 
         if (!whole_circle)
@@ -875,8 +1031,8 @@ var CubemapViewer = function (args) {
 
         lat_tmp = stayBetween(lat_tmp, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
 
-        long = long_tmp;
-        lat = lat_tmp;
+        long[index] = long_tmp;
+        lat[index] = lat_tmp;
 
         render();
     };
@@ -889,8 +1045,8 @@ var CubemapViewer = function (args) {
      * @return {void}
      **/
 
-    this.moveTo = function (longitude, latitude) {
-        moveTo(longitude, latitude);
+    this.moveTo = function (index, longitude, latitude) {
+        moveTo(index, longitude, latitude);
     };
 
     /**
@@ -905,10 +1061,12 @@ var CubemapViewer = function (args) {
         mouse.x = ( evt.clientX / viewer_size.width ) * 2 - 1;
         mouse.y = -( evt.clientY / viewer_size.height ) * 2 + 1;
 
-        raycaster.setFromCamera(mouse, camera);
-        var intersects = raycaster.intersectObjects(clickable_objects);
+        raycaster.setFromCamera(mouse, camera[actualIndex]);
+        var intersects = raycaster.intersectObjects(clickableObjects);
         if (intersects.length > 0) {
-            loadNewSphere(intersects[0].object.userData.clickaction.data)
+            clickedObjects[0] = intersects[0].object;
+            intersects[0].object.material.color.setHex(0x999999);
+            render();
         }
 
 
@@ -982,6 +1140,12 @@ var CubemapViewer = function (args) {
     var onMouseUp = function (evt) {
         mousedown = false;
         touchzoom = false;
+
+        if (clickedObjects[0] !== undefined) {
+            loadNewSphere(clickedObjects[0].userData.clickaction.data);
+            clickedObjects[0] = undefined;
+        }
+
     };
 
     /**
@@ -992,6 +1156,18 @@ var CubemapViewer = function (args) {
      **/
 
     var onMouseMove = function (evt) {
+
+        if (clickedObjects[0] !== undefined) {
+            mouse.x = ( evt.clientX / viewer_size.width ) * 2 - 1;
+            mouse.y = -( evt.clientY / viewer_size.height ) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera[actualIndex]);
+            var intersects = raycaster.intersectObjects(clickedObjects);
+            if (!intersects.length > 0) {
+                clickedObjects[0].material.color.setHex(0xffffff);
+                clickedObjects[0] = undefined;
+            }
+        }
+
         evt.preventDefault();
         move(parseInt(evt.clientX), parseInt(evt.clientY));
     };
@@ -1042,15 +1218,21 @@ var CubemapViewer = function (args) {
 
     var move = function (x, y) {
         if (mousedown) {
-            long += (x - mouse_x) * PSV_LONG_OFFSET;
+            long[0] += (x - mouse_x) * PSV_LONG_OFFSET;
+            long[1] += (x - mouse_x) * PSV_LONG_OFFSET;
 
-            if (!whole_circle)
-                long = stayBetween(long, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+            if (!whole_circle) {
+                long[0] = stayBetween(long[0], PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+                long[1] = stayBetween(long[1], PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+            }
 
-            long = getAngleMeasure(long, true);
+            long[0] = getAngleMeasure(long[0], true);
+            long[1] = getAngleMeasure(long[1], true);
 
-            lat += (y - mouse_y) * PSV_LAT_OFFSET;
-            lat = stayBetween(lat, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+            lat[0] += (y - mouse_y) * PSV_LAT_OFFSET;
+            lat[1] += (y - mouse_y) * PSV_LAT_OFFSET;
+            lat[0] = stayBetween(lat[0], PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+            lat[1] = stayBetween(lat[1], PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
 
             mouse_x = x;
             mouse_y = y;
@@ -1113,8 +1295,10 @@ var CubemapViewer = function (args) {
      **/
 
     var onDeviceOrientation = function (coords) {
-        long = stayBetween(coords.longitude, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
-        lat = stayBetween(coords.latitude, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+        long[0] = stayBetween(coords.longitude, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+        long[1] = stayBetween(coords.longitude, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+        lat[0] = stayBetween(coords.latitude, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+        lat[1] = stayBetween(coords.latitude, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
 
         render();
     };
@@ -1148,8 +1332,10 @@ var CubemapViewer = function (args) {
     var zoom = function (level) {
         zoom_lvl = stayBetween(parseInt(Math.round(level)), 0, 100);
 
-        camera.fov = PSV_FOV_MAX + (zoom_lvl / 100) * (PSV_FOV_MIN - PSV_FOV_MAX);
-        camera.updateProjectionMatrix();
+        camera[0].fov = PSV_FOV_MAX + (zoom_lvl / 100) * (PSV_FOV_MIN - PSV_FOV_MAX);
+        camera[0].updateProjectionMatrix();
+        camera[1].fov = PSV_FOV_MAX + (zoom_lvl / 100) * (PSV_FOV_MIN - PSV_FOV_MAX);
+        camera[1].updateProjectionMatrix();
         render();
 
         /**
@@ -1501,7 +1687,12 @@ var CubemapViewer = function (args) {
     }
 
     // Default position
-    var lat = 0, long = PSV_MIN_LONGITUDE;
+    var lat = [];
+    lat[0] = 0;
+    lat[1] = 0;
+    var long = [];
+    long[0] = PSV_MIN_LONGITUDE;
+    long[1] = PSV_MIN_LONGITUDE;
 
     if (args.default_position !== undefined) {
         if (args.default_position.lat !== undefined) {
@@ -1509,11 +1700,14 @@ var CubemapViewer = function (args) {
             if (lat_angle > Math.PI)
                 lat_angle -= 2 * Math.PI;
 
-            lat = stayBetween(lat_angle, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+            lat[0] = stayBetween(lat_angle, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
+            lat[1] = stayBetween(lat_angle, PSV_TILT_DOWN_MAX, PSV_TILT_UP_MAX);
         }
 
-        if (args.default_position.long !== undefined)
-            long = stayBetween(parseAngle(args.default_position.long), PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+        if (args.default_position.long !== undefined) {
+            long[0] = stayBetween(parseAngle(args.default_position.long), PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+            long[1] = stayBetween(parseAngle(args.default_position.long), PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
+        }
     }
 
     // Default zoom level
@@ -1584,12 +1778,24 @@ var CubemapViewer = function (args) {
         setNewViewerSize(args.size);
 
     // Some useful attributes
-    var panorama = args.panorama;
+    var actualIndex = 0;
     var root, canvas_container;
-    var renderer = null, scene = null, camera = null, stereo_effect = null;
+    var renderer = null, stereo_effect = null;
+    var camera = [];
+    camera[0] = null;
+    camera[1] = null;
+    var scene = [];
+    scene[0] = null;
+    scene[1] = null;
     var mousedown = false, mouse_x = 0, mouse_y = 0;
     var touchzoom = false, touchzoom_dist = 0;
     var autorotate_timeout = null, anim_timeout = null;
+    var cube = [];
+    cube[0] = null;
+    cube[1] = null;
+    var fadeCamera = null;
+    var quadscene, quadmaterial;
+    var rtTexture0, rtTexture1;
 
     var raycaster;
     var mouse;
@@ -1598,7 +1804,8 @@ var CubemapViewer = function (args) {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
-    var clickable_objects = [];
+    var clickableObjects = [];
+    var clickedObjects = [];
 
     var sphoords = new Sphoords();
 
