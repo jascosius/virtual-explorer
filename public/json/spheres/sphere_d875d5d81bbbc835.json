@@ -9,7 +9,7 @@
   "latitude": "54.337831",
   "longitude": "10.120933",
   "arrows": {
-    "18ab9d9e4945ed33": {"long": "2*PI*180/360", "next_sphere": "13bad6b1e478b951", "next_camera_long": "2*PI*50/60"},
-    "76176169684b9638": {"long": "2*PI*0/360", "rotationZ": "2*PI*18/360", "next_sphere": "cc67c031b7dd4e8a", "next_camera_long": "2*PI*0/360"}
+    "18ab9d9e4945ed33": {"long": "2*PI*180/360", "next_sphere": "13bad6b1e478b951"},
+    "76176169684b9638": {"long": "2*PI*0/360", "rotationZ": "2*PI*18/360", "next_sphere": "cc67c031b7dd4e8a"}
   }
 }

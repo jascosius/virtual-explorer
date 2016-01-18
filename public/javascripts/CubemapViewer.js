@@ -390,6 +390,7 @@ var CubemapViewer = function (args) {
         plane.rotation.z = rotationZ;
         plane.userData.clickaction = {type: "change_sphere",
             data: {
+                this_sphere: id,
                 this_arrow: name,
                 this_long: long,
                 this_lat: lat,
@@ -421,17 +422,26 @@ var CubemapViewer = function (args) {
 
             deleteObjects(false);
 
-            var new_long = long[actualIndex];
+            var newLOng = long[actualIndex];
             if (clickData.next_camera_long !== undefined) {
-                new_long = math.eval(clickData.next_camera_long);
+                newLong = math.eval(clickData.next_camera_long);
+            } if(data.arrows !== undefined) {
+                for (var key in data.arrows) {
+                    var arrow = data.arrows[key];
+                    if(arrow.next_sphere == clickData.this_sphere) {
+                        newLong = (math.eval(arrow.long) + Math.PI) % (2 * Math.PI);
+                        break;
+                    }
+                }
             }
-            var new_lat = lat[actualIndex];
+            var newViewLong = newLong + (long[1-actualIndex] - math.eval(clickData.this_long));
+            var newViewLat = lat[actualIndex];
             if (clickData.next_camera_lat !== undefined) {
-                new_lat = math.eval(clickData.next_camera_lat);
+                newViewLat = math.eval(clickData.next_camera_lat);
             }
-            moveTo(actualIndex, new_long, new_lat);
+            moveTo(actualIndex, newViewLong, newViewLat);
 
-            nextSphereAnimation(new_long,clickData.this_long);
+            nextSphereAnimation(newLong,clickData.this_long);
 
             if (grid) {
                 addGrid();
@@ -460,7 +470,7 @@ var CubemapViewer = function (args) {
         }
     };
 
-    var nextSphereAnimationSteps = 30;
+    var nextSphereAnimationSteps = 20;
 
     var nextSphereAnimation = function (newLong,oldLong) {
         nextSphereAnimationHelper(0, newLong,oldLong);
@@ -470,8 +480,8 @@ var CubemapViewer = function (args) {
         step++;
         quadmaterial.uniforms.mixRatio.value = Math.abs((1-actualIndex) - step/nextSphereAnimationSteps);
 
-        var oldCubePosition = getCartesian(step*50, 0, (oldLong+Math.PI)%(2*Math.PI));
-        var newCubePosition = getCartesian(nextSphereAnimationSteps*50 - step*50, 0, newLong);
+        var oldCubePosition = getCartesian(step*30, 0, (oldLong+Math.PI)%(2*Math.PI));
+        var newCubePosition = getCartesian(nextSphereAnimationSteps*30 - step*30, 0, newLong);
         cube[1 - actualIndex].position.set(oldCubePosition.x, oldCubePosition.y, oldCubePosition.z);
         cube[actualIndex].position.set(newCubePosition.x, newCubePosition.y, newCubePosition.z);
         if (step !== nextSphereAnimationSteps) {

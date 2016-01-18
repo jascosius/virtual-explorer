@@ -33,6 +33,7 @@ function handleSphereFiles(err, files) {
             //creates the spheres json object
             // including the id, name, longitude, latitude of each sphere_...json object
             newSphere[dataObject.id] = {};
+            newSphere[dataObject.id].id = dataObject.id;
             newSphere[dataObject.id].name = dataObject.name;
             newSphere[dataObject.id].longitude = dataObject.longitude;
             newSphere[dataObject.id].latitude = dataObject.latitude;

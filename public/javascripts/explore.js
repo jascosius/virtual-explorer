@@ -6,9 +6,6 @@ var start_map = "44c2e9bdcaf4c29b";
 var current_map = start_map;
 var current_sphere;
 
-console.log(id);
-console.log(type);
-console.log(location);
 $.i18n.init({ lng: "de-DE" ,resGetPath: '/locales/__lng__/__ns__.json'});
 
 var loadMap = function(id) {
@@ -31,7 +28,7 @@ var loadMap = function(id) {
     var expectedUrl = "/map/" + id;
     if (url !== expectedUrl) {
         history.pushState({}, "Map", "/map/" + id);
-    };
+    }
 };
 
 var removeMap = function(id) {

@@ -6,6 +6,8 @@
  */
 var createMap = function (id, data, spheres, callback) {
 
+    var setupSpheres = false;
+
     var minZoom = 16;
     var maxZoom = 19;
 
@@ -31,10 +33,10 @@ var createMap = function (id, data, spheres, callback) {
     });
 
     map.addLayer(osm);
-    var markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 3});
+    var markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 5});
     $.each(spheres, function (key, value) {
 
-        var iconSize = 64;
+        var iconSize = 128;
 
         var icon = L.icon({
             iconUrl: value.icon,
@@ -46,7 +48,9 @@ var createMap = function (id, data, spheres, callback) {
         var longitude = value.longitude;
         var marker = L.marker([latitude, longitude],{icon: icon});
 
-        if(value.name !== undefined) {
+        if(setupSpheres) {
+            marker.bindPopup(value.id);
+        } else if(value.name !== undefined) {
             var name = $.i18n.t(value.name);
             marker.bindPopup(name);
         }
