@@ -1,13 +1,12 @@
 {
   "id": "26b4efc709d16b20",
   "image": {
-    "mercator": "/images/spheres/26b4efc709d16b20/mercator.jpg",
+    "erect": "/images/spheres/26b4efc709d16b20/erect.jpg",
     "cubemap": "/images/spheres/26b4efc709d16b20/cubemap",
-    "icon": "/images/spheres/26b4efc709d16b20/icon.gif"
+    "icons": "/images/spheres/26b4efc709d16b20/icons"
   },
   "latitude": "54.3375000",
   "longitude": "10.1200056",
-  "north": "123px",
   "arrows": {
     "1906e585fead7d87": {"long": "2*PI*180/360", "next_sphere": "a2b94700bd90c86a", "next_camera_long": "2*PI*0/360"}
   },
