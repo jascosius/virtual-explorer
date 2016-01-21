@@ -4,10 +4,23 @@ var path = require('path');
 var spherePath = path.resolve('public/json/spheres');
 var mapPath = path.resolve('public/json/maps/map_spheres_44c2e9bdcaf4c29b.json');
 
+var configPath = path.resolve('javascripts/preparation/config.json');
+var fileReadOptions = {
+    'encoding': 'utf-8'
+};
+var config;
+
 exports.prepair = function() {
 // Readdir reads a path and gives an array of filenames
 // to the callback handleFiles.
-    fs.readdir(spherePath, handleSphereFiles);
+    createConfig();
+    var configJson = fs.readFileSync(configPath, fileReadOptions);
+    config = JSON.parse(configJson);
+
+    if(config.activate_preparation) {
+        console.log('Prepair ...');
+        fs.readdir(spherePath, handleSphereFiles);
+    }
 };
 
 var handleSphereFiles = function(err, files) {
@@ -17,9 +30,6 @@ var handleSphereFiles = function(err, files) {
     var fileName;
     var filePath;
     // Tells fs to read an utf-8 file.
-    var fileReadOptions = {
-        'encoding': 'utf-8'
-    };
     var mapData = {};
 
     for (i = 0; i < files.length; ++i) {
@@ -33,18 +43,15 @@ var handleSphereFiles = function(err, files) {
 
             var sphere = JSON.parse(data);
 
-            //creates the spheres json object
-            // including the id, name, longitude, latitude of each sphere_...json object
-            mapData[sphere.id] = {};
-            mapData[sphere.id].id = sphere.id;
-            mapData[sphere.id].name = sphere.name;
-            mapData[sphere.id].longitude = sphere.longitude;
-            mapData[sphere.id].latitude = sphere.latitude;
-            mapData[sphere.id].icons = sphere.image.icons;
-            mapData[sphere.id].iconcount = 30; //TODO: flexible
-
-            checkCubemap(sphere);
-            checkIcons(sphere);
+            if(config.generateMapJson) {
+                checkMapJson(sphere, mapData);
+            }
+            if(config.generateCubemap) {
+                checkCubemap(sphere);
+            }
+            if(config.generateSpherePreview) {
+                checkIcons(sphere);
+            }
         }
     }
 
@@ -52,8 +59,28 @@ var handleSphereFiles = function(err, files) {
     fs.writeFileSync(mapPath, JSON.stringify(mapData));
 };
 
+var createConfig = function() {
+    try {
+        fs.lstatSync(configPath);
+    } catch(e){
+        console.log('No config found at \'' + configPath + '\'. Generating config ...');
+        var config = {};
+        config.activate_preparation = true;
+        config.generateMapJson = true;
+        config.generateCubemap = false;
+        config.generateSpherePreview = false;
+
+        fs.writeFileSync(configPath, JSON.stringify(config));
+    }
+};
+
+var checkMapJson = function(sphere, mapData){
+    var generateMapJson = require(path.resolve('javascripts/preparation/generatemapjson.js'));
+    generateMapJson.generate(sphere, mapData);
+};
+
 var checkCubemap = function(sphere) {
-    var erect2cubemap = require(path.resolve('javascripts/preparation/erect2cubemap.js'));
+    var erect2cubemap = require(path.resolve('javascripts/preparation/generatecubemap.js'));
     var cubemapPath = path.resolve('public'+sphere.image.cubemap);
     try {
         fs.lstatSync(cubemapPath);
@@ -64,12 +91,12 @@ var checkCubemap = function(sphere) {
 };
 
 var checkIcons = function(sphere) {
-    var generatespherepreview = require(path.resolve('javascripts/preparation/generatespherepreview.js'));
+    var generateSpherePreview = require(path.resolve('javascripts/preparation/generatespherepreview.js'));
     var iconPath = path.resolve('public' + sphere.image.icons);
     try {
         fs.lstatSync(iconPath);
     } catch(e){
         var inputFile = path.resolve('public'+sphere.image.erect);
-        generatespherepreview.generate(inputFile,iconPath,0);
+        generateSpherePreview.generate(inputFile,iconPath,0);
     }
 };

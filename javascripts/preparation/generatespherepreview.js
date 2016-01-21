@@ -1,3 +1,7 @@
+/* This module needs python and blender
+
+ */
+
 var cp = require("child_process");
 var path = require("path");
 

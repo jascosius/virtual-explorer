@@ -1,3 +1,7 @@
+/* This module needs hugin and imagemagic
+
+ */
+
 var path = require('path');
 var fs = require('fs-extra'); //TODO install
 var cp = require("child_process");
@@ -22,7 +26,7 @@ var rmdir = function(dir) {
             // rmdir recursively
             rmdir(filename);
         } else {
-            // rm fiilename
+            // rm filename
             fs.unlinkSync(filename);
         }
     }

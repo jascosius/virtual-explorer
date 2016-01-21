@@ -37,8 +37,8 @@ var createMap = function (id, data, spheres, callback) {
     $.each(spheres, function (key, value) {
 
         // Animation constants
-        var PSV_FRAMES_PER_SECOND = 60;
-        var PSV_ANIM_TIMEOUT = 1000 / PSV_FRAMES_PER_SECOND;
+        var PREVIEW_FRAMES_PER_SECOND = 8;
+        var PREVIEW_ANIM_TIMEOUT = 1000 / PREVIEW_FRAMES_PER_SECOND;
 
         var iconCount = value.iconcount;
         var count = 1;
@@ -62,7 +62,7 @@ var createMap = function (id, data, spheres, callback) {
             drawIcon: function (icon, type) {
                 canvas = icon;
                 image.onload = drawCanvas;
-                image.src = value.icons + '/icon0001.png';
+                image.src = value.icons + '/icon'+ pad(count,4) + '.png';
             }
         });
 
@@ -72,7 +72,7 @@ var createMap = function (id, data, spheres, callback) {
             count = (count % iconCount) + 1;
             image.src = value.icons + '/icon'+ pad(count,4) + '.png';
             if(animation) {
-                setTimeout(animateCanvas, 10*PSV_ANIM_TIMEOUT);
+                setTimeout(animateCanvas, PREVIEW_ANIM_TIMEOUT);
             }
         };
 
