@@ -12,7 +12,7 @@ var loadMap = function(id) {
 
     current_map = id;
     var callback = function(sphere_id){
-        loadSphere(sphere_id);
+        loadSphere(sphere_id,true);
     };
     $('body').append($('<div/>', {
         id: id,
@@ -35,14 +35,14 @@ var removeMap = function(id) {
     $('#'+id).remove();
 };
 
-var loadSphere = function(id) {
+var loadSphere = function(id,startAnimation) {
     current_sphere = id;
     $('body').append($('<div/>', {
         id: id,
         class: 'fullsize invisible'
     }));
     $.getJSON( "/json/spheres/sphere_"+id+".json", function (data) {
-        createSphere(id,data,photoSphereOnReady);
+        createSphere(id,data,photoSphereOnReady,startAnimation);
     });
     var photoSphereOnReady = function () {
         $("#"+id).removeClass('invisible');
@@ -59,7 +59,7 @@ var loadSphere = function(id) {
 if (type === 'map'){
     loadMap(id);
 }else if (type === 'sphere'){
-    loadSphere(id);
+    loadSphere(id,false);
 }else if (type === 'not specified'){
     loadMap(start_map);
 }

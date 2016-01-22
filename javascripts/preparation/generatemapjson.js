@@ -1,5 +1,5 @@
 exports.generate = function(sphere,mapData){
-    console.log('Generation map JSON ...');
+    console.log('Generating map JSON '+sphere.id+' ...');
     //creates the spheres json object
     // including the id, name, longitude, latitude of each sphere_...json object
     mapData[sphere.id] = {};

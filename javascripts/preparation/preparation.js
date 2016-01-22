@@ -1,6 +1,7 @@
 // Require the nodejs file system library
 var fs = require('fs');
 var path = require('path');
+var math = require('mathjs'); //TODO: Install
 var spherePath = path.resolve('public/json/spheres');
 var mapPath = path.resolve('public/json/maps/map_spheres_44c2e9bdcaf4c29b.json');
 
@@ -96,7 +97,11 @@ var checkIcons = function(sphere) {
     try {
         fs.lstatSync(iconPath);
     } catch(e){
+        var initial = 0;
+        if(sphere.initial !== undefined) {
+            initial = math.eval(sphere.initial);
+        }
         var inputFile = path.resolve('public'+sphere.image.erect);
-        generateSpherePreview.generate(inputFile,iconPath,0);
+        generateSpherePreview.generate(inputFile,iconPath,initial);
     }
 };

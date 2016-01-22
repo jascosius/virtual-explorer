@@ -49,7 +49,6 @@ exports.generate = function(inputFile, outputDir, facesize) {
     var faces = ['pz', 'nx', 'nz', 'px', 'py', 'ny'];
 
     var tmpFolder = '/tmp/erect2cubemap';
-    var origFile = tmpFolder + '/erect2cubemap-orig' + extension;
     var ptoFile = tmpFolder + '/erect2cubemap.pto';
     var nonaOutput = tmpFolder + '/cubemap';
     var outputDirSize = outputDir; // TODO: + '/' + facesize;
@@ -57,9 +56,7 @@ exports.generate = function(inputFile, outputDir, facesize) {
     if (!fs.existsSync(tmpFolder)) {
         fs.mkdirSync(tmpFolder);
     }
-
-    fs.copySync(path.resolve(inputFile), origFile);
-    cp.execSync('erect2cubic --erect=' + origFile + ' --face=' + facesize + ' --ptofile=' + ptoFile, errorFunction);
+    cp.execSync('erect2cubic --erect=' + path.resolve(inputFile) + ' --face=' + facesize + ' --ptofile=' + ptoFile, errorFunction);
     cp.execSync('nona -o ' + nonaOutput + ' ' + ptoFile, errorFunction);
 
     if (!fs.existsSync(outputDir)) {

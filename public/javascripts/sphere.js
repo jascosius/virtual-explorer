@@ -6,17 +6,19 @@
  */
 
 var sphere;
-var createSphere = function(id,data,photoSphereOnReady) {
+var createSphere = function(id,data,photoSphereOnReady,startAnimation) {
 
     var div = document.getElementById(id);
 
     sphere = new CubemapViewer({
         data: data,
         container: div,
+        time_anim: false,
         navbar: true,
         navbar_style: {
             backgroundColor: 'rgba(58, 67, 77, 0.7)'
         },
-        onready: photoSphereOnReady
+        onready: photoSphereOnReady,
+        startAnimation: startAnimation
     });
 }

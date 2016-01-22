@@ -245,7 +245,13 @@ var CubemapViewer = function (args) {
 
         actualIndex = 0;
         loadObjects();
-        loadCube();
+
+        var startAnimation = args.startAnimation;
+        if (startAnimation === undefined) {
+            startAnimation = false;
+        }
+        loadCube(startAnimation);
+
 
         // Canvas container
         canvas_container = document.createElement('div');
@@ -304,26 +310,59 @@ var CubemapViewer = function (args) {
         anim();
     };
 
+    var inOutAnimationSteps = 20;
+    var inOutYPosition = -900;
 
-    var loadCube = function () {
-        var cube = createCube(data.id, data.image, 1000 + Math.random() * 1000);
+    var inOutAnimation = function (out) {
+        var initial = 0;
+        if (data.initial !== undefined) {
+            initial = math.eval(data.initial);
+        }
+        inOutAnimationHelper(inOutAnimationSteps, initial, out);
+    };
+
+    var inOutAnimationHelper = function (step, initial, out) {
+        var multiplicator = step/inOutAnimationSteps;
+        if(out) {
+            multiplicator = (inOutAnimationSteps-step)/inOutAnimationSteps;
+        }
+        var newYPostition = multiplicator * inOutYPosition;
+        var newLat = -multiplicator * (Math.PI - 0.1);
+
+        cube[0].position.set(0, newYPostition, 0);
+        moveTo(0, initial, newLat);
+        step--;
+        if (step >= 0) {
+            setTimeout(inOutAnimationHelper, PSV_ANIM_TIMEOUT, step, initial, out);
+        }
+        render();
+    };
+
+    var loadCube = function (startAnimation) {
+        var cube = createCube(data.id, data.image, startAnimation);
         scene[actualIndex].add(cube);
-    }
+    };
 
-    var createCube = function (id, image) {
+    var createCube = function (id, image, startAnimation) {
         var directions = ["nx", "px", "py", "ny", "pz", "nz"];
         var materials = [];
         var count = directions.length;
         for (var direction in directions) {
             var texture = THREE.ImageUtils.loadTexture(image.cubemap + '/' + directions[direction] + '/0.0.jpg', {}, function () {
                 count--;
-                if (count == 0) {
+                if (count === 0) {
+
                     /**
                      * Indicates that the loading is finished: the first image is rendered
                      * @callback PhotoSphereViewer~onReady
                      **/
 
                     triggerAction('ready');
+
+                    if (startAnimation) {
+                        inOutAnimation(false);
+                    }
+
                     render();
                 }
             });
@@ -388,7 +427,8 @@ var CubemapViewer = function (args) {
         plane.rotation.x = rotationX;
         plane.rotation.y = rotationY;
         plane.rotation.z = rotationZ;
-        plane.userData.clickaction = {type: "change_sphere",
+        plane.userData.clickaction = {
+            type: "change_sphere",
             data: {
                 this_sphere: id,
                 this_arrow: name,
@@ -413,7 +453,7 @@ var CubemapViewer = function (args) {
             actualIndex = 1 - actualIndex;
             data = newData;
             clickable_objects = [];
-            loadCube();
+            loadCube(false);
             var url = location.pathname;
             var expectedUrl = "/sphere/" + data.id;
             if (url !== expectedUrl) {
@@ -425,23 +465,24 @@ var CubemapViewer = function (args) {
             var newLOng = long[actualIndex];
             if (clickData.next_camera_long !== undefined) {
                 newLong = math.eval(clickData.next_camera_long);
-            } if(data.arrows !== undefined) {
+            }
+            if (data.arrows !== undefined) {
                 for (var key in data.arrows) {
                     var arrow = data.arrows[key];
-                    if(arrow.next_sphere == clickData.this_sphere) {
+                    if (arrow.next_sphere == clickData.this_sphere) {
                         newLong = (math.eval(arrow.long) + Math.PI) % (2 * Math.PI);
                         break;
                     }
                 }
             }
-            var newViewLong = newLong + (long[1-actualIndex] - math.eval(clickData.this_long));
+            var newViewLong = newLong + (long[1 - actualIndex] - math.eval(clickData.this_long));
             var newViewLat = lat[actualIndex];
             if (clickData.next_camera_lat !== undefined) {
                 newViewLat = math.eval(clickData.next_camera_lat);
             }
             moveTo(actualIndex, newViewLong, newViewLat);
 
-            nextSphereAnimation(newLong,clickData.this_long);
+            nextSphereAnimation(newLong, clickData.this_long);
 
             if (grid) {
                 addGrid();
@@ -472,20 +513,20 @@ var CubemapViewer = function (args) {
 
     var nextSphereAnimationSteps = 20;
 
-    var nextSphereAnimation = function (newLong,oldLong) {
-        nextSphereAnimationHelper(0, newLong,oldLong);
+    var nextSphereAnimation = function (newLong, oldLong) {
+        nextSphereAnimationHelper(0, newLong, oldLong);
     };
 
-    var nextSphereAnimationHelper = function (step, newLong,oldLong) {
+    var nextSphereAnimationHelper = function (step, newLong, oldLong) {
         step++;
-        quadmaterial.uniforms.mixRatio.value = Math.abs((1-actualIndex) - step/nextSphereAnimationSteps);
+        quadmaterial.uniforms.mixRatio.value = Math.abs((1 - actualIndex) - step / nextSphereAnimationSteps);
 
-        var oldCubePosition = getCartesian(step*30, 0, (oldLong+Math.PI)%(2*Math.PI));
-        var newCubePosition = getCartesian(nextSphereAnimationSteps*30 - step*30, 0, newLong);
+        var oldCubePosition = getCartesian(step * 30, 0, (oldLong + Math.PI) % (2 * Math.PI));
+        var newCubePosition = getCartesian(nextSphereAnimationSteps * 30 - step * 30, 0, newLong);
         cube[1 - actualIndex].position.set(oldCubePosition.x, oldCubePosition.y, oldCubePosition.z);
         cube[actualIndex].position.set(newCubePosition.x, newCubePosition.y, newCubePosition.z);
         if (step !== nextSphereAnimationSteps) {
-            setTimeout(nextSphereAnimationHelper, PSV_ANIM_TIMEOUT, step, newLong,oldLong);
+            setTimeout(nextSphereAnimationHelper, PSV_ANIM_TIMEOUT, step, newLong, oldLong);
         } else {
             loadObjects();
             deleteObjects(true);

@@ -14,7 +14,7 @@ var errorFunction = function (err, stdout, stderr) {
 };
 
 exports.generate = function (texture,output_path,initial) {
-    console.log('Generating icons');
+    console.log('Generating icons ...');
 
     //var texture = 'erect.jpg';
     //var output_path = '/dir';
