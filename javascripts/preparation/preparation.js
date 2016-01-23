@@ -48,7 +48,7 @@ var handleSphereFiles = function(err, files) {
                 checkMapJson(sphere, mapData);
             }
             if(config.generateCubemap) {
-                checkCubemap(sphere);
+                checkCubemaps(sphere);
             }
             if(config.generateSpherePreview) {
                 checkIcons(sphere);
@@ -58,6 +58,8 @@ var handleSphereFiles = function(err, files) {
 
     //writes the generated newSphere object to the map_spheres....json file
     fs.writeFileSync(mapPath, JSON.stringify(mapData));
+
+    console.log("Preparation done!");
 };
 
 var createConfig = function() {
@@ -80,28 +82,36 @@ var checkMapJson = function(sphere, mapData){
     generateMapJson.generate(sphere, mapData);
 };
 
-var checkCubemap = function(sphere) {
+var checkCubemaps = function(sphere) {
     var erect2cubemap = require(path.resolve('javascripts/preparation/generatecubemap.js'));
-    var cubemapPath = path.resolve('public'+sphere.image.cubemap);
-    try {
-        fs.lstatSync(cubemapPath);
-    } catch(e){
-        var inputFile = path.resolve('public'+sphere.image.erect);
-        erect2cubemap.generate(inputFile,cubemapPath,2048);
+    for(var key in sphere.images.cubemaps) {
+        var value = sphere.images.cubemaps[key];
+        var cubemapPath = path.resolve('public'+value.path);
+        try {
+            fs.lstatSync(cubemapPath);
+        } catch(e){
+            var inputFile = path.resolve('public'+sphere.images.erect);
+            erect2cubemap.generate(inputFile,cubemapPath,value.resolution);
+        }
     }
 };
 
 var checkIcons = function(sphere) {
     var generateSpherePreview = require(path.resolve('javascripts/preparation/generatespherepreview.js'));
-    var iconPath = path.resolve('public' + sphere.image.icons);
-    try {
-        fs.lstatSync(iconPath);
-    } catch(e){
-        var initial = 0;
-        if(sphere.initial !== undefined) {
-            initial = math.eval(sphere.initial);
+    for(var key in sphere.images.icons) {
+        var value = sphere.images.icons[key];
+        var iconPath = path.resolve('public'+value.path);
+        try {
+            fs.lstatSync(iconPath);
+        } catch(e){
+            var initial = 0;
+            if(sphere.initialView.long !== undefined) {
+                initial = math.eval(sphere.initialView.long);
+            }
+            var inputFile = path.resolve('public'+sphere.images.erect);
+            generateSpherePreview.generate(inputFile,iconPath,initial);
         }
-        var inputFile = path.resolve('public'+sphere.image.erect);
-        generateSpherePreview.generate(inputFile,iconPath,initial);
     }
+
+
 };

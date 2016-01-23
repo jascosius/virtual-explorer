@@ -1,14 +1,37 @@
 {
   "id": "26b4efc709d16b20",
-  "image": {
+  "images": {
     "erect": "/images/spheres/26b4efc709d16b20/erect.jpg",
-    "cubemap": "/images/spheres/26b4efc709d16b20/cubemap",
-    "icons": "/images/spheres/26b4efc709d16b20/icons"
+    "cubemaps": {
+      "r2048": {
+        "path": "/images/spheres/26b4efc709d16b20/cubemaps/2048",
+        "resolution": "2048"
+      },
+      "r256": {
+        "path": "/images/spheres/26b4efc709d16b20/cubemaps/256",
+        "resolution": "256"
+      }
+    },
+    "icons": {
+      "r128": {
+        "path": "/images/spheres/26b4efc709d16b20/icons/128",
+        "resolution": "128"
+      }
+    }
   },
-  "latitude": "54.3375000",
-  "longitude": "10.1200056",
-  "arrows": {
-    "1906e585fead7d87": {"long": "2*PI*180/360", "next_sphere": "a2b94700bd90c86a", "next_camera_long": "2*PI*0/360"}
+  "initialView": {
+    "long": "160/360*2*PI"
   },
-  "objects": {}
+  "coords": {
+    "lat": "54.3375000",
+    "long": "10.1200056"
+  },
+  "arrows": [
+    {
+      "long": "2*PI*180/360",
+      "next_sphere": "a2b94700bd90c86a",
+      "next_camera_long": "2*PI*0/360"
+    }
+  ],
+  "objects": []
 }

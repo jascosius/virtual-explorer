@@ -40,7 +40,7 @@ var createMap = function (id, data, spheres, callback) {
         var PREVIEW_FRAMES_PER_SECOND = 8;
         var PREVIEW_ANIM_TIMEOUT = 1000 / PREVIEW_FRAMES_PER_SECOND;
 
-        var iconCount = value.iconcount;
+        var iconCount = value.images.icons.r128.count; //Todo: Dynamic resolution
         var count = 1;
 
         var drawCanvas = function() {
@@ -62,7 +62,7 @@ var createMap = function (id, data, spheres, callback) {
             drawIcon: function (icon, type) {
                 canvas = icon;
                 image.onload = drawCanvas;
-                image.src = value.icons + '/icon'+ pad(count,4) + '.png';
+                image.src = value.images.icons.r128.path + '/icon'+ pad(count,4) + '.png'; //Todo: dynamic resolution
             }
         });
 
@@ -70,7 +70,7 @@ var createMap = function (id, data, spheres, callback) {
 
         var animateCanvas = function() {
             count = (count % iconCount) + 1;
-            image.src = value.icons + '/icon'+ pad(count,4) + '.png';
+            image.src = value.images.icons.r128.path + '/icon'+ pad(count,4) + '.png';
             if(animation) {
                 setTimeout(animateCanvas, PREVIEW_ANIM_TIMEOUT);
             }
@@ -86,8 +86,8 @@ var createMap = function (id, data, spheres, callback) {
         };
 
 
-        var latitude = value.latitude;
-        var longitude = value.longitude;
+        var latitude = value.coords.lat;
+        var longitude = value.coords.long;
         var marker = L.marker([latitude, longitude],{icon: icon});
 
 
@@ -138,4 +138,4 @@ var createMap = function (id, data, spheres, callback) {
 var pad = function(num, size) {
     var s = "000000000" + num;
     return s.substr(s.length-size);
-}
+};

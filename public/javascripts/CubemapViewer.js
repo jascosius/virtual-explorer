@@ -250,6 +250,7 @@ var CubemapViewer = function (args) {
         if (startAnimation === undefined) {
             startAnimation = false;
         }
+        moveTo(0, getInitial(), 0);
         loadCube(startAnimation);
 
 
@@ -313,12 +314,16 @@ var CubemapViewer = function (args) {
     var inOutAnimationSteps = 20;
     var inOutYPosition = -900;
 
-    var inOutAnimation = function (out) {
+    var getInitial = function() {
         var initial = 0;
-        if (data.initial !== undefined) {
-            initial = math.eval(data.initial);
+        if (data.initialView.long !== undefined) { //todo: add lat
+            initial = math.eval(data.initialView.long);
         }
-        inOutAnimationHelper(inOutAnimationSteps, initial, out);
+        return initial;
+    };
+
+    var inOutAnimation = function (out) {
+        inOutAnimationHelper(inOutAnimationSteps, getInitial(), out);
     };
 
     var inOutAnimationHelper = function (step, initial, out) {
@@ -339,7 +344,7 @@ var CubemapViewer = function (args) {
     };
 
     var loadCube = function (startAnimation) {
-        var cube = createCube(data.id, data.image, startAnimation);
+        var cube = createCube(data.id, data.images.cubemaps.r2048.path, startAnimation);
         scene[actualIndex].add(cube);
     };
 
@@ -348,7 +353,7 @@ var CubemapViewer = function (args) {
         var materials = [];
         var count = directions.length;
         for (var direction in directions) {
-            var texture = THREE.ImageUtils.loadTexture(image.cubemap + '/' + directions[direction] + '/0.0.jpg', {}, function () {
+            var texture = THREE.ImageUtils.loadTexture(image + '/' + directions[direction] + '/0.0.jpg', {}, function () {
                 count--;
                 if (count === 0) {
 
@@ -1691,8 +1696,8 @@ var CubemapViewer = function (args) {
         }
     };
 
-    // Required parameters
-    if (args === undefined || args.data === undefined || args.data.image === undefined || args.data.image.cubemap === undefined || args.container === undefined) {
+    // Required parameters Todo: General checks
+    if (args === undefined || args.data === undefined || args.data.images === undefined || args.data.images.cubemaps === undefined || args.container === undefined) {
         console.log('PhotoSphereViewer: no value given for data, data.image.cubemap or container');
         return;
     }

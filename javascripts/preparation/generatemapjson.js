@@ -5,8 +5,8 @@ exports.generate = function(sphere,mapData){
     mapData[sphere.id] = {};
     mapData[sphere.id].id = sphere.id;
     mapData[sphere.id].name = sphere.name;
-    mapData[sphere.id].longitude = sphere.longitude;
-    mapData[sphere.id].latitude = sphere.latitude;
-    mapData[sphere.id].icons = sphere.image.icons;
-    mapData[sphere.id].iconcount = 30; //TODO: flexible
+    mapData[sphere.id].coords = sphere.coords;
+    mapData[sphere.id].images = {};
+    mapData[sphere.id].images.icons = sphere.images.icons;
+    mapData[sphere.id].images.icons.r128.count = 30; //TODO: flexible
 };

@@ -4,6 +4,7 @@
 
 var path = require('path');
 var fs = require('fs-extra'); //TODO install
+var mkdirp = require('mkdirp'); //TODO: Install
 var cp = require("child_process");
 
 var errorFunction = function(err, stdout, stderr) {
@@ -37,7 +38,6 @@ exports.generate = function(inputFile, outputDir, facesize) {
     console.log('Generating cubemap ...');
     targetextension = '.jpg';
 
-    //var facesize = 2048;
     var tilesize = 2048; //256
 
     var dirname = path.dirname(inputFile);
@@ -51,27 +51,20 @@ exports.generate = function(inputFile, outputDir, facesize) {
     var tmpFolder = '/tmp/erect2cubemap';
     var ptoFile = tmpFolder + '/erect2cubemap.pto';
     var nonaOutput = tmpFolder + '/cubemap';
-    var outputDirSize = outputDir; // TODO: + '/' + facesize;
 
     if (!fs.existsSync(tmpFolder)) {
-        fs.mkdirSync(tmpFolder);
+        mkdirp.sync(tmpFolder);
     }
     cp.execSync('erect2cubic --erect=' + path.resolve(inputFile) + ' --face=' + facesize + ' --ptofile=' + ptoFile, errorFunction);
     cp.execSync('nona -o ' + nonaOutput + ' ' + ptoFile, errorFunction);
 
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
-    }
-    if (!fs.existsSync(outputDirSize)) {
-        fs.mkdirSync(outputDirSize);
-    }
     for (var i = 0; i < 6; i++) {
         var face = faces[i];
-        var faceDir = outputDirSize + '/' + face;
+        var faceDir = outputDir + '/' + face;
         var convertInputFile = nonaOutput + '000' + i + '.tif';
         var convertOutputFile = nonaOutput + '.' + face + '.%d' + targetextension;
         if (!fs.existsSync(faceDir)) {
-            fs.mkdirSync(faceDir);
+            mkdirp.sync(faceDir);
         }
         cp.execSync('convert ' + convertInputFile + ' -crop ' + tilesize + 'x' + tilesize + ' +repage ' + convertOutputFile,errorFunction);
 

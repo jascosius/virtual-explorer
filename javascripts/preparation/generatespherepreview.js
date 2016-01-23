@@ -3,7 +3,9 @@
  */
 
 var cp = require("child_process");
+var fs = require('fs'); //TODO install
 var path = require("path");
+var mkdirp = require('mkdirp'); //TODO: Install
 
 var errorFunction = function (err, stdout, stderr) {
     if (err) {
@@ -15,6 +17,10 @@ var errorFunction = function (err, stdout, stderr) {
 
 exports.generate = function (texture,output_path,initial) {
     console.log('Generating icons ...');
+
+    if (!fs.existsSync(output_path)) {
+        mkdirp.sync(output_path);
+    }
 
     //var texture = 'erect.jpg';
     //var output_path = '/dir';
