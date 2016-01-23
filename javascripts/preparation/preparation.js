@@ -106,7 +106,7 @@ var checkIcons = function(sphere) {
         } catch(e){
             var initial = 0;
             if(sphere.initialView.long !== undefined) {
-                initial = math.eval(sphere.initialView.long);
+                initial = -math.eval(sphere.initialView.long);
             }
             var inputFile = path.resolve('public'+sphere.images.erect);
             generateSpherePreview.generate(inputFile,iconPath,initial);
