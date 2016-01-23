@@ -101,14 +101,10 @@ var createMap = function (id, data, spheres, callback) {
         marker.on('mouseover', function (e) {
             startAnimation();
             this.openPopup();
-            map.options.maxZoom = maxZoom + 1;
-            active_marker = key;
         });
         marker.on('mouseout', function (e) {
             stopAnimation();
             this.closePopup();
-            map.options.maxZoom = maxZoom;
-            active_marker = null;
         });
         marker.on('click', function (e) {
             callback(key);
@@ -119,20 +115,6 @@ var createMap = function (id, data, spheres, callback) {
     });
 
     map.addLayer(markers);
-
-    var active_marker;
-    var sphere_id;
-
-    map.on('zoomstart', function () {
-        sphere_id = active_marker;
-    });
-
-    map.on('zoomend', function () {
-        if (map.getZoom() === (maxZoom + 1)) {
-            callback(sphere_id);
-            //loadSphere(sphere_id);
-        }
-    });
 };
 
 var pad = function(num, size) {
