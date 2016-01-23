@@ -244,15 +244,6 @@ var CubemapViewer = function (args) {
         }
 
         actualIndex = 0;
-        loadObjects();
-
-        var startAnimation = args.startAnimation;
-        if (startAnimation === undefined) {
-            startAnimation = false;
-        }
-        moveTo(0, getInitial(), 0);
-        loadCube(startAnimation);
-
 
         // Canvas container
         canvas_container = document.createElement('div');
@@ -301,6 +292,18 @@ var CubemapViewer = function (args) {
         initFade();
 
         canvas_container.appendChild(canvas);
+
+        var startAnimation = args.startAnimation;
+        if (startAnimation === undefined) {
+            startAnimation = false;
+        }
+        moveTo(0, getInitial(), 0);
+        loadCube(startAnimation);
+
+        if(!startAnimation) {
+            loadObjects();
+        }
+
         render();
 
         // Zoom?
@@ -339,6 +342,8 @@ var CubemapViewer = function (args) {
         step--;
         if (step >= 0) {
             setTimeout(inOutAnimationHelper, PSV_ANIM_TIMEOUT, step, initial, out);
+        } else {
+            loadObjects();
         }
         render();
     };
@@ -420,7 +425,7 @@ var CubemapViewer = function (args) {
             rotationZ = -rotationZ - math.eval(arrow.rotationZ);
 
         var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture);
+        var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture,{},function(){render()});
         var planeMaterial = new THREE.MeshBasicMaterial({
             map: planeTexture,
             side: THREE.DoubleSide,
@@ -467,7 +472,7 @@ var CubemapViewer = function (args) {
 
             deleteObjects(false);
 
-            var newLOng = long[actualIndex];
+            var newLong = long[actualIndex];
             if (clickData.next_camera_long !== undefined) {
                 newLong = math.eval(clickData.next_camera_long);
             }
@@ -728,7 +733,6 @@ var CubemapViewer = function (args) {
             renderer.render(scene[1], camera[1], rtTexture1);
             renderer.render(quadscene, fadeCamera, null, true);
         }
-        //renderer.render(scene, camera);
     };
 
     var initFade = function () {

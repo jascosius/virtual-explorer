@@ -6,21 +6,21 @@ var start_map = "44c2e9bdcaf4c29b";
 var current_map = start_map;
 var current_sphere;
 
-$.i18n.init({ lng: "de-DE" ,resGetPath: '/locales/__lng__/__ns__.json'});
+$.i18n.init({lng: "de-DE", resGetPath: '/locales/__lng__/__ns__.json'});
 
-var loadMap = function(id) {
+var loadMap = function (id) {
 
     current_map = id;
-    var callback = function(sphere_id){
-        loadSphere(sphere_id,true);
+    var callback = function (sphere_id) {
+        loadSphere(sphere_id, true);
     };
     $('body').append($('<div/>', {
         id: id,
         class: 'fullsize'
     }));
-    $.getJSON( "/json/maps/map_"+id+".json", function (data) {
-        $.getJSON( "/json/maps/map_spheres_"+id+".json", function (spheres) {
-            createMap(id,data,spheres,callback);
+    $.getJSON("/json/maps/map_" + id + ".json", function (data) {
+        $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
+            createMap(id, data, spheres, callback);
         });
     });
 
@@ -31,21 +31,21 @@ var loadMap = function(id) {
     }
 };
 
-var removeMap = function(id) {
-    $('#'+id).remove();
+var removeMap = function (id) {
+    $('#' + id).remove();
 };
 
-var loadSphere = function(id,startAnimation) {
+var loadSphere = function (id, startAnimation) {
     current_sphere = id;
     $('body').append($('<div/>', {
         id: id,
         class: 'fullsize invisible'
     }));
-    $.getJSON( "/json/spheres/sphere_"+id+".json", function (data) {
-        createSphere(id,data,photoSphereOnReady,startAnimation);
+    $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
+        createSphere(id, data, photoSphereOnReady, startAnimation);
     });
     var photoSphereOnReady = function () {
-        $("#"+id).removeClass('invisible');
+        $("#" + id).removeClass('invisible');
         removeMap(current_map);
     };
 
@@ -56,10 +56,13 @@ var loadSphere = function(id,startAnimation) {
     }
 };
 
-if (type === 'map'){
+if (type === 'map') {
     loadMap(id);
-}else if (type === 'sphere'){
-    loadSphere(id,false);
-}else if (type === 'not specified'){
+} else if (type === 'sphere') {
+    loadSphere(id, false);
+} else if (type === 'not specified') {
     loadMap(start_map);
 }
+
+
+

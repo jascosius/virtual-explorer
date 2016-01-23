@@ -44,7 +44,10 @@ scn.frame_end = steps
 
 bpy.context.user_preferences.edit.keyframe_new_interpolation_type ='LINEAR'
 
-for step in range(1,steps+1):
+scn.frame_set(frame = 1);
+bpy.context.active_object.keyframe_insert(data_path="rotation_euler")
+
+for step in range(2,steps+1):
     scn.frame_set(frame = step)
     rotation=(1/steps)*math.pi*2
     bpy.ops.transform.rotate(value=-rotation)
