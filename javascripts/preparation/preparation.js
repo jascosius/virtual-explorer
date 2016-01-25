@@ -2,8 +2,10 @@
 var fs = require('fs');
 var path = require('path');
 var math = require('mathjs'); //TODO: Install
-var spherePath = path.resolve('public/json/spheres');
+var spherePath = path.resolve('public/json/spheres'); //Todo: move unused erect.jpg
 var mapPath = path.resolve('public/json/maps/map_spheres_44c2e9bdcaf4c29b.json');
+var markdownPath = path.resolve('markdown/de-DE'); //Todo: Multilanguage support
+var htmlDir = path.resolve('public/popups/de-DE'); //Todo: Multilanguage support
 
 var configPath = path.resolve('javascripts/preparation/config.json');
 var fileReadOptions = {
@@ -18,9 +20,32 @@ exports.prepair = function() {
     var configJson = fs.readFileSync(configPath, fileReadOptions);
     config = JSON.parse(configJson);
 
-    if(config.activate_preparation) {
+    if(config.activatePreparation) {
         console.log('Prepair ...');
         fs.readdir(spherePath, handleSphereFiles);
+        if(config.renderMarkdown) {
+            fs.readdir(markdownPath, handleMarkdownFiles);
+        }
+    }
+};
+
+var handleMarkdownFiles = function(err, files) {
+    if(err) throw err;
+    var i;
+    var fileName;
+    var filePath;
+    var markdownFilePattern = /\.[md]+$/i;
+
+    for (i = 0; i< files.length; i++) {
+        for (i = 0; i < files.length; ++i) {
+            fileName = files[i];
+            // Check if the file has a .json extension
+            if (fileName.match(markdownFilePattern)) {
+                filePath = markdownPath + '/' + fileName;
+                var markdown = fs.readFileSync(filePath, fileReadOptions);
+                checkMarkdown(markdown, fileName, htmlDir);
+            }
+        }
     }
 };
 
@@ -58,8 +83,6 @@ var handleSphereFiles = function(err, files) {
 
     //writes the generated newSphere object to the map_spheres....json file
     fs.writeFileSync(mapPath, JSON.stringify(mapData, null,4));
-
-    console.log("Preparation done!");
 };
 
 var createConfig = function() {
@@ -68,8 +91,9 @@ var createConfig = function() {
     } catch(e){
         console.log('No config found at \'' + configPath + '\'. Generating config ...');
         var config = {};
-        config.activate_preparation = true;
+        config.activatePreparation = true;
         config.generateMapJson = true;
+        config.renderMarkdown = true;
         config.generateCubemap = false;
         config.generateSpherePreview = false;
 
@@ -94,6 +118,12 @@ var checkCubemaps = function(sphere) {
             erect2cubemap.generate(inputFile,cubemapPath,value.resolution);
         }
     }
+};
+
+var checkMarkdown = function(markdown, fileName, outputDir) {
+    var generateHtml = require(path.resolve('javascripts/preparation/generatehtml.js'));
+    generateHtml.generate(markdown, fileName, outputDir);
+
 };
 
 var checkIcons = function(sphere) {

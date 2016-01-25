@@ -34,5 +34,12 @@
       "next_sphere": "d875d5d81bbbc835"
     }
   ],
+  "infos": [
+    {
+      "long": "2*PI*270/360",
+      "lat": "PI/2*-10/90",
+      "content": "/popups/de-DE/fs-infmath.html"
+    }
+  ],
   "objects": []
 }

@@ -300,7 +300,7 @@ var CubemapViewer = function (args) {
         moveTo(0, getInitial(), 0);
         loadCube(startAnimation);
 
-        if(!startAnimation) {
+        if (!startAnimation) {
             loadObjects();
         }
 
@@ -317,7 +317,7 @@ var CubemapViewer = function (args) {
     var inOutAnimationSteps = 20;
     var inOutYPosition = -900;
 
-    var getInitial = function() {
+    var getInitial = function () {
         var initial = 0;
         if (data.initialView.long !== undefined) { //todo: add lat
             initial = math.eval(data.initialView.long);
@@ -330,9 +330,9 @@ var CubemapViewer = function (args) {
     };
 
     var inOutAnimationHelper = function (step, initial, out) {
-        var multiplicator = step/inOutAnimationSteps;
-        if(out) {
-            multiplicator = (inOutAnimationSteps-step)/inOutAnimationSteps;
+        var multiplicator = step / inOutAnimationSteps;
+        if (out) {
+            multiplicator = (inOutAnimationSteps - step) / inOutAnimationSteps;
         }
         var newYPostition = multiplicator * inOutYPosition;
         var newLat = -multiplicator * (Math.PI - 0.1);
@@ -425,7 +425,9 @@ var CubemapViewer = function (args) {
             rotationZ = -rotationZ - math.eval(arrow.rotationZ);
 
         var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture,{},function(){render()});
+        var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture, {}, function () {
+            render()
+        });
         var planeMaterial = new THREE.MeshBasicMaterial({
             map: planeTexture,
             side: THREE.DoubleSide,
@@ -456,6 +458,49 @@ var CubemapViewer = function (args) {
 
         return plane;
 
+    };
+
+    var createInfos = function (id, infos) {
+        var infos_array = [];
+        for (var key in infos) {
+            var info = infos[key];
+            infos_array.push(createInfo(id, info));
+        }
+        return infos_array;
+    };
+
+    var createInfo = function(id, info) {
+        var info_texture = '/images/objects/info.png';
+        var texture = THREE.ImageUtils.loadTexture( info_texture, {}, function () {
+            render();
+        });
+        var material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
+        var sprite = new THREE.Sprite( material );
+        sprite.userData.clickaction = {
+            type: "show_popup",
+            data: {
+                this_sphere: id,
+                content: info.content
+            }
+        };
+        var lat = math.eval(info.lat);
+        var long = math.eval(info.long);
+        sprite.position.add(getCartesian(800,lat,long));
+        sprite.scale.set( 64, 64, 1.0 ); // imageWidth, imageHeight
+        sprite.userData.belongsTo = id;
+        sprite.userData.type = "info";
+        return sprite;
+    };
+
+    var showPopup = function(clickData) {
+        $("#infoPopup").load(clickData.content);
+        var element = document.querySelector('#infoPopup');
+        //console.log('display', element.style.display);
+        element.style.display = element.style.display === 'block' ? 'none' : 'block';
+    };
+
+    this.changePopup = function(newPage) {
+        $("#infoPopup").load(newPage);
     };
 
     var loadNewSphere = function (clickData) {
@@ -505,7 +550,12 @@ var CubemapViewer = function (args) {
         var arrows = createArrows(data.id, data.arrows);
         for (var arrow_index in arrows) {
             scene[actualIndex].add(arrows[arrow_index]);
-            clickableObjects.push(arrows[arrow_index])
+            clickableObjects.push(arrows[arrow_index]);
+        }
+        var infos = createInfos(data.id, data.infos);
+        for (var info_index in infos) {
+            scene[actualIndex].add(infos[info_index]);
+            clickableObjects.push(infos[info_index]);
         }
     };
 
@@ -1125,7 +1175,7 @@ var CubemapViewer = function (args) {
         var intersects = raycaster.intersectObjects(clickableObjects);
         if (intersects.length > 0) {
             clickedObjects[0] = intersects[0].object;
-            intersects[0].object.material.color.setHex(0x999999);
+            clickedObjects[0].material.color.setHex(0x999999);
             render();
         }
 
@@ -1202,8 +1252,14 @@ var CubemapViewer = function (args) {
         touchzoom = false;
 
         if (clickedObjects[0] !== undefined) {
-            loadNewSphere(clickedObjects[0].userData.clickaction.data);
+            clickedObjects[0].material.color.setHex(0xffffff);
+            if(clickedObjects[0].userData.clickaction.type === "change_sphere") {
+                loadNewSphere(clickedObjects[0].userData.clickaction.data);
+            } else if (clickedObjects[0].userData.clickaction.type === "show_popup") {
+                showPopup(clickedObjects[0].userData.clickaction.data);
+            }
             clickedObjects[0] = undefined;
+            render();
         }
 
     };
