@@ -57,7 +57,7 @@ var handleSphereFiles = function(err, files) {
     }
 
     //writes the generated newSphere object to the map_spheres....json file
-    fs.writeFileSync(mapPath, JSON.stringify(mapData));
+    fs.writeFileSync(mapPath, JSON.stringify(mapData, null,4));
 
     console.log("Preparation done!");
 };
@@ -73,7 +73,7 @@ var createConfig = function() {
         config.generateCubemap = false;
         config.generateSpherePreview = false;
 
-        fs.writeFileSync(configPath, JSON.stringify(config));
+        fs.writeFileSync(configPath, JSON.stringify(config,null,4));
     }
 };
 
