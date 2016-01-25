@@ -26,6 +26,9 @@
     "lat": "54.337625",
     "long": "10.121006"
   },
+  "infos": [
+    {"long": "188/360*PI*2", "lat": "-3/90*PI/2", "content": "/popups/de-DE/lms6.html"}
+  ],
   "arrows": [
     {
       "long": "2*PI*190/360",
