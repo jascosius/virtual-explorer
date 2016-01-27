@@ -23,29 +23,6 @@ exports.prepair = function() {
     if(config.activatePreparation) {
         console.log('Prepair ...');
         fs.readdir(spherePath, handleSphereFiles);
-        if(config.renderMarkdown) {
-            fs.readdir(markdownPath, handleMarkdownFiles);
-        }
-    }
-};
-
-var handleMarkdownFiles = function(err, files) {
-    if(err) throw err;
-    var i;
-    var fileName;
-    var filePath;
-    var markdownFilePattern = /\.[md]+$/i;
-
-    for (i = 0; i< files.length; i++) {
-        for (i = 0; i < files.length; ++i) {
-            fileName = files[i];
-            // Check if the file has a .json extension
-            if (fileName.match(markdownFilePattern)) {
-                filePath = markdownPath + '/' + fileName;
-                var markdown = fs.readFileSync(filePath, fileReadOptions);
-                checkMarkdown(markdown, fileName, htmlDir);
-            }
-        }
     }
 };
 
@@ -93,7 +70,6 @@ var createConfig = function() {
         var config = {};
         config.activatePreparation = true;
         config.generateMapJson = true;
-        config.renderMarkdown = true;
         config.generateCubemap = false;
         config.generateSpherePreview = false;
 
@@ -118,12 +94,6 @@ var checkCubemaps = function(sphere) {
             erect2cubemap.generate(inputFile,cubemapPath,value.resolution);
         }
     }
-};
-
-var checkMarkdown = function(markdown, fileName, outputDir) {
-    var generateHtml = require(path.resolve('javascripts/preparation/generatehtml.js'));
-    generateHtml.generate(markdown, fileName, outputDir);
-
 };
 
 var checkIcons = function(sphere) {

@@ -38,7 +38,7 @@
     {
       "long": "2*PI*270/360",
       "lat": "PI/2*-10/90",
-      "content": "/popups/de-DE/fs-infmath.html"
+      "content": "/markdown/de-DE/fs-infmath.md"
     }
   ],
   "objects": []

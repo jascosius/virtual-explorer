@@ -492,15 +492,43 @@ var CubemapViewer = function (args) {
         return sprite;
     };
 
+    var markdownRenderer = new marked.Renderer();
+    markdownRenderer.link = function(href, title, text) {
+        var out;
+        if(href.substring(0,1) === '#') {
+            href = href.substring(1);
+            out = '<a href="javascript:void(0)" onclick="sphere.changePopup(\''+ href +'\');"'
+        } else {
+            out = '<a href="' + href + '" TARGET="_blank"';
+        }
+        if (title) {
+            out += ' title="' + title + '"';
+        }
+        out += '>' + text + '</a>';
+        return out;
+    };
+
     var showPopup = function(clickData) {
-        $("#infoPopup").load(clickData.content);
+
         var element = document.querySelector('#infoPopup');
-        //console.log('display', element.style.display);
-        element.style.display = element.style.display === 'block' ? 'none' : 'block';
+        if(element.style.display === 'block') {
+            element.style.display = 'none';
+            $("#infoPopup").empty();
+        } else {
+            $.get( clickData.content, function( markdown ) {
+                $("#infoPopup").html( marked(markdown, { renderer: markdownRenderer}) );
+            });
+            element.style.display = 'block';
+        }
+
+
+
     };
 
     this.changePopup = function(newPage) {
-        $("#infoPopup").load(newPage);
+        $.get( newPage, function( markdown ) {
+            $("#infoPopup").html( marked(markdown, { renderer: markdownRenderer }) );
+        });
     };
 
     var loadNewSphere = function (clickData) {
