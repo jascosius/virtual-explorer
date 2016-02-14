@@ -178,6 +178,9 @@ module.exports = function(grunt) {
     grunt.registerTask('scriptDev', ['concat:scriptDev']);
     grunt.registerTask('default', ['copy', 'script', 'style', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watch']);
     grunt.registerTask('dev', ['copy', 'scriptDev', 'styleDev', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watchDev']);
-    grunt.registerTask('all', ['copy', 'script', 'style', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'generatecubemap','generatepreview']);
+    grunt.registerTask('init', ['copy', 'script', 'style', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html']);
+    grunt.registerTask('initDev', ['copy', 'scriptDev', 'styleDev', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html']);
+    grunt.registerTask('all', ['copy', 'script', 'style', 'generatecubemap','generatepreview', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html']);
+    grunt.registerTask('allDev', ['copy', 'scriptDev', 'styleDev', 'generatecubemap','generatepreview', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html']);
 
 };

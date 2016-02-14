@@ -1,13 +1,12 @@
 {
   "cubemapSizes": [
-    2048,
-    1024,
-    512,
-    256
+    {"size": 2048, "path": "images/spheres/$id$/cubemap/2048"},
+    {"size": 1024, "path": "images/spheres/$id$/cubemap/1024"},
+    {"size": 512, "path": "images/spheres/$id$/cubemap/512"}
   ],
   "previewSizes" : [
-    512,
-    256,
-    128
+    {"size": 256, "path": "images/spheres/$id$/preview/256", "count": 30},
+    {"size": 128, "path": "images/spheres/$id$/preview/128", "count": 30},
+    {"size": 64, "path": "images/spheres/$id$/preview/64", "count": 10}
   ]
 }

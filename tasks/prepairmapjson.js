@@ -40,7 +40,7 @@ module.exports = function (grunt) {
 
                     var destPath = filepath.split('/').slice(-1).join('/');
                     var dest = path.resolve(path.join(f.dest, destPath));
-                    grunt.file.write(dest, JSON.stringify(newMap), {encoding: 'utf8'});
+                    grunt.file.write(dest, JSON.stringify(newMap,null,4), {encoding: 'utf8'});
 
                 }
             });

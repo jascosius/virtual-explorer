@@ -14,14 +14,9 @@ module.exports = function (grunt) {
         console.log(stdout);
     };
 
-    var generatePreview = function (inputFile, outputDir, id, size, initial) {
+    var generatePreview = function (inputFile, outputDir, id, size, count, initial) {
 
         grunt.log.writeln('Generating preview ' + id + ' (' + size + 'x' + size + ').');
-
-        if (size !== 128) {
-            grunt.log.writeln('No other sizes then 128 are supported yet ...'); //todo: support other resolutions
-            return;
-        }
 
         //specify the output dir
         outputDir += '/' + id + '/preview/' + size;
@@ -30,12 +25,11 @@ module.exports = function (grunt) {
             mkdirp.sync(outputDir);
         }
 
-        var steps = 30;
         var blender_file = path.resolve('extra/blender/sphere_shadeless.blend');
         var python_file = path.resolve('extra/blender/render_preview.py');
 
         //execute blender with a python script to generate preview
-        cp.execSync('blender_texture=' + inputFile + ' blender_output=' + outputDir + ' blender_steps=' + steps + ' blender_initial=' + initial + ' blender -b ' + blender_file + ' --python ' + python_file + ' -F PNG -s 1 -e ' + steps + ' -j 1 -t 0 -a -noaudio', errorFunction);
+        cp.execSync('blender_texture=' + inputFile + ' blender_output=' + outputDir + ' blender_resolution=' + size + ' blender_steps=' + count + ' blender_initial=' + initial + ' blender -b ' + blender_file + ' --python ' + python_file + ' -F PNG -s 1 -e ' + count + ' -j 1 -t 0 -a -noaudio', errorFunction);
 
     };
 
@@ -66,8 +60,8 @@ module.exports = function (grunt) {
                             initial = -math.eval(sphere.initialView.long);
                         }
                     }
-                    config.previewSizes.forEach(function (size) {
-                        generatePreview(path.resolve(filepath), path.resolve(f.dest), id, size, initial);
+                    config.previewSizes.forEach(function (res) {
+                        generatePreview(path.resolve(filepath), path.resolve(f.dest), id, res.size, res.count, initial);
                     });
                 }
             })

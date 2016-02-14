@@ -15,7 +15,10 @@ if not image_file:
     raise NameError("No Texture specified")
 output_path = os.getenv('blender_output')
 if not output_path:
-    raise NameError("No output path specified")
+    raise NameError("No resolution specified")
+resolution = int(os.getenv('blender_resolution'))
+if not output_path:
+    raise NameError("No steps count specified")
 steps = int(os.getenv('blender_steps'))
 if not steps:
     raise NameError("No step count specified")
@@ -55,3 +58,5 @@ for step in range(2,steps+1):
 
 filepath=output_path+'/icon'
 bpy.context.scene.render.filepath=filepath
+bpy.context.scene.render.resolution_x = resolution
+bpy.context.scene.render.resolution_y = resolution

@@ -29,29 +29,27 @@ module.exports = function (grunt) {
             grunt.fail.warn('Some coords are missing for sphere ' + sphere.id + '.');
         }
 
+        newSphere.images = {};
+        newSphere.images.cubemap = {};
+        config.cubemapSizes.forEach(function (res) {
+            var img = res.path.replace("$id$", sphere.id);
+            newSphere.images.cubemap[res.size] = {size: res.size, path: img};
+            var resImg = path.resolve(path.join('public/',img));
+            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
+        });
+        newSphere.images.preview = {};
+        config.previewSizes.forEach(function (res) {
+            var img = res.path.replace("$id$", sphere.id);
+            newSphere.images.preview[res.size] = {size: res.size, path: img, count: res.count};
+            var resImg = path.resolve(path.join('public/',img));
+            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
+        });
+
         newSphere.arrows = sphere.arrows; //Todo: test arrow
 
         newSphere.infos = sphere.infos;
 
         newSphere.objects = sphere.objects;
-
-        newSphere.images = {};
-        newSphere.images.cubemap = {};
-        config.cubemapSizes.forEach(function (size) {
-            var img = '/images/spheres/'+sphere.id+'/cubemap/'+size;
-            newSphere.images.cubemap[size] = {size: size, path: img};
-            var resImg = path.resolve(path.join('public/',img));
-            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
-        });
-        newSphere.images.preview = {};
-        config.previewSizes.forEach(function (size) {
-            var img = '/images/spheres/'+sphere.id+'/preview/'+size;
-            newSphere.images.preview[size] = {size: size, path: img};
-            var resImg = path.resolve(path.join('public/',img));
-            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
-        });
-
-
     };
 
     grunt.registerMultiTask('prepairspherejson', 'Prepairs and checks sphere json files for production.', function () {
@@ -77,7 +75,7 @@ module.exports = function (grunt) {
 
                     var destPath = filepath.split('/').slice(-1).join('/');
                     var dest = path.resolve(path.join(f.dest, destPath));
-                    grunt.file.write(dest, JSON.stringify(newSphere), {encoding: 'utf8'});
+                    grunt.file.write(dest, JSON.stringify(newSphere,null,4), {encoding: 'utf8'});
 
                 }
             });

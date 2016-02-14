@@ -99,8 +99,8 @@ module.exports = function (grunt) {
                     return false;
                 } else {
                     var id = filepath.split('/').slice(-2,-1);
-                    config.cubemapSizes.forEach(function(size) {
-                        generateCubemap(path.resolve(filepath), path.resolve(f.dest),id,size);
+                    config.cubemapSizes.forEach(function(res) {
+                        generateCubemap(path.resolve(filepath), path.resolve(f.dest),id,res.size);
                     });
                 }
             })
