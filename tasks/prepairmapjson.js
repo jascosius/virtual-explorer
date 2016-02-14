@@ -4,7 +4,7 @@ module.exports = function (grunt) {
 
     var ids = [];
 
-    var prepairMap = function (newMap, map) {
+    var prepairMap = function (newMap, map, config) {
 
         newMap.id = map.id;
         if (map.id === undefined) {
@@ -15,12 +15,12 @@ module.exports = function (grunt) {
         }
         ids.push(map.id);
 
-
-
-
     };
 
-    grunt.registerMultiTask('perpairmapjson', 'Prepairs and checks map json files for production.', function () {
+    grunt.registerMultiTask('prepairmapjson', 'Prepairs and checks map json files for production.', function () {
+
+        var data = grunt.file.read(path.resolve('raw/config.json'));
+        var config = JSON.parse(data);
 
         this.files.forEach(function (f) {
 
@@ -36,7 +36,7 @@ module.exports = function (grunt) {
 
                     var newMap = {};
 
-                    prepairMap(newMap, map);
+                    prepairMap(newMap, map, config);
 
                     var destPath = filepath.split('/').slice(-1).join('/');
                     var dest = path.resolve(path.join(f.dest, destPath));

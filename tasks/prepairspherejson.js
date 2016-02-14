@@ -4,7 +4,7 @@ module.exports = function (grunt) {
 
     var ids = [];
 
-    var prepairSphere = function (newSphere, sphere) {
+    var prepairSphere = function (newSphere, sphere, config) {
 
         newSphere.id = sphere.id;
         if (sphere.id === undefined) {
@@ -35,10 +35,29 @@ module.exports = function (grunt) {
 
         newSphere.objects = sphere.objects;
 
+        newSphere.images = {};
+        newSphere.images.cubemap = {};
+        config.cubemapSizes.forEach(function (size) {
+            var img = '/images/spheres/'+sphere.id+'/cubemap/'+size;
+            newSphere.images.cubemap[size] = {size: size, path: img};
+            var resImg = path.resolve(path.join('public/',img));
+            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
+        });
+        newSphere.images.preview = {};
+        config.previewSizes.forEach(function (size) {
+            var img = '/images/spheres/'+sphere.id+'/preview/'+size;
+            newSphere.images.preview[size] = {size: size, path: img};
+            var resImg = path.resolve(path.join('public/',img));
+            if(!grunt.file.exists(resImg)) {grunt.fail.warn(resImg + ' does not exist!')}
+        });
+
 
     };
 
-    grunt.registerMultiTask('perpairspherejson', 'Prepairs and checks sphere json files for production.', function () {
+    grunt.registerMultiTask('prepairspherejson', 'Prepairs and checks sphere json files for production.', function () {
+
+        var data = grunt.file.read(path.resolve('raw/config.json'));
+        var config = JSON.parse(data);
 
         this.files.forEach(function (f) {
 
@@ -54,7 +73,7 @@ module.exports = function (grunt) {
 
                     var newSphere = {};
 
-                    prepairSphere(newSphere, sphere);
+                    prepairSphere(newSphere, sphere, config);
 
                     var destPath = filepath.split('/').slice(-1).join('/');
                     var dest = path.resolve(path.join(f.dest, destPath));

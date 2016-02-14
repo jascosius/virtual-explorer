@@ -1,25 +1,6 @@
 {
   "id": "13bad6b1e478b951",
   "belongsToMap": ["44c2e9bdcaf4c29b"],
-  "images": {
-    "erect": "raw/images/spheres/13bad6b1e478b951/erect.jpg",
-    "cubemaps": {
-      "r2048": {
-        "path": "/images/spheres/13bad6b1e478b951/cubemaps/2048",
-        "resolution": "2048"
-      },
-      "r256": {
-        "path": "/images/spheres/13bad6b1e478b951/cubemaps/256",
-        "resolution": "256"
-      }
-    },
-    "icons": {
-      "r128": {
-        "path": "/images/spheres/13bad6b1e478b951/icons/128",
-        "resolution": "128"
-      }
-    }
-  },
   "initialView": {
     "lat": "30/90*PI/2",
     "long": "320/360*2*PI"

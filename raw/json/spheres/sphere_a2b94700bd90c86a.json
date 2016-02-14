@@ -1,25 +1,6 @@
 {
   "id": "a2b94700bd90c86a",
   "belongsToMap": ["44c2e9bdcaf4c29b"],
-  "images": {
-    "erect": "/images/spheres/a2b94700bd90c86a/erect.jpg",
-    "cubemaps": {
-      "r2048": {
-        "path": "/images/spheres/a2b94700bd90c86a/cubemaps/2048",
-        "resolution": "2048"
-      },
-      "r256": {
-        "path": "/images/spheres/a2b94700bd90c86a/cubemaps/256",
-        "resolution": "256"
-      }
-    },
-    "icons": {
-      "r128": {
-        "path": "/images/spheres/a2b94700bd90c86a/icons/128",
-        "resolution": "128"
-      }
-    }
-  },
   "initialView": {
     "long": "0/360*2*PI"
   },

@@ -135,13 +135,13 @@ module.exports = function(grunt) {
                 dest: 'public/infos'
             }
         },
-        perpairspherejson: {
+        prepairspherejson: {
             dist: {
                 src: 'raw/json/spheres/sphere_*.json',
                 dest: 'public/json/spheres'
             }
         },
-        perpairmapjson: {
+        prepairmapjson: {
             dist: {
                 src: 'raw/json/maps/map_*.json',
                 dest: 'public/json/maps'
@@ -176,8 +176,8 @@ module.exports = function(grunt) {
     grunt.registerTask('styleDev', ['concat:style', 'less:styleDev']);
     grunt.registerTask('script', ['concat:script', 'uglify:script']);
     grunt.registerTask('scriptDev', ['concat:scriptDev']);
-    grunt.registerTask('default', ['copy', 'script', 'style', 'perpairspherejson', 'perpairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watch']);
-    grunt.registerTask('dev', ['copy', 'scriptDev', 'styleDev', 'perpairspherejson', 'perpairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watchDev']);
-    grunt.registerTask('all', ['copy', 'script', 'style', 'perpairspherejson', 'perpairmapjson', 'generatemapjson', 'markdown2html', 'generatecubemap','generatepreview']);
+    grunt.registerTask('default', ['copy', 'script', 'style', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watch']);
+    grunt.registerTask('dev', ['copy', 'scriptDev', 'styleDev', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'concurrent:watchDev']);
+    grunt.registerTask('all', ['copy', 'script', 'style', 'prepairspherejson', 'prepairmapjson', 'generatemapjson', 'markdown2html', 'generatecubemap','generatepreview']);
 
 };
