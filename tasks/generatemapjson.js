@@ -11,8 +11,8 @@ module.exports = function (grunt) {
         mapSphere.name = sphere.name;
         mapSphere.coords = sphere.coords;
         mapSphere.images = {};
-        mapSphere.images.icons = sphere.images.icons;
-        mapSphere.images.icons.r128.count = 30; //TODO: flexible
+        mapSphere.images.preview = sphere.images.preview;
+        mapSphere.images.preview[128].count = 30; //TODO: flexible
     };
 
     grunt.registerMultiTask('generatemapjson', 'Generates one JSON file for each map out of all spheres.', function () {

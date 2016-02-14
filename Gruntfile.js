@@ -125,7 +125,7 @@ module.exports = function(grunt) {
         },
         generatemapjson: {
             dist: {
-                src: 'raw/json/spheres/sphere_*.json',
+                src: 'public/json/spheres/sphere_*.json',
                 dest: 'public/json/maps'
             }
         },
