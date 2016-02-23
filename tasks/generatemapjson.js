@@ -46,7 +46,7 @@ module.exports = function (grunt) {
 
             for (var map in maps) {
                 if(maps.hasOwnProperty(map)) {
-                    var outputFile = path.resolve(f.dest) + '/map_sphere_' + map + '.json';
+                    var outputFile = path.resolve(f.dest) + '/map_spheres_' + map + '.json';
                     grunt.file.write(outputFile, JSON.stringify(maps[map]),{encoding: 'utf8'});
                 }
             }

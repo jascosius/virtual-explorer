@@ -67,12 +67,25 @@ module.exports = function(grunt) {
                 dest: 'raw/tmp/style/style.less'
             },
             script: {
-                src: 'raw/javascripts/*.js',
+                src: ['raw/javascripts/*.js', 'raw/javascripts/sphere/*.js', 'raw/javascripts/map/*.js'],
                 dest: 'raw/tmp/script/script.js'
             },
             scriptDev: {
-                src: 'raw/javascripts/*.js',
+                src: ['raw/javascripts/*.js', 'raw/javascripts/sphere/*.js', 'raw/javascripts/map/*.js'],
                 dest: 'public/javascripts/script.js'
+            }
+        },
+        jshint: {
+            all: ['raw/javascripts/*.js'],
+            options: {
+                curly: true,
+                eqnull: true,
+                eqeqeq: true,
+                undef: true,
+                browser: true,
+                globals: {
+                    jQuery: true
+                }
             }
         },
         uglify: {
@@ -103,7 +116,7 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ['raw/javascripts/*.js'],
+                files: ['raw/javascripts/*.js', 'raw/javascripts/sphere/*.js', 'raw/javascripts/map/*.js'],
                 tasks: ['script']
             },
             styles: {
@@ -111,7 +124,7 @@ module.exports = function(grunt) {
                 tasks: ['style']
             },
             scriptsDev: {
-                files: ['raw/javascripts/*.js'],
+                files: ['raw/javascripts/*.js', 'raw/javascripts/sphere/*.js', 'raw/javascripts/map/*.js'],
                 tasks: ['scriptDev']
             },
             stylesDev: {
@@ -171,6 +184,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-concurrent');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
     grunt.registerTask('style', ['concat:style', 'less:style', 'cssmin:style']);
     grunt.registerTask('styleDev', ['concat:style', 'less:styleDev']);

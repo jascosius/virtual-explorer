@@ -1,8 +1,3 @@
-'''
-texture image path are relative to the blend file directory. run from command line like this:
- 
-blender_texture='erect.jpg' blender_output='/dir' blender_steps='180' blender_initial='0.33' blender -b sphere.blend --python render_preview.py -F PNG -s 1 -e 180 -j 1 -t 0 -a
-'''
 import os
 import bpy
 import math
