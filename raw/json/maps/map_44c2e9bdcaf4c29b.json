@@ -1,4 +1,21 @@
 {
-  "id": "44c2e9bdcaf4c29b"
+  "id": "44c2e9bdcaf4c29b",
+  "bound": {
+    "northWest": {
+      "lat": "54.349024",
+      "long": "10.101001"
+    },
+    "southEast": {
+      "lat": "54.335277",
+      "long": "10.129754"
+    }
+  },
+  "center": {
+    "lat": "54.3389585",
+    "long": "10.1190736"
+  },
+  "minZoom": "16",
+  "maxZoom": "19",
+  "startZoom": "16"
 }
 
