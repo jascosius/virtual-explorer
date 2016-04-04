@@ -20,7 +20,7 @@
     {
       "long": "2*PI*270/360",
       "lat": "PI/2*-10/90",
-      "content": "/markdown/de-DE/fs-infmath.md"
+      "content": "fs-infmath.html"
     }
   ],
   "objects": []
