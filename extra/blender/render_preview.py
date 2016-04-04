@@ -21,7 +21,8 @@ initial = float(os.getenv('blender_initial'))
 if not initial:
     initial = 0
 
-bpy.ops.object.select_all(action = 'DESELECT')
+bpy.ops.object.mode_set(mode='OBJECT')
+bpy.ops.object.select_all(action='DESELECT')
 bpy.data.objects[object_name].select = True
 bpy.context.scene.objects.active = bpy.data.objects[object_name]
 

@@ -6,7 +6,6 @@
     if (window.explore.sphere === undefined) {
         window.explore.sphere = {};
     }
-    window.console.log('sphere.js');
     var explore = window.explore;
     var sphere = window.explore.sphere;
     var document = window.document;

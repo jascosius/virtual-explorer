@@ -14,6 +14,11 @@ module.exports = function (grunt) {
             grunt.fail.warn('ID ' + map.id + ' is not unique!');
         }
         ids.push(map.id);
+        newMap.bound = map.bound;
+        newMap.center = map.center;
+        newMap.minZoom = map.minZoom;
+        newMap.maxZoom = map.maxZoom;
+        newMap.startZoom = map.startZoom;
 
     };
 

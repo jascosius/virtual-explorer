@@ -12,12 +12,11 @@ html
         script(src='/javascripts/lib/leaflet.markercluster.js')
         script(src='/javascripts/lib/leaflet-canvasicon.js')
         script(src='/javascripts/lib/three.min.js')
-        script(src='/javascripts/lib/sphoords.js')
         script(src='/javascripts/lib/math.min.js')
         script(src='/javascripts/lib/marked.min.js')
         script(src='/javascripts/script.js')
     body
-        script var id = "#{id}"
-        script var type = "#{type}"
+        script explore.loadingData = {id: "#{id}", type: "#{type}"};
         #explore.fullsize
+            button(onclick='explore.toogleFullscreen()') Click
             #infoPopup

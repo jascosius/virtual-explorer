@@ -6,58 +6,59 @@
     if (window.explore.map === undefined) {
         window.explore.map = {};
     }
-    window.console.log('map.js');
     var explore = window.explore;
     var map = window.explore.map;
     var document = window.document;
     var $ = window.$;
 
     map.Map = {
-        _id: null,
-        _data: null,
-        _spheres: null,
-        _callback: null,
-        _map: null,
-        _minZoom: 16,
-        _maxZoom: 19,
-        _markers: null,
-        init: function(id, data, spheres, callback) {
-            this._id = id;
-            this._data = data;
-            this._spheres = spheres;
-            this._callback = callback;
+        _data: null, //Object with map information
+        _spheres: null, //Object with sphere information
+        _map: null, //The leaflet map
+        _markers: null, //Group of all markers on the map
+        init: function (data, spheres) {
+            var self = this;
+            self._data = data;
+            self._spheres = spheres;
 
             L.Icon.Default.imagePath = '/images/leaflet';
 
-            var northWest = L.latLng(54.349024, 10.101001),
-                southEast = L.latLng(54.335277, 10.129754),
+            //Sets the outer bound of the map
+            var bound = self._data.bound;
+            var northWest = L.latLng(bound.northWest.lat, bound.northWest.long),
+                southEast = L.latLng(bound.southEast.lat, bound.southEast.long),
                 bounds = L.latLngBounds(northWest, southEast);
 
-            this.map = L.map(id, {
+            //Creates the Leaflet map
+            self._map = L.map('map', {
                 center: [54.3389585, 10.1190736],
-                zoom: this._minZoom,
+                zoom: self._data.startZoom,
                 maxBounds: bounds
             });
 
+            //Adds the Open Street Map to the Leaflet map
             var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
             var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
             var osm = new L.TileLayer(osmUrl, {
-                minZoom: this._minZoom,
-                maxZoom: this._maxZoom,
+                minZoom: self._data.minZoom,
+                maxZoom: self._data.maxZoom,
                 attribution: osmAttrib
             });
+            self._map.addLayer(osm);
 
-            this._map.addLayer(osm);
-
-            this._markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 5});
-
-
-
+            //Creates a group for all marker on the map and adds the marker
+            self._markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 5});
+            $.each(spheres, function (key, value) {
+                var markerObj = Object.create(explore.map.Marker).init(value,self._map);
+                var marker = markerObj.getMarker();
+                self._markers.addLayer(marker);
+            });
+            self._map.addLayer(self._markers);
+            
+            return this;
         }
-
-
     }
 
 }(window));
 
-explore.loadMap('44c2e9bdcaf4c29b');
+//explore.loadMap('44c2e9bdcaf4c29b');

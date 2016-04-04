@@ -3,24 +3,57 @@
     if(window.explore === undefined) {
         window.explore = {};
     }
-    window.console.log('main.js');
     var explore = window.explore;
     var $ = window.$;
+    
+    if(explore.config === undefined) {
+        explore.config = {};
+    }
+    explore.config.lang = "de-DE";
+    explore.config.preview = "256";
+    explore.config.cubemap = "1024";
 
-    explore.fullscreen = function() {
-
+    /**
+     * Causes the Browser to toogle fullscreen
+     */
+    explore.toogleFullscreen = function() {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+            (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+            if (document.documentElement.requestFullScreen) {
+                document.documentElement.requestFullScreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullScreen) {
+                document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        }
     };
 
+    /**
+     * Loads a sphere
+     * @param id - The ID of the sphere to load
+     * @param startAnimation - bool - Animate the entrance into the sphere
+     */
     explore.loadSphere = function (id, startAnimation) {
 
+        //Creates a div to add the sphere
         $('#explore').append($('<div/>', {
             id: 'sphere',
             class: 'fullsize invisible'
         }));
         var onReady = function () {
-            $("#" + id).removeClass('invisible');
-            removeMap(current_map);
+            $('#sphere').removeClass('invisible');
+            $('#map').remove();
         };
+        onReady();
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
             explore.sphere.sphere = Object.create(explore.sphere.Sphere);
             explore.sphere.sphere.init(data,$('#sphere'),onReady,startAnimation);
@@ -34,6 +67,10 @@
         //}
     };
 
+    /**
+     * 
+     * @param id
+     */
     explore.loadMap = function (id) {
         var callback = function (sphere_id) {
             explore.loadSphere(sphere_id, true);
@@ -44,8 +81,7 @@
         }));
         $.getJSON("/json/maps/map_" + id + ".json", function (data) {
             $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
-                explore.map.map = Object.create(explore.map.Map);
-                explore.map.map.init();
+                explore.map.map = Object.create(explore.map.Map).init(data,spheres);
             });
         });
 
