@@ -15,16 +15,14 @@
         _sphere: null,
         _renderer: null,
         _subScene: [],
-        _scene: null,
-        init: function (sphere,scene,subScene0,subScene1) {
+        init: function (sphere,subScene0,subScene1) {
             var self = this;
             self._sphere = sphere;
-            self._scene = scene;
             self._subScene[0] = subScene0;
             self._subScene[1] = subScene1;
 
             self._renderer = (self._isWebGLSupported()) ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
-            self._renderer.setSize(sphere.getViewerSize().width, sphere.getViewerSize().height);
+            self.updateSize();
             
             return this;
         },
@@ -37,10 +35,14 @@
         },
         render: function () {
             var self = this;
-
-            self._renderer.render(self._subScene[0].getScene(), self._subScene[0].getCamera(), self._scene.getTexture(0));
-            self._renderer.render(self._subScene[1].getScene(), self._subScene[1].getCamera(), self._scene.getTexture(1));
-            self._renderer.render(self._scene.getScene(), self._scene.getCamera(), null, true);
+            var scene = explore.sphere.scene;
+            self._renderer.render(self._subScene[0].getScene(), self._subScene[0].getCamera(), scene.getTexture(0));
+            self._renderer.render(self._subScene[1].getScene(), self._subScene[1].getCamera(), scene.getTexture(1));
+            self._renderer.render(explore.sphere.scene.getScene(), scene.getCamera(), null, true);
+        },
+        updateSize: function () {
+            this._renderer.setSize(this._sphere.getViewerSize().width, this._sphere.getViewerSize().height);
+            this.render();
         }
     };
 

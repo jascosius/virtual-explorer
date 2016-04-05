@@ -19,12 +19,11 @@
         _container: null,
         // Current viewer size
         _viewerSize: {
-            width: 1000, //Todo set to 0
-            height: 1000,
+            width: 0, //Todo set to 0
+            height: 0,
             ratio: 0
         },
         _renderer: null,
-        _scene: null,
         _actualIndex: 0,
         _subScene: null,
 
@@ -51,18 +50,19 @@
                 return;
             }
 
-            self._scene = Object.create(explore.sphere.Scene).init(self);
+            explore.sphere.scene = Object.create(explore.sphere.Scene).init(self);
             self._subScene[0] = Object.create(explore.sphere.SubScene).init(self);
             self._subScene[1] = Object.create(explore.sphere.SubScene).init(self);
 
-            self._renderer = Object.create(explore.sphere.Renderer).init(self,self._scene,self._subScene[0],self._subScene[1]);
+            self._renderer = Object.create(explore.sphere.Renderer).init(self,self._subScene[0],self._subScene[1]);
 
             var canvas = self._renderer.getDomElement();
             canvas.style.display = 'block';
             self._container.append(canvas);
 
+            self.fitToContainer();
+
             var cubeReady = function() {
-                console.log("test");
                 self._renderer.render();
                 self._onReady();
             };
@@ -86,6 +86,21 @@
             var y = radius * Math.sin(lat);
             var z = radius * Math.cos(lat) * Math.cos(long);
             return new THREE.Vector3(x, y, z);
+        },
+        fitToContainer: function () {
+            var self = this;
+            var container = self._container;
+            var viewerSize = self._viewerSize;
+            if (container.width() != viewerSize.width || container.height() != viewerSize.height) {
+                viewerSize.width = parseInt(container.width());
+                viewerSize.height = parseInt(container.height());
+                viewerSize.ratio = viewerSize.width / viewerSize.height;
+
+                explore.sphere.scene = Object.create(explore.sphere.Scene).init(self);
+                self._subScene[0].updateSize();
+                self._subScene[1].updateSize();
+                self._renderer.updateSize()
+            }
         }
 
 

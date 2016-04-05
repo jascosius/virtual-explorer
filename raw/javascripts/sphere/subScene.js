@@ -13,7 +13,7 @@
 
     sphere.SubScene = {
         _PSV_FOV_MAX: 30,
-        
+
         _scene: null,
         _camera: null,
         _sphere: null,
@@ -48,6 +48,10 @@
         },
         getCamera: function () {
             return this._camera;
+        },
+        updateSize: function () {
+            this._camera.aspect = this._sphere.getViewerSize().ratio;
+            this._camera.updateProjectionMatrix();
         }
     };
 

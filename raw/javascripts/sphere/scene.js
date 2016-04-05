@@ -16,10 +16,13 @@
         _camera: null,
         _sphere: null,
         _texture: [],
+        _quadgeometry: null,
+        _quadmaterial: null,
 
         init: function (sphere) {
             var self = this;
             self._sphere = sphere;
+
             var rtTexture0 = self._texture[0] = new THREE.WebGLRenderTarget(sphere.getViewerSize().width, sphere.getViewerSize().height, {
                 minFilter: THREE.LinearMipMapLinearFilter,
                 magFilter: THREE.LinearFilter,
@@ -34,8 +37,8 @@
             self._camera = new THREE.OrthographicCamera(sphere.getViewerSize().width / -2, sphere.getViewerSize().width / 2, sphere.getViewerSize().height / 2, sphere.getViewerSize().height / -2, -10000, 10000);
             self._camera.position.z = 1000;
             self._camera.scale.y = -1;
-            var quadgeometry = new THREE.PlaneGeometry(sphere.getViewerSize().width, sphere.getViewerSize().height);
-            var quadmaterial = new THREE.ShaderMaterial({
+            self._quadgeometry = new THREE.PlaneGeometry(sphere.getViewerSize().width, sphere.getViewerSize().height);
+            self._quadmaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
 
                 uniforms: {
@@ -92,9 +95,9 @@
 
             });
 
-            quadmaterial.uniforms.mixRatio.value = 0.5;
+            self._quadmaterial.uniforms.mixRatio.value = 0;
 
-            var quad = new THREE.Mesh(quadgeometry, quadmaterial);
+            var quad = new THREE.Mesh(self._quadgeometry, self._quadmaterial);
 
             self._scene = new THREE.Scene();
             self._scene.add(quad);
@@ -110,6 +113,22 @@
         },
         getCamera: function () {
             return this._camera;
+        },
+        updateSize: function () {
+            var self = this;
+            var viewerSize = this._sphere.getViewerSize();
+
+            self._texture[0].setSize(viewerSize.width, viewerSize.height);
+            self._texture[1].setSize(viewerSize.width, viewerSize.height);
+
+            self._camera.left = viewerSize.width / -2;
+            self._camera.right = viewerSize.width / 2;
+            self._camera.top = viewerSize.height / 2;
+            self._camera.bottom = viewerSize.height / -2;
+
+            console.log(self._quadgeometry);
+            //self._quadgeometry.scale(viewerSize.width,viewerSize.height);
+            //self._quadgeometry.scale.y = viewerSize.height;
         }
     };
 
