@@ -12,48 +12,80 @@
     var $ = window.$;
 
     sphere.Sphere = {
+
         _data: null,
-        _container: null,
         _onReady: null,
         _startAnimation: null,
+        _container: null,
         // Current viewer size
-        _viewer_size: {
-            width: 0,
-            height: 0,
+        _viewerSize: {
+            width: 1000, //Todo set to 0
+            height: 1000,
             ratio: 0
         },
+        _renderer: null,
+        _scene: null,
+        _actualIndex: 0,
+        _subScene: null,
 
-        init: function (data, container, onReady, startAnimation) {
-            this._data = data;
-            this._container = container;
-            this._onReady = onReady;
-            this._startAnimation = startAnimation;
-            this.load();
-        },
-        _isCanvasSupported: function () {
-            var canvas = document.createElement('canvas');
-            return !!(canvas.getContext && canvas.getContext('2d'));
-        },
-        _isWebGLSupported: function () {
-            var canvas = document.createElement('canvas');
-            return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
-        },
-        load: function () {
-            this.container.innerHTML = '';
-            alert('Main');
+        init: function (data, onReady, startAnimation) {
+            var self = this;
+            self._data = data;
+            self._onReady = onReady;
+            self._startAnimation = startAnimation;
+            self._container = $('#sphere');
+            self._subScene = [];
+            self._container.innerHTML = '';
 
             // Is canvas supported?
-            if (!this._isCanvasSupported()) {
-                this.container.textContent = 'Canvas is not supported, update your browser!';
+            if (!self._isCanvasSupported()) {
+                self._container.textContent = 'Canvas is not supported, update your browser!';
+                self._onReady();
                 return;
             }
 
             // Is Three.js loaded?
             if (window.THREE === undefined) {
                 console.log('PhotoSphereViewer: Three.js is not loaded.');
+                self._onReady();
                 return;
             }
 
+            self._scene = Object.create(explore.sphere.Scene).init(self);
+            self._subScene[0] = Object.create(explore.sphere.SubScene).init(self);
+            self._subScene[1] = Object.create(explore.sphere.SubScene).init(self);
+
+            self._renderer = Object.create(explore.sphere.Renderer).init(self,self._scene,self._subScene[0],self._subScene[1]);
+
+            var canvas = self._renderer.getDomElement();
+            canvas.style.display = 'block';
+            self._container.append(canvas);
+
+            var cubeReady = function() {
+                console.log("test");
+                self._renderer.render();
+                self._onReady();
+            };
+
+            var cube = Object.create(explore.sphere.Cube).init(self._data.id,self._data.images.cubemap['2048'].path,cubeReady);
+            self._subScene[0].getScene().add(cube.getCube());
+
+            self._renderer.render();
+
+            return this;
+        },
+        _isCanvasSupported: function () {
+            var canvas = document.createElement('canvas');
+            return !!(canvas.getContext && canvas.getContext('2d'));
+        },
+        getViewerSize: function () {
+            return this._viewerSize;
+        },
+        getCartesian: function (radius, lat, long) {
+            var x = radius * Math.cos(lat) * Math.sin(long);
+            var y = radius * Math.sin(lat);
+            var z = radius * Math.cos(lat) * Math.cos(long);
+            return new THREE.Vector3(x, y, z);
         }
 
 

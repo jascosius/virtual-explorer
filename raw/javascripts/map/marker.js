@@ -80,7 +80,8 @@
                 this.closePopup();
             });
             marker.on('click', function (e) {
-                explore.loadSphere(sphere.id);
+                stopAnimation();
+                explore.loadSphere(sphere.id,true);
                 map.options.maxZoom = map.getZoom() + 1;
                 map.setZoom(map.getZoom() + 1);
             });

@@ -53,10 +53,8 @@
             $('#sphere').removeClass('invisible');
             $('#map').remove();
         };
-        onReady();
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
-            explore.sphere.sphere = Object.create(explore.sphere.Sphere);
-            explore.sphere.sphere.init(data,$('#sphere'),onReady,startAnimation);
+            explore.sphere.sphere = Object.create(explore.sphere.Sphere).init(data,onReady,startAnimation);
         });
 
 
