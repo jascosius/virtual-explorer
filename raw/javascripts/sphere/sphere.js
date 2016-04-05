@@ -19,7 +19,7 @@
         _container: null,
         // Current viewer size
         _viewerSize: {
-            width: 0, //Todo set to 0
+            width: 0,
             height: 0,
             ratio: 0
         },
