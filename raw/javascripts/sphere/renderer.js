@@ -6,43 +6,41 @@
     if (window.explore.sphere === undefined) {
         window.explore.sphere = {};
     }
-    var explore = window.explore;
     var sphere = window.explore.sphere;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
 
     sphere.Renderer = {
         _sphere: null,
         _renderer: null,
         _subScene: [],
-        init: function (sphere,subScene0,subScene1) {
-            var self = this;
-            self._sphere = sphere;
+        init: function (sphereObj,subScene0,subScene1) {
+            self = this;
+            self._sphere = sphereObj;
             self._subScene[0] = subScene0;
             self._subScene[1] = subScene1;
 
             self._renderer = (self._isWebGLSupported()) ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
             self.updateSize();
             
-            return this;
+            return self;
         },
         getDomElement: function () {
-            return this._renderer.domElement;
+            return self._renderer.domElement;
         },
         _isWebGLSupported: function () {
-            var canvas = document.createElement('canvas');
+            var canvas = window.document.createElement('canvas');
             return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
         },
         render: function () {
-            var self = this;
-            var scene = explore.sphere.scene;
+            var scene = sphere.scene;
             self._renderer.render(self._subScene[0].getScene(), self._subScene[0].getCamera(), scene.getTexture(0));
             self._renderer.render(self._subScene[1].getScene(), self._subScene[1].getCamera(), scene.getTexture(1));
-            self._renderer.render(explore.sphere.scene.getScene(), scene.getCamera(), null, true);
+            self._renderer.render(sphere.scene.getScene(), scene.getCamera(), null, true);
         },
         updateSize: function () {
-            this._renderer.setSize(this._sphere.getViewerSize().width, this._sphere.getViewerSize().height);
-            this.render();
+            self._renderer.setSize(self._sphere.getViewerSize().width, self._sphere.getViewerSize().height);
+            self.render();
         }
     };
 

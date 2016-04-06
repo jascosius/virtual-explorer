@@ -6,25 +6,27 @@
     if (window.explore.map === undefined) {
         window.explore.map = {};
     }
-    var explore = window.explore;
     var map = window.explore.map;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
     
     map.Marker = {
         _marker: null,
-        init: function(sphere,map) {
-            var self = this;
+        init: function(sphereObj,mapObj) {
+            self = this;
             // Animation constants
             var PREVIEW_FRAMES_PER_SECOND = 8;
             var PREVIEW_ANIM_TIMEOUT = 1000 / PREVIEW_FRAMES_PER_SECOND;
 
-            var resolution = explore.config.preview;
+            var resolution = window.explore.config.resolutions[window.explore.config.res].preview;
 
-            var iconCount = sphere.images.preview[resolution].count; //Todo: Dynamic resolution
+            var iconCount = sphereObj.images.preview[resolution].count; //Todo: Dynamic resolution
             var count = 1;
             var image = new Image;
             var iconSize = parseInt(resolution);
+            if (iconSize <= 128) {
+                iconSize = 128;
+            }
             var canvas;
             var animation = false;
 
@@ -41,13 +43,13 @@
                 drawIcon: function (icon, type) {
                     canvas = icon;
                     image.onload = drawCanvas;
-                    image.src = sphere.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png'; //Todo: dynamic resolution
+                    image.src = sphereObj.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png'; //Todo: dynamic resolution
                 }
             });
             
             var animateCanvas = function() {
                 count = (count % iconCount) + 1;
-                image.src = sphere.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png';
+                image.src = sphereObj.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png';
                 if(animation) {
                     setTimeout(animateCanvas, PREVIEW_ANIM_TIMEOUT);
                 }
@@ -62,37 +64,37 @@
                 animation = false;
             };
 
-            var latitude = sphere.coords.lat;
-            var longitude = sphere.coords.long;
+            var latitude = sphereObj.coords.lat;
+            var longitude = sphereObj.coords.long;
             var marker = self._marker = L.marker([latitude, longitude],{icon: icon});
 
-            if(sphere.name !== undefined) {
-                var name = $.i18n.t(sphere.name);
+            if(sphereObj.name !== undefined) {
+                var name = $.i18n.t(sphereObj.name);
                 marker.bindPopup(name);
             }
 
             marker.on('mouseover', function (e) {
                 startAnimation();
-                this.openPopup();
+                marker.openPopup();
             });
             marker.on('mouseout', function (e) {
                 stopAnimation();
-                this.closePopup();
+                marker.closePopup();
             });
             marker.on('click', function (e) {
                 stopAnimation();
-                explore.loadSphere(sphere.id,true);
-                map.options.maxZoom = map.getZoom() + 1;
-                map.setZoom(map.getZoom() + 1);
+                window.explore.loadSphere(sphereObj.id,true);
+                mapObj.options.maxZoom = mapObj.getZoom() + 1;
+                mapObj.setZoom(mapObj.getZoom() + 1);
             });
-            return this;
+            return self;
         },
         pad: function(num, size) {
             var s = "000000000" + num;
             return s.substr(s.length-size);
         },
         getMarker: function() {
-            return this._marker;
+            return self._marker;
         }
     }
 

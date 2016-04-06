@@ -6,10 +6,9 @@
     if (window.explore.map === undefined) {
         window.explore.map = {};
     }
-    var explore = window.explore;
     var map = window.explore.map;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
 
     map.Map = {
         _data: null, //Object with map information
@@ -17,7 +16,7 @@
         _map: null, //The leaflet map
         _markers: null, //Group of all markers on the map
         init: function (data, spheres) {
-            var self = this;
+            self = this;
             self._data = data;
             self._spheres = spheres;
 
@@ -49,13 +48,13 @@
             //Creates a group for all marker on the map and adds the marker
             self._markers = L.markerClusterGroup({spiderfyDistanceMultiplier: 5});
             $.each(spheres, function (key, value) {
-                var markerObj = Object.create(explore.map.Marker).init(value,self._map);
+                var markerObj = Object.create(map.Marker).init(value,self._map);
                 var marker = markerObj.getMarker();
                 self._markers.addLayer(marker);
             });
             self._map.addLayer(self._markers);
             
-            return this;
+            return self;
         }
     }
 

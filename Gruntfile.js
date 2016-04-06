@@ -17,6 +17,13 @@ module.exports = function(grunt) {
                         filter: 'isFile',
                         expand: true,
                         flatten: true
+                    },
+                    {
+                        src: ['raw/images/menu/*'],
+                        dest: 'public/images/menu',
+                        filter: 'isFile',
+                        expand: true,
+                        flatten: true
                     }
                 ]
             },

@@ -6,10 +6,9 @@
     if (window.explore.sphere === undefined) {
         window.explore.sphere = {};
     }
-    var explore = window.explore;
     var sphere = window.explore.sphere;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
 
     sphere.Cube = {
         _cube: null,
@@ -17,7 +16,7 @@
         _id: null,
 
         init: function (id,image,onReady) {
-            var self = this;
+            self = this;
             self._id = id;
             self._image = image;
 
@@ -55,10 +54,10 @@
             mesh.userData.id = id;
             mesh.name = "Cube " + id;
             self._cube = mesh;
-            return this;
+            return self;
         },
         getCube: function () {
-            return this._cube;
+            return self._cube;
         }
     };
 

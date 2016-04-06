@@ -6,10 +6,9 @@
     if (window.explore.sphere === undefined) {
         window.explore.sphere = {};
     }
-    var explore = window.explore;
     var sphere = window.explore.sphere;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
 
     sphere.Scene = {
         _scene: null,
@@ -19,11 +18,11 @@
         _quadgeometry: null,
         _quadmaterial: null,
 
-        init: function (sphere) {
-            var self = this;
-            self._sphere = sphere;
+        init: function (sphereObj) {
+            self = this;
+            self._sphere = sphereObj;
 
-            var rtTexture0 = self._texture[0] = new THREE.WebGLRenderTarget(sphere.getViewerSize().width, sphere.getViewerSize().height, {
+            var rtTexture0 = self._texture[0] = new THREE.WebGLRenderTarget(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height, {
                 minFilter: THREE.LinearMipMapLinearFilter,
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBFormat
@@ -34,10 +33,10 @@
             var rtTexture1 = self._texture[1] = rtTexture0.clone();
 
             // Main screen
-            self._camera = new THREE.OrthographicCamera(sphere.getViewerSize().width / -2, sphere.getViewerSize().width / 2, sphere.getViewerSize().height / 2, sphere.getViewerSize().height / -2, -10000, 10000);
+            self._camera = new THREE.OrthographicCamera(sphereObj.getViewerSize().width / -2, sphereObj.getViewerSize().width / 2, sphereObj.getViewerSize().height / 2, sphereObj.getViewerSize().height / -2, -10000, 10000);
             self._camera.position.z = 1000;
             self._camera.scale.y = -1;
-            self._quadgeometry = new THREE.PlaneGeometry(sphere.getViewerSize().width, sphere.getViewerSize().height);
+            self._quadgeometry = new THREE.PlaneGeometry(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height);
             self._quadmaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
 
@@ -103,32 +102,16 @@
             self._scene.add(quad);
             self._scene.add(self._camera);
             
-            return this;
+            return self;
         },
         getTexture: function (i) {
-            return this._texture[i];
+            return self._texture[i];
         },
         getScene: function () {
-            return this._scene;
+            return self._scene;
         },
         getCamera: function () {
-            return this._camera;
-        },
-        updateSize: function () {
-            var self = this;
-            var viewerSize = this._sphere.getViewerSize();
-
-            self._texture[0].setSize(viewerSize.width, viewerSize.height);
-            self._texture[1].setSize(viewerSize.width, viewerSize.height);
-
-            self._camera.left = viewerSize.width / -2;
-            self._camera.right = viewerSize.width / 2;
-            self._camera.top = viewerSize.height / 2;
-            self._camera.bottom = viewerSize.height / -2;
-
-            console.log(self._quadgeometry);
-            //self._quadgeometry.scale(viewerSize.width,viewerSize.height);
-            //self._quadgeometry.scale.y = viewerSize.height;
+            return self._camera;
         }
     };
 

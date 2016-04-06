@@ -6,10 +6,9 @@
     if (window.explore.sphere === undefined) {
         window.explore.sphere = {};
     }
-    var explore = window.explore;
     var sphere = window.explore.sphere;
-    var document = window.document;
     var $ = window.$;
+    var self = null;
 
     sphere.Sphere = {
 
@@ -28,7 +27,7 @@
         _subScene: null,
 
         init: function (data, onReady, startAnimation) {
-            var self = this;
+            self = this;
             self._data = data;
             self._onReady = onReady;
             self._startAnimation = startAnimation;
@@ -50,11 +49,11 @@
                 return;
             }
 
-            explore.sphere.scene = Object.create(explore.sphere.Scene).init(self);
-            self._subScene[0] = Object.create(explore.sphere.SubScene).init(self);
-            self._subScene[1] = Object.create(explore.sphere.SubScene).init(self);
+            sphere.scene = Object.create(sphere.Scene).init(self);
+            self._subScene[0] = Object.create(sphere.SubScene).init(self);
+            self._subScene[1] = Object.create(sphere.SubScene).init(self);
 
-            self._renderer = Object.create(explore.sphere.Renderer).init(self,self._subScene[0],self._subScene[1]);
+            self._renderer = Object.create(sphere.Renderer).init(self,self._subScene[0],self._subScene[1]);
 
             var canvas = self._renderer.getDomElement();
             canvas.style.display = 'block';
@@ -62,24 +61,26 @@
 
             self.fitToContainer();
 
+            var events = Object.create(sphere.Events).init(self);
+
             var cubeReady = function() {
                 self._renderer.render();
                 self._onReady();
             };
 
-            var cube = Object.create(explore.sphere.Cube).init(self._data.id,self._data.images.cubemap['2048'].path,cubeReady);
+            var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap['2048'].path,cubeReady);
             self._subScene[0].getScene().add(cube.getCube());
 
             self._renderer.render();
 
-            return this;
+            return self;
         },
         _isCanvasSupported: function () {
-            var canvas = document.createElement('canvas');
+            var canvas = window.document.createElement('canvas');
             return !!(canvas.getContext && canvas.getContext('2d'));
         },
         getViewerSize: function () {
-            return this._viewerSize;
+            return self._viewerSize;
         },
         getCartesian: function (radius, lat, long) {
             var x = radius * Math.cos(lat) * Math.sin(long);
@@ -88,7 +89,6 @@
             return new THREE.Vector3(x, y, z);
         },
         fitToContainer: function () {
-            var self = this;
             var container = self._container;
             var viewerSize = self._viewerSize;
             if (container.width() != viewerSize.width || container.height() != viewerSize.height) {
@@ -96,11 +96,14 @@
                 viewerSize.height = parseInt(container.height());
                 viewerSize.ratio = viewerSize.width / viewerSize.height;
 
-                explore.sphere.scene = Object.create(explore.sphere.Scene).init(self);
+                sphere.scene = Object.create(sphere.Scene).init(self);
                 self._subScene[0].updateSize();
                 self._subScene[1].updateSize();
                 self._renderer.updateSize()
             }
+        },
+        getMap: function (i) {
+            return self._data.belongsToMap[i];
         }
 
 

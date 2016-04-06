@@ -16,7 +16,18 @@ html
         script(src='/javascripts/lib/marked.min.js')
         script(src='/javascripts/script.js')
     body
-        script explore.loadingData = {id: "#{id}", type: "#{type}"};
+        script if (window.explore === undefined) {window.explore = {};} window.explore.loadingData = {id: "#{id}", type: "#{type}"};
         #explore.fullsize
-            button(onclick='explore.toogleFullscreen()') Click
-            #infoPopup
+            #infoPopup.overlay
+            #menu_fullscreen.overlay
+                a(onclick='explore.toggleFullscreen()')
+                    img(id='menu_fullscreen_img' src='images/menu/enter_fullscreen.png'  width='58' height='50')
+            #menu_resolution.overlay
+                a(onclick='explore.changeResolution()')
+                    img(id='menu_resolution_img' src='images/menu/res_small.png' width='58' height='50')
+            #menu_language.overlay
+                a(onclick='explore.changeLanguage()')
+                    img(id='menu_language_img' src='images/menu/lang_en.png' width='58' height='50')
+            #menu_map.overlay
+                a(onclick='explore.loadMap()')
+                    img(id='menu_map_img' src='images/menu/map.png' width='58' height='50')
