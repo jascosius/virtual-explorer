@@ -12,15 +12,16 @@
     var config = explore.config;
 
     config.resolutions = [
-        {name: "menu.resolution.small", image: "images/menu/res_small.png", preview: "64", cubemap: "512"},
-        {name: "menu.resolution.middle", image: "images/menu/res_middle.png", preview: "128", cubemap: "1024"},
-        {name: "menu.resolution.large", image: "images/menu/res_large.png", preview: "256", cubemap: "2048"}
+        {name: "menu.resolution.small", image: "/images/menu/res_small.png", preview: "64", cubemap: "512"},
+        {name: "menu.resolution.middle", image: "/images/menu/res_middle.png", preview: "128", cubemap: "1024"},
+        {name: "menu.resolution.large", image: "/images/menu/res_large.png", preview: "256", cubemap: "2048"}
     ];
 
     config.languages = [
-        {lang: "de-DE", name: "menu.language", image: "images/menu/lang_de.png"},
-        {lang: "en-UK", name: "menu.language", image: "images/menu/lang_en.png"}
+        {lang: "de-DE", name: "menu.language", image: "/images/menu/lang_de.png"},
+        {lang: "en-UK", name: "menu.language", image: "/images/menu/lang_en.png"}
     ];
+    config.defaultMap = "44c2e9bdcaf4c29b";
 
     var setCookie = function(cname, cvalue) {
         var exdays = 30;
@@ -71,7 +72,7 @@
     explore.toggleFullscreen = function() {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||
             (!document.mozFullScreen && !document.webkitIsFullScreen)) {
-            $('#menu_fullscreen_img').attr("src","images/menu/leave_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.leave'));
+            $('#menu_fullscreen_img').attr("src","/images/menu/exit_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.leave'));
             if (document.documentElement.requestFullScreen) {
                 document.documentElement.requestFullScreen();
             } else if (document.documentElement.mozRequestFullScreen) {
@@ -80,7 +81,7 @@
                 document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
             }
         } else {
-            $('#menu_fullscreen_img').attr("src","images/menu/enter_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.enter'));
+            $('#menu_fullscreen_img').attr("src","/images/menu/enter_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.enter'));
             if (document.cancelFullScreen) {
                 document.cancelFullScreen();
             } else if (document.mozCancelFullScreen) {
@@ -104,18 +105,19 @@
         var onReady = function () {
             $('#sphere').removeClass('invisible');
             $('#map').remove();
+            explore.sphere.map = null;
             $('#menu_map').css("display","block");
         };
+
+        var url = location.pathname;
+        var expectedUrl = "/sphere/" + id;
+        if (url !== expectedUrl) {
+            history.pushState({}, "Sphere", "/sphere/" + id);
+        }
+
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
             explore.sphere.sphere = Object.create(explore.sphere.Sphere).init(data,onReady,startAnimation);
         });
-
-
-        //var url = location.pathname;
-        //var expectedUrl = "/sphere/" + id;
-        //if (url !== expectedUrl) {
-        //    history.pushState({}, "Sphere", "/sphere/" + id);
-        //}
     };
 
     /**
@@ -125,7 +127,7 @@
     explore.loadMap = function (id) {
         if(id === undefined) {
             if(explore.sphere.sphere === undefined) {
-                id = "44c2e9bdcaf4c29b";
+                id = config.defaultMap;
             } else {
                 id = explore.sphere.sphere.getMap(0);
             }
@@ -136,17 +138,17 @@
             class: 'fullsize'
         }));
         $('#sphere').remove();
+        explore.sphere.sphere = null;
+        var url = location.pathname;
+        var expectedUrl = "/map/" + id;
+        if (url !== expectedUrl) {
+            history.pushState({}, "Map", "/map/" + id);
+        }
         $.getJSON("/json/maps/map_" + id + ".json", function (data) {
             $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
                 explore.map.map = Object.create(explore.map.Map).init(data,spheres);
             });
         });
-
-        //var url = location.pathname;
-        //var expectedUrl = "/map/" + id;
-        //if (url !== expectedUrl) {
-        //    history.pushState({}, "Map", "/map/" + id);
-        //}
     };
 
     var initLang = function() {
@@ -160,7 +162,14 @@
         $.i18n.init({lng: config.languages[config.lang].lang, resGetPath: '/locales/__lng__/__ns__.json'},initLang);
         $('#menu_resolution_img').attr("src",config.resolutions[config.res].image);
         $('#menu_language_img').attr("src",config.languages[config.lang].image);
-        explore.loadMap();
+
+        if(explore.loadingData.type === "sphere") {
+            explore.loadSphere(explore.loadingData.id,false);
+        } else if (explore.loadingData.type === "map"){
+            explore.loadMap(explore.loadingData.id);
+        } else {
+            explore.loadMap();
+        }
     });
 
 }(window));
