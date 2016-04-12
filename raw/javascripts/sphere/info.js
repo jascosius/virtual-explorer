@@ -1,0 +1,59 @@
+(function (window) {
+    "use strict";
+    if (window.explore === undefined) {
+        window.explore = {};
+    }
+    if (window.explore.sphere === undefined) {
+        window.explore.sphere = {};
+    }
+    var sphere = window.explore.sphere;
+    var $ = window.$;
+    var self = null;
+
+    sphere.Info = {
+        _info: null,
+        _data: null,
+        _id: null,
+        _sphere: null,
+        _clickable: false,
+
+        init: function (id, data, sphere) {
+            self = this;
+            self._id = id;
+            self._data = data;
+            self._sphere = sphere;
+            
+            self._clickable = true; //Todo
+
+            var info_texture = '/images/objects/info.png';
+            var texture = THREE.ImageUtils.loadTexture( info_texture, {}, function () {
+                self._sphere.render();
+            });
+            var material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
+            var sprite = self._info = new THREE.Sprite( material );
+            sprite.userData.clickaction = {
+                type: "show_popup",
+                data: {
+                    this_sphere: id,
+                    content: data.content
+                }
+            };
+            var lat = math.eval(data.lat);
+            var long = math.eval(data.long);
+            sprite.position.add(self._sphere.getCartesian(800,lat,long));
+            sprite.scale.set( 64, 64, 1.0 ); // imageWidth, imageHeight
+            sprite.userData.belongsTo = id;
+            sprite.userData.type = "info";
+
+            return self;
+        },
+
+        getInfo: function () {
+            return self._info;
+        },
+        isClickable: function () {
+            return self._clickable;
+        }
+    };
+
+}(window));

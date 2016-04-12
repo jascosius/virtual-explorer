@@ -24,12 +24,14 @@
         _mousedown: false,
         _zoomLvl: 0,
 
+        _clickedObjects: [],
+
         init: function (sphereObj) {
             self = this;
             self._sphere = sphereObj;
             self._mouse = new THREE.Vector2();
             self._oldMouse = new THREE.Vector2();
-            self._reycaster = new THREE.Raycaster();
+            self._raycaster = new THREE.Raycaster();
 
 
             explore.addEvent(window,'resize',self._sphere.fitToContainer);
@@ -55,26 +57,27 @@
             self._oldMouse.x = self._mouse.x;
             self._oldMouse.y = self._mouse.y;
 
-/*            raycaster.setFromCamera(mouse, camera[actualIndex]);
-            var intersects = raycaster.intersectObjects(clickableObjects);
+            self._raycaster.setFromCamera(self._mouse, self._sphere.getSubScene().getCamera());
+            var intersects = self._raycaster.intersectObjects(self._sphere.getClickableObjects());
             if (intersects.length > 0) {
-                clickedObjects[0] = intersects[0].object;
-                clickedObjects[0].material.color.setHex(0x999999);
-                render();
-            }*/
+                self._clickedObjects[0] = intersects[0].object;
+                self._clickedObjects[0].material.color.setHex(0x999999);
+                self._sphere.render();
+            }
         },
 
         _onMouseMove: function (evt) {
-            // if (clickedObjects[0] !== undefined) {
-            //     mouse.x = ( evt.clientX / viewer_size.width ) * 2 - 1;
-            //     mouse.y = -( evt.clientY / viewer_size.height ) * 2 + 1;
-            //     raycaster.setFromCamera(mouse, camera[actualIndex]);
-            //     var intersects = raycaster.intersectObjects(clickedObjects);
-            //     if (!intersects.length > 0) {
-            //         clickedObjects[0].material.color.setHex(0xffffff);
-            //         clickedObjects[0] = undefined;
-            //     }
-            // }
+            var viewerSize = self._sphere.getViewerSize();
+            if (self._clickedObjects[0] !== undefined) {
+                self._mouse.x = ( evt.clientX / viewerSize.width ) * 2 - 1;
+                self._mouse.y = -( evt.clientY / viewerSize.height ) * 2 + 1;
+                self._raycaster.setFromCamera(self._mouse, self._sphere.getSubScene().getCamera());
+                var intersects = self._raycaster.intersectObjects(self._clickedObjects);
+                if (!intersects.length > 0) {
+                    self._clickedObjects[0].material.color.setHex(0xffffff);
+                    self._clickedObjects[0] = undefined;
+                }
+            }
             evt.preventDefault();
             var viewerSize = self._sphere.getViewerSize();
             var x = ( evt.clientX / viewerSize.width ) * 2 - 1;
@@ -86,15 +89,17 @@
             self._mousedown = false;
             //touchzoom = false;
 
-            // if (clickedObjects[0] !== undefined) {
-            //     clickedObjects[0].material.color.setHex(0xffffff);
-            //     if(clickedObjects[0].userData.clickaction.type === "change_sphere") {
-            //         loadNewSphere(clickedObjects[0].userData.clickaction.data);
-            //     } else if (clickedObjects[0].userData.clickaction.type === "show_popup") {
-            //         showPopup(clickedObjects[0].userData.clickaction.data);
-            //     }
-            //     clickedObjects[0] = undefined;
-            // }
+            if (self._clickedObjects[0] !== undefined) {
+                self._clickedObjects[0].material.color.setHex(0xffffff);
+                if(self._clickedObjects[0].userData.clickaction.type === "change_sphere") {
+                    //loadNewSphere(clickedObjects[0].userData.clickaction.data);
+                    alert(self._clickedObjects[0].userData.clickaction.data);
+                } else if (self._clickedObjects[0].userData.clickaction.type === "show_popup") {
+                    //showPopup(clickedObjects[0].userData.clickaction.data);
+                    alert(self._clickedObjects[0].userData.clickaction.data);
+                }
+                self._clickedObjects[0] = undefined;
+            }
             self._sphere.render();
 
         },

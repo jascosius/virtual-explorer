@@ -25,6 +25,7 @@
         _renderer: null,
         _actualIndex: 0,
         _subScene: null,
+        _clickableObjects: null,
 
         init: function (data, onReady, startAnimation) {
             self = this;
@@ -34,6 +35,7 @@
             self._container = $('#sphere');
             self._subScene = [];
             self._container.innerHTML = '';
+            self._clickableObjects = [];
 
             // Is canvas supported?
             if (!self._isCanvasSupported()) {
@@ -71,6 +73,12 @@
             var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
             self._subScene[0].getScene().add(cube.getCube());
 
+            self._addArrows(self._data.id,self._data.arrows,self._subScene[0].getScene());
+            self._addInfos(self._data.id,self._data.infos,self._subScene[0].getScene());
+            console.log(self._data.arrows);
+
+
+
             self._renderer.render();
 
             return self;
@@ -106,10 +114,39 @@
             return self._data.belongsToMap[i];
         },
         getSubScene: function (i) {
+            if(i === undefined) {
+                return self._subScene[self._renderer.getActiveSceneNumber()];
+            }
             return self._subScene[i];
         },
         render: function () {
             self._renderer.render();
+        },
+        _addArrows: function (id, arrows, scene) {
+            for (var key in arrows) {
+                var arrow = arrows[key];
+                var obj = Object.create(sphere.Arrow).init(id, key, arrow, self);
+                scene.add(obj.getArrow());
+                if(obj.isClickable()) {
+                    self.addClickableObject(obj.getArrow());
+                }
+            }
+        },
+        _addInfos: function (id, infos, scene) {
+            for (var key in infos) {
+                var info = infos[key];
+                var obj = Object.create(sphere.Info).init(id, info, self);
+                scene.add(obj.getInfo());
+                if(obj.isClickable()) {
+                    self.addClickableObject(obj.getInfo());
+                }
+            }
+        },
+        addClickableObject: function (obj) {
+            self._clickableObjects.push(obj);
+        },
+        getClickableObjects: function () {
+            return self._clickableObjects;
         }
 
 
