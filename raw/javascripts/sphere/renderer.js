@@ -35,6 +35,8 @@
         render: function () {
             var scene = sphere.scene;
             self._renderer.render(self._subScene[0].getScene(), self._subScene[0].getCamera(), scene.getTexture(0));
+            //self._renderer.render(self._subScene[0].getScene(), self._subScene[0].getCamera(), null, true);
+
             self._renderer.render(self._subScene[1].getScene(), self._subScene[1].getCamera(), scene.getTexture(1));
             self._renderer.render(sphere.scene.getScene(), scene.getCamera(), null, true);
         },

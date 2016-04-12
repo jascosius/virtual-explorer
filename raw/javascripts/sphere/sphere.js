@@ -68,7 +68,7 @@
                 self._onReady();
             };
 
-            var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap['2048'].path,cubeReady);
+            var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
             self._subScene[0].getScene().add(cube.getCube());
 
             self._renderer.render();
@@ -104,6 +104,12 @@
         },
         getMap: function (i) {
             return self._data.belongsToMap[i];
+        },
+        getSubScene: function (i) {
+            return self._subScene[i];
+        },
+        render: function () {
+            self._renderer.render();
         }
 
 

@@ -11,7 +11,8 @@
     var self = null;
 
     sphere.SubScene = {
-        _PSV_FOV_MAX: 30,
+        _FOV_MAX: 90,
+        _FOV_MIN: 30,
 
         _scene: null,
         _camera: null,
@@ -23,8 +24,9 @@
             self = this;
             self._sphere = sphereObj;
             self._scene = new THREE.Scene();
-            self._camera = new THREE.PerspectiveCamera(self._PSV_FOV_MAX, sphereObj.getViewerSize().ratio, 1, 3000);
+            self._camera = new THREE.PerspectiveCamera(self._FOV_MAX, sphereObj.getViewerSize().ratio, 1, 3000);
             self._camera.position.set(0, 0, 0);
+            self.setLatLong(0,0);
             self._scene.add(self._camera);
             return self;
         },
@@ -49,6 +51,10 @@
         },
         updateSize: function () {
             self._camera.aspect = self._sphere.getViewerSize().ratio;
+            self._camera.updateProjectionMatrix();
+        },
+        zoom: function (zoomLvl) {
+            self._camera.fov = self._FOV_MAX + (zoomLvl / 100) * (self._FOV_MIN - self._FOV_MAX);
             self._camera.updateProjectionMatrix();
         }
     };

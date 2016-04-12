@@ -23,6 +23,9 @@
     ];
     config.defaultMap = "44c2e9bdcaf4c29b";
 
+    config.res = 0;
+    config.lang = 0;
+
     var setCookie = function(cname, cvalue) {
         var exdays = 30;
         var d = new Date();
@@ -30,6 +33,7 @@
         var expires = "expires="+d.toUTCString();
         document.cookie = cname + "=" + cvalue + "; " + expires;
     };
+
     var getCookie = function(cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
@@ -54,9 +58,6 @@
         setCookie("lang",config.lang);
     };
 
-    config.lang = 0;
-    config.res = 0;
-
     var lang = getCookie("lang");
     if(lang !== "") {
         config.lang = lang;
@@ -72,7 +73,6 @@
     explore.toggleFullscreen = function() {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||
             (!document.mozFullScreen && !document.webkitIsFullScreen)) {
-            $('#menu_fullscreen_img').attr("src","/images/menu/exit_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.leave'));
             if (document.documentElement.requestFullScreen) {
                 document.documentElement.requestFullScreen();
             } else if (document.documentElement.mozRequestFullScreen) {
@@ -81,7 +81,6 @@
                 document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
             }
         } else {
-            $('#menu_fullscreen_img').attr("src","/images/menu/enter_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.enter'));
             if (document.cancelFullScreen) {
                 document.cancelFullScreen();
             } else if (document.mozCancelFullScreen) {
@@ -91,6 +90,26 @@
             }
         }
     };
+    
+    explore.fullscreenToggled = function() {
+        if (!window.screenTop && !window.screenY) {
+            $('#menu_fullscreen_img').attr("src","/images/menu/exit_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.leave'));
+        } else {
+            $('#menu_fullscreen_img').attr("src","/images/menu/enter_fullscreen.png").attr("title",$.i18n.t('menu.fullscreen.enter'));
+        }
+    };
+
+    explore.addEvent = function (elt, evt, f) {
+        if (!!elt.addEventListener)
+            elt.addEventListener(evt, f, false);
+        else
+            elt.attachEvent('on' + evt, f);
+    };
+
+    explore.addEvent(window.document, 'fullscreenchange', explore.fullscreenToggled);
+    explore.addEvent(window.document, 'mozfullscreenchange', explore.fullscreenToggled);
+    explore.addEvent(window.document, 'webkitfullscreenchange', explore.fullscreenToggled);
+    explore.addEvent(window.document, 'MSFullscreenChange', explore.fullscreenToggled);
 
     window.onpopstate = function(event){
         if (event.state !== null) {
@@ -107,7 +126,6 @@
     };
 
 
-
     /**
      * Loads a sphere
      * @param id - The ID of the sphere to load
@@ -122,7 +140,7 @@
         var onReady = function () {
             $('#sphere').removeClass('invisible');
             $('#map').remove();
-            explore.sphere.map = null;
+            explore.map.map = null;
             $('#menu_map').css("display","block");
         };
 
@@ -183,8 +201,10 @@
         $('#menu_language_img').attr("src",config.languages[config.lang].image);
 
         if(explore.loadingData.type === "sphere") {
+            history.pushState({type: 'sphere', id: explore.loadingData.id}, "Sphere", "/sphere/" + explore.loadingData.id);
             explore.loadSphere(explore.loadingData.id,false);
         } else if (explore.loadingData.type === "map"){
+            history.pushState({type: 'map', id: explore.loadingData.id}, "Map", "/map/" + explore.loadingData.id);
             explore.loadMap(explore.loadingData.id);
         } else {
             explore.loadMap();
