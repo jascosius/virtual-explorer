@@ -91,6 +91,23 @@
             }
         }
     };
+
+    window.onpopstate = function(event){
+        if (event.state !== null) {
+            if (event.state.type === 'map') {
+                explore.loadMap(event.state.id);
+            } else if (event.state.type === 'sphere') {
+                explore.loadSphere(event.state.id, false);
+            } else {
+                explore.loadMap();
+            }
+        } else {
+            explore.loadMap();
+        }
+    };
+
+
+
     /**
      * Loads a sphere
      * @param id - The ID of the sphere to load
@@ -112,7 +129,7 @@
         var url = location.pathname;
         var expectedUrl = "/sphere/" + id;
         if (url !== expectedUrl) {
-            history.pushState({}, "Sphere", "/sphere/" + id);
+            history.pushState({type: 'sphere', id: id}, "Sphere", "/sphere/" + id);
         }
 
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
@@ -126,7 +143,7 @@
      */
     explore.loadMap = function (id) {
         if(id === undefined) {
-            if(explore.sphere.sphere === undefined) {
+            if(explore.sphere.sphere === undefined || explore.sphere.sphere === null) {
                 id = config.defaultMap;
             } else {
                 id = explore.sphere.sphere.getMap(0);
@@ -138,12 +155,14 @@
             class: 'fullsize'
         }));
         $('#sphere').remove();
+
         explore.sphere.sphere = null;
         var url = location.pathname;
         var expectedUrl = "/map/" + id;
         if (url !== expectedUrl) {
-            history.pushState({}, "Map", "/map/" + id);
+            history.pushState({type: 'map', id: id}, "Map", "/map/" + id);
         }
+
         $.getJSON("/json/maps/map_" + id + ".json", function (data) {
             $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
                 explore.map.map = Object.create(explore.map.Map).init(data,spheres);
