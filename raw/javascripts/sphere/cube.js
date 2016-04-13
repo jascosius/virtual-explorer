@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Cube = {
         _cube: null,
@@ -16,9 +15,8 @@
         _id: null,
 
         init: function (id,image,onReady) {
-            self = this;
-            self._id = id;
-            self._image = image;
+            this._id = id;
+            this._image = image;
 
             var directions = ["nx", "px", "py", "ny", "pz", "nz"];
             var materials = [];
@@ -53,11 +51,14 @@
             mesh.userData.type = "cube";
             mesh.userData.id = id;
             mesh.name = "Cube " + id;
-            self._cube = mesh;
-            return self;
+            this._cube = mesh;
+            return this;
         },
         getCube: function () {
-            return self._cube;
+            return this._cube;
+        },
+        setPosition: function (x,y,z) {
+            this._cube.position.set(x, y, z);
         }
     };
 

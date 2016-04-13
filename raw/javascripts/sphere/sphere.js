@@ -26,6 +26,8 @@
         _actualIndex: 0,
         _subScene: null,
         _clickableObjects: null,
+        _activeSceneNumber: 0,
+        _events: null,
 
         init: function (data, onReady, startAnimation) {
             self = this;
@@ -63,7 +65,7 @@
 
             self.fitToContainer();
 
-            var events = Object.create(sphere.Events).init(self);
+            self._events = Object.create(sphere.Events).init(self);
 
             var cubeReady = function() {
                 self._renderer.render();
@@ -71,11 +73,10 @@
             };
 
             var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
-            self._subScene[0].getScene().add(cube.getCube());
+            self._subScene[0].addCube(cube);
 
             self._addArrows(self._data.id,self._data.arrows,self._subScene[0].getScene());
             self._addInfos(self._data.id,self._data.infos,self._subScene[0].getScene());
-            console.log(self._data.arrows);
 
 
 
@@ -115,7 +116,7 @@
         },
         getSubScene: function (i) {
             if(i === undefined) {
-                return self._subScene[self._renderer.getActiveSceneNumber()];
+                return self._subScene[self._activeSceneNumber];
             }
             return self._subScene[i];
         },
@@ -147,6 +148,74 @@
         },
         getClickableObjects: function () {
             return self._clickableObjects;
+        },
+        _toggleActiveSceneNumber: function () {
+            self._activeSceneNumber = 1 - self._activeSceneNumber;
+            return self._activeSceneNumber;
+        },
+        getActiveSceneNumber: function() {
+            return self._activeSceneNumber;
+        },
+        getNonActiveSceneNumber: function() {
+            return 1 - self._activeSceneNumber;
+        },
+        loadNewSphere: function (clickData) {
+            self.getSubScene().deleteObjects(false);
+            $.getJSON("/json/spheres/sphere_" + clickData.next_sphere + ".json", function (newData) {
+                self._data = newData;
+                self._toggleActiveSceneNumber();
+                self._clickableObjects = [];
+
+                var newLong = self.getSubScene().getLong();
+                if (clickData.next_camera_long !== undefined) {
+                    newLong = math.eval(clickData.next_camera_long);
+                }
+                if (newData.arrows !== undefined) {
+                    for (var key in newData.arrows) {
+                        var arrow = newData.arrows[key];
+                        if (arrow.next_sphere == clickData.this_sphere) {
+                            newLong = (math.eval(arrow.long) + Math.PI) % (2 * Math.PI);
+                            break;
+                        }
+                    }
+                }
+                var newViewLong = newLong + (self.getSubScene(self.getNonActiveSceneNumber()).getLong() - math.eval(clickData.this_long));
+                var newViewLat = self.getSubScene().getLat();
+                if (clickData.next_camera_lat !== undefined) {
+                    newViewLat = math.eval(clickData.next_camera_lat);
+                }
+                self.getSubScene().setLatLong(newViewLat, newViewLong);
+
+                
+                var cubeReady = function () {
+                    var animationReady = function () {
+                        self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
+                    };
+                    var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self._subScene[self.getActiveSceneNumber()].getCube(),animationReady);
+                    animation.animate();
+                };
+
+                var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
+                self.getSubScene().addCube(cube);
+                
+                var url = location.pathname;
+                var expectedUrl = "/sphere/" + newData.id;
+                if (url !== expectedUrl) {
+                    history.pushState({}, "Sphere", "/sphere/" + newData.id);
+                }
+
+                self._addArrows(self._data.id,self._data.arrows,self.getSubScene().getScene());
+                self._addInfos(self._data.id,self._data.infos,self.getSubScene().getScene());
+
+
+                //
+                // if (grid) {
+                //     addGrid();
+                // }
+            });
+        },
+        removeEvents: function () {
+            self._events.removeEvents();
         }
 
 

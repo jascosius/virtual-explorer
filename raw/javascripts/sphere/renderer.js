@@ -43,9 +43,6 @@
         updateSize: function () {
             self._renderer.setSize(self._sphere.getViewerSize().width, self._sphere.getViewerSize().height);
             self.render();
-        },
-        getActiveSceneNumber: function () {
-            return 0; //TODO
         }
     };
 

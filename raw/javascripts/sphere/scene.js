@@ -112,6 +112,9 @@
         },
         getCamera: function () {
             return self._camera;
+        },
+        setMixRatioValue: function (value) {
+            self._quadmaterial.uniforms.mixRatio.value = value;
         }
     };
 

@@ -1,4 +1,4 @@
-[Zurück ...](#fs-infmath)
+[Zurück ...](#fs-infmath) (Eng)
 
 Die Fachschaftsvertretung Informatik (kurz: Fachschaft Informatik, was korrekt allerdings die Gesamtheit aller Studierenden der Informatik bezeichnet) und die Fachschaftsvertretung Mathematik (kurz: Fachschaft Mathematik) bestehen aus einigen Studentinnen und Studenten der Informatik und der Mathematik. Zusammen vertreten sie die Interessen der Studierenden der Informatik und der Mathematik nach außen, also beispielsweise gegenüber einzelnen Professoren oder auch dem gesamten Institut für Informatik bzw. dem Mathematischen Seminar. 
 

@@ -106,6 +106,10 @@
             elt.attachEvent('on' + evt, f);
     };
 
+    explore.removeEvent = function (elt, evt, f) {
+            elt.removeEventListener(evt, f);
+    };
+
     explore.addEvent(window.document, 'fullscreenchange', explore.fullscreenToggled);
     explore.addEvent(window.document, 'mozfullscreenchange', explore.fullscreenToggled);
     explore.addEvent(window.document, 'webkitfullscreenchange', explore.fullscreenToggled);
@@ -143,7 +147,7 @@
             explore.map.map = null;
             $('#menu_map').css("display","block");
         };
-
+        explore.popup.showPopup();
         var url = location.pathname;
         var expectedUrl = "/sphere/" + id;
         if (url !== expectedUrl) {
@@ -172,9 +176,12 @@
             id: 'map',
             class: 'fullsize'
         }));
-        $('#sphere').remove();
-
-        explore.sphere.sphere = null;
+        if(explore.sphere.sphere !== undefined || explore.sphere.sphere === null) {
+            explore.popup.showPopup();
+            explore.sphere.sphere.removeEvents();
+            explore.sphere.sphere = null;
+            $('#sphere').remove();
+        }
         var url = location.pathname;
         var expectedUrl = "/map/" + id;
         if (url !== expectedUrl) {
@@ -199,6 +206,8 @@
         $.i18n.init({lng: config.languages[config.lang].lang, resGetPath: '/locales/__lng__/__ns__.json'},initLang);
         $('#menu_resolution_img').attr("src",config.resolutions[config.res].image);
         $('#menu_language_img').attr("src",config.languages[config.lang].image);
+
+        explore.popup = Object.create(explore.Popup).init();
 
         if(explore.loadingData.type === "sphere") {
             history.pushState({type: 'sphere', id: explore.loadingData.id}, "Sphere", "/sphere/" + explore.loadingData.id);

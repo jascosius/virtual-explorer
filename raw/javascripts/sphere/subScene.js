@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.SubScene = {
         _FOV_MAX: 90,
@@ -19,43 +18,62 @@
         _sphere: null,
         _lat: 0,
         _long: 0,
+        _cube: null,
         
         init: function (sphereObj) {
-            self = this;
-            self._sphere = sphereObj;
-            self._scene = new THREE.Scene();
-            self._camera = new THREE.PerspectiveCamera(self._FOV_MAX, sphereObj.getViewerSize().ratio, 1, 3000);
-            self._camera.position.set(0, 0, 0);
-            self.setLatLong(0,0);
-            self._scene.add(self._camera);
-            return self;
+            this._sphere = sphereObj;
+            this._scene = new THREE.Scene();
+            this._camera = new THREE.PerspectiveCamera(this._FOV_MAX, sphereObj.getViewerSize().ratio, 1, 3000);
+            this._camera.position.set(0, 0, 0);
+            this.setLatLong(0,0);
+            this._scene.add(this._camera);
+            return this;
         },
         
         getLat: function () {
-            return self._lat;
+            return this._lat;
         },
         getLong: function () {
-            return self._long;
+            return this._long;
         },
         setLatLong: function (lat,long) {
-            self._lat = lat;
-            self._long = long;
-            var point = self._sphere.getCartesian(1, lat, long);
-            self._camera.lookAt(point);
+            this._lat = lat;
+            this._long = long;
+            var point = this._sphere.getCartesian(1, lat, long);
+            this._camera.lookAt(point);
         },
         getScene: function () {
-            return self._scene;
+            return this._scene;
         },
         getCamera: function () {
-            return self._camera;
+            return this._camera;
         },
         updateSize: function () {
-            self._camera.aspect = self._sphere.getViewerSize().ratio;
-            self._camera.updateProjectionMatrix();
+            this._camera.aspect = this._sphere.getViewerSize().ratio;
+            this._camera.updateProjectionMatrix();
         },
         zoom: function (zoomLvl) {
-            self._camera.fov = self._FOV_MAX + (zoomLvl / 100) * (self._FOV_MIN - self._FOV_MAX);
-            self._camera.updateProjectionMatrix();
+            this._camera.fov = this._FOV_MAX + (zoomLvl / 100) * (this._FOV_MIN - this._FOV_MAX);
+            this._camera.updateProjectionMatrix();
+        },
+        addCube: function (cube) {
+            this._cube = cube;
+            this._scene.add(cube.getCube());
+        },
+        getCube: function () {
+            return this._cube;
+        },
+        deleteObjects: function (cube) {
+            var scene = this._scene;
+            for (var i = 0; i < scene.children.length;) {
+                var object = scene.children[i];
+                var belongsTo = object.userData.belongsTo;
+                if (belongsTo !== undefined && belongsTo !== null && (cube || object.userData.type !== "cube")) {
+                    scene.remove(object);
+                } else {
+                    i++;
+                }
+            }
         }
     };
 

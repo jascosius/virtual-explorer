@@ -33,20 +33,36 @@
             self._oldMouse = new THREE.Vector2();
             self._raycaster = new THREE.Raycaster();
 
+            var sphereDiv = document.getElementById("sphere");
+
 
             explore.addEvent(window,'resize',self._sphere.fitToContainer);
-            explore.addEvent(document, 'mousedown', self._onMouseDown);
-            explore.addEvent(document, 'mousemove', self._onMouseMove);
-            explore.addEvent(document, 'mouseup', self._onMouseUp);
+            explore.addEvent(sphereDiv, 'mousedown', self._onMouseDown);
+            explore.addEvent(sphereDiv, 'mousemove', self._onMouseMove);
+            explore.addEvent(sphereDiv, 'mouseup', self._onMouseUp);
             //
             // explore.addEvent(document, 'touchstart', onTouchStart);
             // explore.addEvent(document, 'touchend', onMouseUp);
             // explore.addEvent(document, 'touchmove', onTouchMove);
             //
-            explore.addEvent(document, 'mousewheel', self._onMouseWheel);
-            explore.addEvent(document, 'DOMMouseScroll', self._onMouseWheel);
+            explore.addEvent(sphereDiv, 'mousewheel', self._onMouseWheel);
+            explore.addEvent(sphereDiv, 'DOMMouseScroll', self._onMouseWheel);
 
             return self;
+        },
+        removeEvents: function () {
+            var sphereDiv = document.getElementById("sphere");
+            explore.removeEvent(window,'resize',self._sphere.fitToContainer);
+            explore.removeEvent(sphereDiv, 'mousedown', self._onMouseDown);
+            explore.removeEvent(sphereDiv, 'mousemove', self._onMouseMove);
+            explore.removeEvent(sphereDiv, 'mouseup', self._onMouseUp);
+            //
+            // explore.addEvent(document, 'touchstart', onTouchStart);
+            // explore.addEvent(document, 'touchend', onMouseUp);
+            // explore.addEvent(document, 'touchmove', onTouchMove);
+            //
+            explore.removeEvent(sphereDiv, 'mousewheel', self._onMouseWheel);
+            explore.removeEvent(sphereDiv, 'DOMMouseScroll', self._onMouseWheel);
         },
 
         _onMouseDown: function (evt) {
@@ -92,11 +108,11 @@
             if (self._clickedObjects[0] !== undefined) {
                 self._clickedObjects[0].material.color.setHex(0xffffff);
                 if(self._clickedObjects[0].userData.clickaction.type === "change_sphere") {
-                    //loadNewSphere(clickedObjects[0].userData.clickaction.data);
-                    alert(self._clickedObjects[0].userData.clickaction.data);
+                    self._sphere.loadNewSphere(self._clickedObjects[0].userData.clickaction.data);
+                    //alert(self._clickedObjects[0].userData.clickaction.data);
                 } else if (self._clickedObjects[0].userData.clickaction.type === "show_popup") {
-                    //showPopup(clickedObjects[0].userData.clickaction.data);
-                    alert(self._clickedObjects[0].userData.clickaction.data);
+                    explore.popup.showPopup(self._clickedObjects[0].userData.clickaction.data.content);
+                    //alert(self._clickedObjects[0].userData.clickaction.data);
                 }
                 self._clickedObjects[0] = undefined;
             }

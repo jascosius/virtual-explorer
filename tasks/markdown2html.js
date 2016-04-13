@@ -8,7 +8,7 @@ module.exports = function (grunt) {
         var out;
         if(href.substring(0,1) === '#') {
             href = href.substring(1);
-            out = '<a href="javascript:void(0)" onclick="sphere.changePopup(\''+ href +'\');"'
+            out = '<a href="javascript:void(0)" onclick="window.explore.popup.changePopup(\''+ href +'\');"'
         } else {
             out = '<a href="' + href + '" TARGET="_blank"';
         }
