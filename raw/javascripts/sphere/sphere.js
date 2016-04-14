@@ -82,7 +82,7 @@
                         initial = math.eval(self._data.initialView.long);
                     }
                     if(startAnimation) {
-                        var openSphereAnimation = Object.create(sphere.OpenSphereAnimation).init(self, initial, self.getSubScene().getCube(), false, animationReady);
+                        var openSphereAnimation = Object.create(sphere.OpenSphereAnimation).init(self, null, null,initial, self.getSubScene().getCube(), false, animationReady);
                         openSphereAnimation.animate();
                     } else {
                         self.getSubScene().setLatLong(0, initial);

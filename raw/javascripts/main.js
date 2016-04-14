@@ -200,7 +200,7 @@
         if(animation){
             var sphere = explore.sphere.sphere;
             sphere.getSubScene().deleteObjects(false);
-            var openSphereAnimation = Object.create(explore.sphere.OpenSphereAnimation).init(sphere, sphere.getSubScene().getLong(), sphere.getSubScene().getCube(), true, onReady);
+            var openSphereAnimation = Object.create(explore.sphere.OpenSphereAnimation).init(sphere, sphere.getSubScene().getLat(), null, sphere.getSubScene().getLong(), sphere.getSubScene().getCube(), true, onReady);
             openSphereAnimation.animate();
         } else {
             onReady();
