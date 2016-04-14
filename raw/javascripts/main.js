@@ -49,6 +49,7 @@
         config.res = (config.res + 1) % config.resolutions.length;
         $('#menu_resolution_img').attr("src", config.resolutions[config.res].image);
         setCookie("res", config.res);
+        explore.load(false);
     };
 
     explore.changeLanguage = function () {
@@ -56,6 +57,7 @@
         $('#menu_language_img').attr("src", config.languages[config.lang].image);
         $.i18n.init({lng: config.languages[config.lang].lang, resGetPath: '/locales/__lng__/__ns__.json'}, initLang);
         setCookie("lang", config.lang);
+        explore.load(false);
     };
 
     var lang = getCookie("lang");
@@ -148,6 +150,8 @@
      * @param startAnimation - bool - Animate the entrance into the sphere
      */
     explore.loadSphere = function (id, startAnimation) {
+        explore.loadingData.id = id;
+        explore.loadingData.type = "sphere";
         removeSphere();
         //Creates a div to add the sphere
         $('#explore').append($('<div/>', {
@@ -184,6 +188,8 @@
                 id = explore.sphere.sphere.getMap(0);
             }
         }
+        explore.loadingData.id = id;
+        explore.loadingData.type = "map";
         $('#menu_map').css("display", "none");
         $('#explore').append($('<div/>', {
             id: 'map',
@@ -223,26 +229,32 @@
         $('#menu_language_img').attr("title", $.i18n.t(config.languages[config.lang].name));
         $('#menu_map_img').attr("title", $.i18n.t('menu.map'));
     };
+    
+    explore.load = function (addHistory) {
+        if (explore.loadingData.type === "sphere") {
+            if(addHistory) {
+                history.pushState({
+                    type: 'sphere',
+                    id: explore.loadingData.id
+                }, "Sphere", "/sphere/" + explore.loadingData.id);
+            }
+            explore.loadSphere(explore.loadingData.id, false);
+        } else if (explore.loadingData.type === "map") {
+            if(addHistory) {
+                history.pushState({type: 'map', id: explore.loadingData.id}, "Map", "/map/" + explore.loadingData.id);
+            }
+            explore.loadMap(explore.loadingData.id);
+        } else {
+            explore.loadMap();
+        }
+    };
 
     $(function () {
         $.i18n.init({lng: config.languages[config.lang].lang, resGetPath: '/locales/__lng__/__ns__.json'}, initLang);
         $('#menu_resolution_img').attr("src", config.resolutions[config.res].image);
         $('#menu_language_img').attr("src", config.languages[config.lang].image);
-
         explore.popup = Object.create(explore.Popup).init();
-
-        if (explore.loadingData.type === "sphere") {
-            history.pushState({
-                type: 'sphere',
-                id: explore.loadingData.id
-            }, "Sphere", "/sphere/" + explore.loadingData.id);
-            explore.loadSphere(explore.loadingData.id, false);
-        } else if (explore.loadingData.type === "map") {
-            history.pushState({type: 'map', id: explore.loadingData.id}, "Map", "/map/" + explore.loadingData.id);
-            explore.loadMap(explore.loadingData.id);
-        } else {
-            explore.loadMap();
-        }
+        explore.load(true);
     });
 
 }(window));

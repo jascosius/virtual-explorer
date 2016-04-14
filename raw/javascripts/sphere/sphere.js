@@ -176,6 +176,8 @@
             return 1 - this._activeSceneNumber;
         },
         loadNewSphere: function (clickData) {
+            explore.loadingData.id = clickData.next_sphere;
+            explore.loadingData.type = "sphere";
             this.getSubScene().deleteObjects(false);
             window.explore.startLoading();
             $.getJSON("/json/spheres/sphere_" + clickData.next_sphere + ".json", function (newData) {
