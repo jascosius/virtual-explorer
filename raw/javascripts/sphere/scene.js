@@ -92,7 +92,7 @@
 
             });
 
-            this._quadmaterial.uniforms.mixRatio.value = 0;
+            this._quadmaterial.uniforms.mixRatio.value = this._sphere.getActiveSceneNumber();
 
             var quad = new THREE.Mesh(this._quadgeometry, this._quadmaterial);
 

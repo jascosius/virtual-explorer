@@ -210,10 +210,14 @@
                     self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
                 };
                 var cubeReady = function () {
-                    var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
-                    window.explore.stopLoading();
-                    history.pushState({type: 'sphere', id: newData.id}, "Sphere", "/sphere/" + newData.id);
-                    animation.animate();
+                    if(self.getSubScene().getCube() == null) {
+                        setTimeout(cubeReady, 100);
+                    } else {
+                        var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
+                        window.explore.stopLoading();
+                        history.pushState({type: 'sphere', id: newData.id}, "Sphere", "/sphere/" + newData.id);
+                        animation.animate();
+                    }
                 };
 
                 var cube = Object.create(sphere.Cube).init(this._data.id,this._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
