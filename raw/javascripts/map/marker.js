@@ -43,7 +43,7 @@
                 drawIcon: function (icon, type) {
                     canvas = icon;
                     image.onload = drawCanvas;
-                    image.src = sphereObj.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png'; //Todo: dynamic resolution
+                    image.src = sphereObj.images.preview[resolution].path + '/icon'+ self.pad(count,4) + '.png';
                 }
             });
             
@@ -83,6 +83,7 @@
             });
             marker.on('click', function (e) {
                 stopAnimation();
+                window.explore.startLoading();
                 window.explore.loadSphere(sphereObj.id,true);
                 mapObj.options.maxZoom = mapObj.getZoom() + 1;
                 mapObj.setZoom(mapObj.getZoom() + 1);

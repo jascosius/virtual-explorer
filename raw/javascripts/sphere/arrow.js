@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Arrow = {
         _arrow: null,
@@ -19,11 +18,10 @@
         _clickable: false,
 
         init: function (id, name, data, sphere) {
-            self = this;
-            self._id = id;
-            self._name = name;
-            self._data = data;
-            self._sphere = sphere;
+            this._id = id;
+            this._name = name;
+            this._data = data;
+            this._sphere = sphere;
 
             var size = 30;
             if (data.size !== undefined)
@@ -49,6 +47,7 @@
                 rotationZ = -rotationZ - math.eval(data.rotationZ);
 
             var planeGeometry = new THREE.PlaneGeometry(size, size);
+            var self = this;
             var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture, {}, function () {
                 self._sphere.render()
             });
@@ -57,14 +56,14 @@
                 side: THREE.DoubleSide,
                 transparent: true
             });
-            var plane = self._arrow = new THREE.Mesh(planeGeometry, planeMaterial);
-            var vector = self._sphere.getCartesian(radius, lat, long);
+            var plane = this._arrow = new THREE.Mesh(planeGeometry, planeMaterial);
+            var vector = this._sphere.getCartesian(radius, lat, long);
             plane.position.add(vector);
             plane.rotation.x = rotationX;
             plane.rotation.y = rotationY;
             plane.rotation.z = rotationZ;
             if (data.next_sphere !== undefined) {
-                self._clickable = true;
+                this._clickable = true;
                 plane.userData.clickaction = {
                     type: "change_sphere",
                     data: {
@@ -82,14 +81,14 @@
             plane.userData.type = "arrow";
             plane.name = "Arrow " + name;
 
-            return self;
+            return this;
         },
 
         getArrow: function () {
-            return self._arrow;
+            return this._arrow;
         },
         isClickable: function () {
-            return self._clickable;
+            return this._clickable;
         }
     };
 

@@ -75,8 +75,10 @@
             var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
             self._subScene[0].addCube(cube);
 
-            self._addArrows(self._data.id,self._data.arrows,self._subScene[0].getScene());
-            self._addInfos(self._data.id,self._data.infos,self._subScene[0].getScene());
+            var arrows = self._createArrows(self._data.id,self._data.arrows);
+            self._addArrows(arrows, self._subScene[0].getScene());
+            var infos = self._createInfos(self._data.id,self._data.infos);
+            self._addInfos(infos,self._subScene[0].getScene());
 
 
 
@@ -123,23 +125,38 @@
         render: function () {
             self._renderer.render();
         },
-        _addArrows: function (id, arrows, scene) {
+        _createArrows: function (id, arrows) {
+            var arrowsArray = [];
             for (var key in arrows) {
                 var arrow = arrows[key];
-                var obj = Object.create(sphere.Arrow).init(id, key, arrow, self);
-                scene.add(obj.getArrow());
-                if(obj.isClickable()) {
-                    self.addClickableObject(obj.getArrow());
+                arrowsArray.push(Object.create(sphere.Arrow).init(id, key, arrow, self));
+            }
+            return arrowsArray;
+        },
+        _addArrows: function (arrowsArray, scene) {
+            for(var i in arrowsArray) {
+                var arrow = arrowsArray[i];
+                scene.add(arrow.getArrow());
+                if (arrow.isClickable()) {
+                    self.addClickableObject(arrow.getArrow());
                 }
             }
         },
-        _addInfos: function (id, infos, scene) {
+        _createInfos: function (id, infos) {
+            var infosArray = [];
             for (var key in infos) {
                 var info = infos[key];
-                var obj = Object.create(sphere.Info).init(id, info, self);
-                scene.add(obj.getInfo());
-                if(obj.isClickable()) {
-                    self.addClickableObject(obj.getInfo());
+                infosArray.push(Object.create(sphere.Info).init(id, info, self));
+
+            }
+            return infosArray
+        },
+        _addInfos: function (infosArray, scene) {
+            for(var i in infosArray) {
+                var info = infosArray[i];
+                scene.add(info.getInfo());
+                if (info.isClickable()) {
+                    self.addClickableObject(info.getInfo());
                 }
             }
         },
@@ -161,6 +178,7 @@
         },
         loadNewSphere: function (clickData) {
             self.getSubScene().deleteObjects(false);
+            window.explore.startLoading();
             $.getJSON("/json/spheres/sphere_" + clickData.next_sphere + ".json", function (newData) {
                 self._data = newData;
                 self._toggleActiveSceneNumber();
@@ -189,9 +207,12 @@
                 
                 var cubeReady = function () {
                     var animationReady = function () {
+                        self._addArrows(arrows,self.getSubScene().getScene());
+                        self._addInfos(infos,self.getSubScene().getScene());
                         self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
                     };
-                    var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self._subScene[self.getActiveSceneNumber()].getCube(),animationReady);
+                    var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
+                    window.explore.stopLoading();
                     animation.animate();
                 };
 
@@ -204,8 +225,8 @@
                     history.pushState({}, "Sphere", "/sphere/" + newData.id);
                 }
 
-                self._addArrows(self._data.id,self._data.arrows,self.getSubScene().getScene());
-                self._addInfos(self._data.id,self._data.infos,self.getSubScene().getScene());
+                var arrows = self._createArrows(self._data.id,self._data.arrows);
+                var infos = self._createInfos(self._data.id,self._data.infos);
 
 
                 //

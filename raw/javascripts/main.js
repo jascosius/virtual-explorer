@@ -129,6 +129,21 @@
         }
     };
 
+    var removeSphere = function () {
+        if(explore.sphere.sphere !== undefined && explore.sphere.sphere !== null) {
+            explore.popup.showPopup();
+            explore.sphere.sphere.removeEvents();
+            explore.sphere.sphere = null;
+            $('#sphere').remove();
+        }
+    };
+
+    var removeMap = function () {
+        $('#map').remove();
+        explore.map.map = null;
+        $('#menu_map').css("display","block");
+    };
+
 
     /**
      * Loads a sphere
@@ -136,16 +151,16 @@
      * @param startAnimation - bool - Animate the entrance into the sphere
      */
     explore.loadSphere = function (id, startAnimation) {
+        removeSphere();
         //Creates a div to add the sphere
         $('#explore').append($('<div/>', {
             id: 'sphere',
             class: 'fullsize invisible'
         }));
         var onReady = function () {
+            explore.stopLoading();
             $('#sphere').removeClass('invisible');
-            $('#map').remove();
-            explore.map.map = null;
-            $('#menu_map').css("display","block");
+            removeMap();
         };
         explore.popup.showPopup();
         var url = location.pathname;
@@ -164,6 +179,7 @@
      * @param id
      */
     explore.loadMap = function (id) {
+        removeMap();
         if(id === undefined) {
             if(explore.sphere.sphere === undefined || explore.sphere.sphere === null) {
                 id = config.defaultMap;
@@ -176,12 +192,7 @@
             id: 'map',
             class: 'fullsize'
         }));
-        if(explore.sphere.sphere !== undefined || explore.sphere.sphere === null) {
-            explore.popup.showPopup();
-            explore.sphere.sphere.removeEvents();
-            explore.sphere.sphere = null;
-            $('#sphere').remove();
-        }
+        removeSphere();
         var url = location.pathname;
         var expectedUrl = "/map/" + id;
         if (url !== expectedUrl) {
@@ -193,6 +204,20 @@
                 explore.map.map = Object.create(explore.map.Map).init(data,spheres);
             });
         });
+    };
+
+    explore.startLoading = function () {
+        explore.loading = true;
+        var loading = function () {
+            if(explore.loading === true) {
+                $('#menu_loading').css("display", "block");
+            }
+        };
+        setTimeout(loading, 2000);
+    };
+    explore.stopLoading = function () {
+        explore.loading = false;
+        $('#menu_loading').css("display","none");
     };
 
     var initLang = function() {
