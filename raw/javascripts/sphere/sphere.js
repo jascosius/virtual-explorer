@@ -27,6 +27,7 @@
         _clickableObjects: null,
         _activeSceneNumber: 0,
         _events: null,
+        _grid: null,
 
         init: function (data, onReady, startAnimation) {
             this._data = data;
@@ -66,20 +67,50 @@
             this._events = Object.create(sphere.Events).init(this);
 
             var self = this;
-            var cubeReady = function() {
+            var animationReady = function () {
+                self._addArrows(arrows,self.getSubScene().getScene());
+                self._addInfos(infos,self.getSubScene().getScene());
                 self._renderer.render();
-                self._onReady();
+            };
+            var cubeReady = function() {
+                if(self.getSubScene().getCube() == null) {
+                    setTimeout(cubeReady, 100);
+                } else {
+                    self._onReady();
+                    var initial = 0;
+                    if (self._data.initialView.long !== undefined) {
+                        initial = math.eval(self._data.initialView.long);
+                    }
+                    if(startAnimation) {
+                        var openSphereAnimation = Object.create(sphere.OpenSphereAnimation).init(self, initial, self.getSubScene().getCube(), false, animationReady);
+                        openSphereAnimation.animate();
+                    } else {
+                        self.getSubScene().setLatLong(0, initial);
+                        animationReady();
+                    }
+                }
             };
 
-            var cube = Object.create(sphere.Cube).init(this._data.id,this._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
+            var cube = Object.create(sphere.Cube).init(this._data.id,this._data,cubeReady);
             this._subScene[0].addCube(cube);
 
+            var cubeReady = function () {
+                if(self.getSubScene().getCube() == null) {
+                    setTimeout(cubeReady, 100);
+                } else {
+                    var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
+                    window.explore.stopLoading();
+                    history.pushState({type: 'sphere', id: newData.id}, "Sphere", "/sphere/" + newData.id);
+                    animation.animate();
+                }
+            };
+
             var arrows = this._createArrows(this._data.id,this._data.arrows);
-            this._addArrows(arrows, this._subScene[0].getScene());
+            //this._addArrows(arrows, this._subScene[0].getScene());
             var infos = this._createInfos(this._data.id,this._data.infos);
-            this._addInfos(infos,this._subScene[0].getScene());
-
-
+            //this._addInfos(infos,this._subScene[0].getScene());
+            
+            this._grid = Object.create(sphere.Grid).init(this);
 
             this._renderer.render();
 
@@ -116,7 +147,7 @@
             return this._data.belongsToMap[i];
         },
         getSubScene: function (i) {
-            if(i === undefined) {
+            if(i == null) {
                 return this._subScene[this._activeSceneNumber];
             }
             return this._subScene[i];
@@ -222,7 +253,7 @@
                     }
                 };
 
-                var cube = Object.create(sphere.Cube).init(this._data.id,this._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
+                var cube = Object.create(sphere.Cube).init(this._data.id,this._data,cubeReady);
                 this.getSubScene().addCube(cube);
 
                 var arrows = this._createArrows(this._data.id,this._data.arrows);
@@ -237,6 +268,12 @@
         },
         removeEvents: function () {
             this._events.removeEvents();
+        },
+        showGrid: function () {
+            this._grid.showGrid();
+        },
+        removeGrid: function () {
+            this._grid.removeGrid();
         }
 
 

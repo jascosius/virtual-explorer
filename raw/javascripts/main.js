@@ -175,14 +175,10 @@
         });
     };
 
-    /**
-     *
-     * @param id
-     */
-    explore.loadMap = function (id) {
+    explore.loadMap = function (id,animation) {
         removeMap();
-        if (id === undefined) {
-            if (explore.sphere.sphere === undefined || explore.sphere.sphere === null) {
+        if (id == null) {
+            if (explore.sphere.sphere == null) {
                 id = config.defaultMap;
             } else {
                 id = explore.sphere.sphere.getMap(0);
@@ -193,9 +189,22 @@
         $('#menu_map').css("display", "none");
         $('#explore').append($('<div/>', {
             id: 'map',
-            class: 'fullsize'
+            class: 'fullsize invisible'
         }));
-        removeSphere();
+        var onReady = function () {
+            explore.stopLoading();
+            $('#map').removeClass('invisible');
+            removeSphere();
+        };
+
+        if(animation){
+            var sphere = explore.sphere.sphere;
+            sphere.getSubScene().deleteObjects(false);
+            var openSphereAnimation = Object.create(explore.sphere.OpenSphereAnimation).init(sphere, sphere.getSubScene().getLong(), sphere.getSubScene().getCube(), true, onReady);
+            openSphereAnimation.animate();
+        } else {
+            onReady();
+        }
         var url = location.pathname;
         var expectedUrl = "/map/" + id;
         if (url !== expectedUrl) {
@@ -207,6 +216,10 @@
                 explore.map.map = Object.create(explore.map.Map).init(data, spheres);
             });
         });
+    };
+    
+    explore.disableMap = function () {
+        removeMap();
     };
 
     explore.startLoading = function () {

@@ -11,13 +11,14 @@
 
     sphere.Cube = {
         _cube: null,
-        _image: null,
+        _data: null,
         _id: null,
 
-        init: function (id,image,onReady) {
+        init: function (id,data,onReady) {
             this._id = id;
-            this._image = image;
+            this._data = data;
 
+            var image = data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path;
             var directions = ["nx", "px", "py", "ny", "pz", "nz"];
             var materials = [];
             var count = directions.length;
@@ -26,19 +27,6 @@
                     count--;
                     if (count === 0) {
                         onReady();
-                        /**
-                         * Indicates that the loading is finished: the first image is rendered
-                         * @callback PhotoSphereViewer~onReady
-                         **/
-
-                        //Todo
-                        //triggerAction('ready');
-
-                        //if (startAnimation) {
-                        //    inOutAnimation(false);
-                        //}
-
-                        //render();
                     }
                 });
                 materials.push(new THREE.MeshBasicMaterial({map: texture, overdraw: true}));
@@ -59,6 +47,13 @@
         },
         setPosition: function (x,y,z) {
             this._cube.position.set(x, y, z);
+        },
+        getInitial: function() {
+            var initial = 0;
+            if (this._data.initialView.long !== undefined) { //todo: add lat
+                initial = math.eval(this._data.initialView.long);
+            }
+            return initial;
         }
     };
 
