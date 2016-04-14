@@ -244,6 +244,7 @@
     };
     
     explore.load = function (addHistory) {
+        explore.startLoading();
         if (explore.loadingData.type === "sphere") {
             if(addHistory) {
                 history.pushState({

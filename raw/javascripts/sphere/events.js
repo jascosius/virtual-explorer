@@ -15,13 +15,17 @@
         _LONG_OFFSET: 2,
         _LAT_OFFSET: 2,
         _ZOOM_SPEED: 2,
+        _TOUCH_ZOOM_SPEED: 3,
 
         _sphere: null,
         _mouse: null,
         _mouseStart: null,
         _raycaster: null,
         _mousedown: false,
+        _touchzoom: false,
+        _touchzoomDist: 0,
         _zoomLvl: 0,
+        _sphereDiv: false,
 
         _clickedObjects: [],
 
@@ -31,18 +35,18 @@
             this._oldMouse = new THREE.Vector2();
             this._raycaster = new THREE.Raycaster();
 
-            var sphereDiv = document.getElementById("sphere");
+            var sphereDiv = this._sphereDiv = document.getElementById("sphere");
 
 
             explore.addEvent(window,'resize',this._sphere.fitToContainer.bind(this._sphere));
             explore.addEvent(sphereDiv, 'mousedown', this._onMouseDown.bind(this));
             explore.addEvent(sphereDiv, 'mousemove', this._onMouseMove.bind(this));
             explore.addEvent(sphereDiv, 'mouseup', this._onMouseUp.bind(this));
-            //
-            // explore.addEvent(document, 'touchstart', onTouchStart);
-            // explore.addEvent(document, 'touchend', onMouseUp);
-            // explore.addEvent(document, 'touchmove', onTouchMove);
-            //
+
+            explore.addEvent(sphereDiv, 'touchstart', this._onTouchStart.bind(this));
+            explore.addEvent(sphereDiv, 'touchend', this._onMouseUp.bind(this));
+            explore.addEvent(sphereDiv, 'touchmove', this._onTouchMove.bind(this));
+
             explore.addEvent(sphereDiv, 'mousewheel', this._onMouseWheel.bind(this));
             explore.addEvent(sphereDiv, 'DOMMouseScroll', this._onMouseWheel.bind(this));
 
@@ -101,7 +105,7 @@
 
         _onMouseUp: function (evt) {
             this._mousedown = false;
-            //touchzoom = false;
+            this._touchzoom = false;
 
             if (this._clickedObjects[0] !== undefined) {
                 this._clickedObjects[0].material.color.setHex(0xffffff);
@@ -150,6 +154,65 @@
             }
         },
 
+        _onTouchStart: function(evt) {
+            // Move
+            var viewerSize = this._sphere.getViewerSize();
+            if (evt.touches.length == 1) {
+                var touch = evt.touches[0];
+                if (touch.target.parentNode == this._sphereDiv) {
+                    this._mouse.x = ( touch.clientX / viewerSize.width ) * 2 - 1;
+                    this._mouse.y = -( touch.clientY / viewerSize.height ) * 2 + 1;
+                    this._mousedown = true;
+                    this._oldMouse.x = this._mouse.x;
+                    this._oldMouse.y = this._mouse.y;
+                    console.log('move start');
+                }
+            }
+
+            // Zoom
+            else if (evt.touches.length == 2) {
+                this._onMouseUp();
+
+                if (evt.touches[0].target.parentNode == this._sphereDiv && evt.touches[1].target.parentNode == this._sphereDiv) {
+                    this._touchzoomDist = this.dist(evt.touches[0].clientX, evt.touches[0].clientY, evt.touches[1].clientX, evt.touches[1].clientY);
+                    this._touchzoom = true;
+                }
+            }
+        },
+
+        _onTouchMove: function (evt) {
+            // Move
+            if (evt.touches.length == 1 && this._mousedown) {
+                var touch = evt.touches[0];
+                if (touch.target.parentNode == this._sphereDiv) {
+                    evt.preventDefault();
+                    var viewerSize = this._sphere.getViewerSize();
+                    var x = ( touch.clientX / viewerSize.width ) * 2 - 1;
+                    var y = -( touch.clientY / viewerSize.height ) * 2 + 1;
+                    this._move(x, y);
+                }
+            }
+
+            // Zoom
+            else if (evt.touches.length == 2) {
+                if (evt.touches[0].target.parentNode == this._sphereDiv && evt.touches[1].target.parentNode == this._sphereDiv && this._touchzoom) {
+                    evt.preventDefault();
+
+                    // Calculate the new level of zoom
+                    var d = this.dist(evt.touches[0].clientX, evt.touches[0].clientY, evt.touches[1].clientX, evt.touches[1].clientY);
+                    var diff = d - this._touchzoomDist;
+
+                    //alert("4");
+                    if (diff != 0) {
+                        var direction = diff / Math.abs(diff);
+                        this._zoom(this._zoomLvl + direction * this._TOUCH_ZOOM_SPEED);
+
+                        this._touchzoomDist = d;
+                    }
+                }
+            }
+        },
+
         _zoom: function (level) {
             var zoomLvl = this._zoomLvl = this._stayBetween(parseInt(Math.round(level)), 0, 100);
 
@@ -165,6 +228,11 @@
 
         _stayBetween: function (x, min, max) {
             return Math.max(min, Math.min(max, x));
+        },
+        dist: function (x1, y1, x2, y2) {
+            var x = x2 - x1;
+            var y = y2 - y1;
+            return x * x + y * y;
         }
 
     };
