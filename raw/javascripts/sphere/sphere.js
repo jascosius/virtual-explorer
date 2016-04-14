@@ -106,9 +106,7 @@
             };
 
             var arrows = this._createArrows(this._data.id,this._data.arrows);
-            //this._addArrows(arrows, this._subScene[0].getScene());
             var infos = this._createInfos(this._data.id,this._data.infos);
-            //this._addInfos(infos,this._subScene[0].getScene());
             
             this._grid = Object.create(sphere.Grid).init(this);
 
@@ -243,10 +241,12 @@
                     self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
                 };
                 var cubeReady = function () {
-                    if(self.getSubScene().getCube() == null) {
+                    if(self.getSubScene().getCube() == null || (self.getSubScene().getCube() != null && self.getSubScene().getCube().getID() !== self._data.id)) {
                         setTimeout(cubeReady, 100);
                     } else {
-                        var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
+                        var oldCube = self.getSubScene(self.getNonActiveSceneNumber()).getCube();
+                        var newCube = self.getSubScene().getCube();
+                        var animation = Object.create(sphere.Animation).init(self,clickData.this_long,newLong,oldCube,newCube,animationReady);
                         window.explore.stopLoading();
                         history.pushState({type: 'sphere', id: newData.id}, "Sphere", "/sphere/" + newData.id);
                         animation.animate();

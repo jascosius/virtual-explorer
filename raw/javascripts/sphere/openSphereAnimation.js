@@ -38,7 +38,6 @@
             }
             var newYPosition = multiplicator * this._START_POSITION;
             var newLat = -multiplicator * (Math.PI/2 - 0.1);
-            console.log(newLat);
             this._sphere.getSubScene().setLatLong(newLat,this._long);
             
             this._cube.setPosition(0,newYPosition,0);

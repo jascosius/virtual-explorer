@@ -54,6 +54,9 @@
                 initial = math.eval(this._data.initialView.long);
             }
             return initial;
+        },
+        getID: function () {
+            return this._id;
         }
     };
 
