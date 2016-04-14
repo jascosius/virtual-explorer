@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Sphere = {
 
@@ -30,68 +29,68 @@
         _events: null,
 
         init: function (data, onReady, startAnimation) {
-            self = this;
-            self._data = data;
-            self._onReady = onReady;
-            self._startAnimation = startAnimation;
-            self._container = $('#sphere');
-            self._subScene = [];
-            self._container.innerHTML = '';
-            self._clickableObjects = [];
+            this._data = data;
+            this._onReady = onReady;
+            this._startAnimation = startAnimation;
+            this._container = $('#sphere');
+            this._subScene = [];
+            this._container.innerHTML = '';
+            this._clickableObjects = [];
 
             // Is canvas supported?
-            if (!self._isCanvasSupported()) {
-                self._container.textContent = 'Canvas is not supported, update your browser!';
-                self._onReady();
+            if (!this._isCanvasSupported()) {
+                this._container.textContent = 'Canvas is not supported, update your browser!';
+                this._onReady();
                 return;
             }
 
             // Is Three.js loaded?
             if (window.THREE === undefined) {
                 console.log('PhotoSphereViewer: Three.js is not loaded.');
-                self._onReady();
+                this._onReady();
                 return;
             }
 
-            sphere.scene = Object.create(sphere.Scene).init(self);
-            self._subScene[0] = Object.create(sphere.SubScene).init(self);
-            self._subScene[1] = Object.create(sphere.SubScene).init(self);
+            sphere.scene = Object.create(sphere.Scene).init(this);
+            this._subScene[0] = Object.create(sphere.SubScene).init(this);
+            this._subScene[1] = Object.create(sphere.SubScene).init(this);
 
-            self._renderer = Object.create(sphere.Renderer).init(self,self._subScene[0],self._subScene[1]);
+            this._renderer = Object.create(sphere.Renderer).init(this,this._subScene[0],this._subScene[1]);
 
-            var canvas = self._renderer.getDomElement();
+            var canvas = this._renderer.getDomElement();
             canvas.style.display = 'block';
-            self._container.append(canvas);
+            this._container.append(canvas);
 
-            self.fitToContainer();
+            this.fitToContainer();
 
-            self._events = Object.create(sphere.Events).init(self);
+            this._events = Object.create(sphere.Events).init(this);
 
+            var self = this;
             var cubeReady = function() {
                 self._renderer.render();
                 self._onReady();
             };
 
-            var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
-            self._subScene[0].addCube(cube);
+            var cube = Object.create(sphere.Cube).init(this._data.id,this._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
+            this._subScene[0].addCube(cube);
 
-            var arrows = self._createArrows(self._data.id,self._data.arrows);
-            self._addArrows(arrows, self._subScene[0].getScene());
-            var infos = self._createInfos(self._data.id,self._data.infos);
-            self._addInfos(infos,self._subScene[0].getScene());
+            var arrows = this._createArrows(this._data.id,this._data.arrows);
+            this._addArrows(arrows, this._subScene[0].getScene());
+            var infos = this._createInfos(this._data.id,this._data.infos);
+            this._addInfos(infos,this._subScene[0].getScene());
 
 
 
-            self._renderer.render();
+            this._renderer.render();
 
-            return self;
+            return this;
         },
         _isCanvasSupported: function () {
             var canvas = window.document.createElement('canvas');
             return !!(canvas.getContext && canvas.getContext('2d'));
         },
         getViewerSize: function () {
-            return self._viewerSize;
+            return this._viewerSize;
         },
         getCartesian: function (radius, lat, long) {
             var x = radius * Math.cos(lat) * Math.sin(long);
@@ -100,36 +99,36 @@
             return new THREE.Vector3(x, y, z);
         },
         fitToContainer: function () {
-            var container = self._container;
-            var viewerSize = self._viewerSize;
+            var container = this._container;
+            var viewerSize = this._viewerSize;
             if (container.width() != viewerSize.width || container.height() != viewerSize.height) {
                 viewerSize.width = parseInt(container.width());
                 viewerSize.height = parseInt(container.height());
                 viewerSize.ratio = viewerSize.width / viewerSize.height;
 
-                sphere.scene = Object.create(sphere.Scene).init(self);
-                self._subScene[0].updateSize();
-                self._subScene[1].updateSize();
-                self._renderer.updateSize()
+                sphere.scene = Object.create(sphere.Scene).init(this);
+                this._subScene[0].updateSize();
+                this._subScene[1].updateSize();
+                this._renderer.updateSize()
             }
         },
         getMap: function (i) {
-            return self._data.belongsToMap[i];
+            return this._data.belongsToMap[i];
         },
         getSubScene: function (i) {
             if(i === undefined) {
-                return self._subScene[self._activeSceneNumber];
+                return this._subScene[this._activeSceneNumber];
             }
-            return self._subScene[i];
+            return this._subScene[i];
         },
         render: function () {
-            self._renderer.render();
+            this._renderer.render();
         },
         _createArrows: function (id, arrows) {
             var arrowsArray = [];
             for (var key in arrows) {
                 var arrow = arrows[key];
-                arrowsArray.push(Object.create(sphere.Arrow).init(id, key, arrow, self));
+                arrowsArray.push(Object.create(sphere.Arrow).init(id, key, arrow, this));
             }
             return arrowsArray;
         },
@@ -138,7 +137,7 @@
                 var arrow = arrowsArray[i];
                 scene.add(arrow.getArrow());
                 if (arrow.isClickable()) {
-                    self.addClickableObject(arrow.getArrow());
+                    this.addClickableObject(arrow.getArrow());
                 }
             }
         },
@@ -146,7 +145,7 @@
             var infosArray = [];
             for (var key in infos) {
                 var info = infos[key];
-                infosArray.push(Object.create(sphere.Info).init(id, info, self));
+                infosArray.push(Object.create(sphere.Info).init(id, info, this));
 
             }
             return infosArray
@@ -156,35 +155,35 @@
                 var info = infosArray[i];
                 scene.add(info.getInfo());
                 if (info.isClickable()) {
-                    self.addClickableObject(info.getInfo());
+                    this.addClickableObject(info.getInfo());
                 }
             }
         },
         addClickableObject: function (obj) {
-            self._clickableObjects.push(obj);
+            this._clickableObjects.push(obj);
         },
         getClickableObjects: function () {
-            return self._clickableObjects;
+            return this._clickableObjects;
         },
         _toggleActiveSceneNumber: function () {
-            self._activeSceneNumber = 1 - self._activeSceneNumber;
-            return self._activeSceneNumber;
+            this._activeSceneNumber = 1 - this._activeSceneNumber;
+            return this._activeSceneNumber;
         },
         getActiveSceneNumber: function() {
-            return self._activeSceneNumber;
+            return this._activeSceneNumber;
         },
         getNonActiveSceneNumber: function() {
-            return 1 - self._activeSceneNumber;
+            return 1 - this._activeSceneNumber;
         },
         loadNewSphere: function (clickData) {
-            self.getSubScene().deleteObjects(false);
+            this.getSubScene().deleteObjects(false);
             window.explore.startLoading();
             $.getJSON("/json/spheres/sphere_" + clickData.next_sphere + ".json", function (newData) {
-                self._data = newData;
-                self._toggleActiveSceneNumber();
-                self._clickableObjects = [];
+                this._data = newData;
+                this._toggleActiveSceneNumber();
+                this._clickableObjects = [];
 
-                var newLong = self.getSubScene().getLong();
+                var newLong = this.getSubScene().getLong();
                 if (clickData.next_camera_long !== undefined) {
                     newLong = math.eval(clickData.next_camera_long);
                 }
@@ -197,46 +196,41 @@
                         }
                     }
                 }
-                var newViewLong = newLong + (self.getSubScene(self.getNonActiveSceneNumber()).getLong() - math.eval(clickData.this_long));
-                var newViewLat = self.getSubScene().getLat();
+                var newViewLong = newLong + (this.getSubScene(this.getNonActiveSceneNumber()).getLong() - math.eval(clickData.this_long));
+                var newViewLat = this.getSubScene().getLat();
                 if (clickData.next_camera_lat !== undefined) {
                     newViewLat = math.eval(clickData.next_camera_lat);
                 }
-                self.getSubScene().setLatLong(newViewLat, newViewLong);
+                this.getSubScene().setLatLong(newViewLat, newViewLong);
 
-                
+                var self = this;
+                var animationReady = function () {
+                    self._addArrows(arrows,self.getSubScene().getScene());
+                    self._addInfos(infos,self.getSubScene().getScene());
+                    self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
+                };
                 var cubeReady = function () {
-                    var animationReady = function () {
-                        self._addArrows(arrows,self.getSubScene().getScene());
-                        self._addInfos(infos,self.getSubScene().getScene());
-                        self.getSubScene(self.getNonActiveSceneNumber()).deleteObjects(true);
-                    };
                     var animation = Object.create(sphere.Animation).init(self,self.getSubScene(self.getNonActiveSceneNumber()).getLong(),newLong,self._subScene[self.getNonActiveSceneNumber()].getCube(),self.getSubScene().getCube(),animationReady);
                     window.explore.stopLoading();
+                    history.pushState({type: 'sphere', id: newData.id}, "Sphere", "/sphere/" + newData.id);
                     animation.animate();
                 };
 
-                var cube = Object.create(sphere.Cube).init(self._data.id,self._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
-                self.getSubScene().addCube(cube);
-                
-                var url = location.pathname;
-                var expectedUrl = "/sphere/" + newData.id;
-                if (url !== expectedUrl) {
-                    history.pushState({}, "Sphere", "/sphere/" + newData.id);
-                }
+                var cube = Object.create(sphere.Cube).init(this._data.id,this._data.images.cubemap[explore.config.resolutions[explore.config.res].cubemap].path,cubeReady);
+                this.getSubScene().addCube(cube);
 
-                var arrows = self._createArrows(self._data.id,self._data.arrows);
-                var infos = self._createInfos(self._data.id,self._data.infos);
+                var arrows = this._createArrows(this._data.id,this._data.arrows);
+                var infos = this._createInfos(this._data.id,this._data.infos);
 
 
                 //
                 // if (grid) {
                 //     addGrid();
                 // }
-            });
+            }.bind(this));
         },
         removeEvents: function () {
-            self._events.removeEvents();
+            this._events.removeEvents();
         }
 
 

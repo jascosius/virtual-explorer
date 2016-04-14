@@ -8,12 +8,10 @@
     }
     var map = window.explore.map;
     var $ = window.$;
-    var self = null;
     
     map.Marker = {
         _marker: null,
         init: function(sphereObj,mapObj) {
-            self = this;
             // Animation constants
             var PREVIEW_FRAMES_PER_SECOND = 8;
             var PREVIEW_ANIM_TIMEOUT = 1000 / PREVIEW_FRAMES_PER_SECOND;
@@ -35,6 +33,8 @@
                 context.clearRect(0,0,canvas.width,canvas.height);
                 context.drawImage(image,0,0,canvas.width,canvas.height);
             };
+
+            var self = this;
 
             var icon = L.canvasIcon({
                 iconSize: new L.Point(iconSize, iconSize),
@@ -66,7 +66,7 @@
 
             var latitude = sphereObj.coords.lat;
             var longitude = sphereObj.coords.long;
-            var marker = self._marker = L.marker([latitude, longitude],{icon: icon});
+            var marker = this._marker = L.marker([latitude, longitude],{icon: icon});
 
             if(sphereObj.name !== undefined) {
                 var name = $.i18n.t(sphereObj.name);
@@ -88,14 +88,14 @@
                 mapObj.options.maxZoom = mapObj.getZoom() + 1;
                 mapObj.setZoom(mapObj.getZoom() + 1);
             });
-            return self;
+            return this;
         },
         pad: function(num, size) {
             var s = "000000000" + num;
             return s.substr(s.length-size);
         },
         getMarker: function() {
-            return self._marker;
+            return this._marker;
         }
     }
 

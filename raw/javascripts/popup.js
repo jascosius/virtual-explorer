@@ -8,16 +8,16 @@
     }
     var explore = window.explore;
     var $ = window.$;
-    var self = null;
 
     explore.Popup = {
 
         _element: null,
         _markdownRenderer: null,
+        _eventFunction: null,
 
         init: function () {
-            self = this;
             this._element = document.querySelector('#infoPopup');
+            this._eventFunction = this.showPopup.bind(this);
 
             var markdownRenderer = this._markdownRenderer = new marked.Renderer();
             markdownRenderer.link = function (href, title, text) {
@@ -40,19 +40,23 @@
         },
         showPopup: function (file) {
             var sphereDiv = document.getElementById("sphere");
-            var element = self._element;
+            var element = this._element;
             if (file === undefined || file === null || file.target !== undefined || element.style.display === 'block') {
                 element.style.display = 'none';
                 $("#infoPopup").empty();
-                explore.removeEvent(sphereDiv, 'mouseup', window.explore.popup.showPopup);
+                explore.removeEvent(sphereDiv, 'mouseup', this._eventFunction);
             } else {
                 var path = "/infos/" + explore.config.languages[explore.config.lang].lang + "/" + file + ".html";
                 $.get(path, function (html) {
                     $("#infoPopup").html(html);
                 });
                 element.style.display = 'block';
-                explore.addEvent(sphereDiv, 'mouseup', window.explore.popup.showPopup);
+                explore.addEvent(sphereDiv, 'mouseup', this._eventFunction);
             }
+        },
+        
+        isOpen: function () {
+            return this._element.style.display === 'block';
         },
 
         changePopup: function (file) {

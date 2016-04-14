@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Info = {
         _info: null,
@@ -18,19 +17,19 @@
         _clickable: false,
 
         init: function (id, data, sphere) {
-            self = this;
-            self._id = id;
-            self._data = data;
-            self._sphere = sphere;
+            this._id = id;
+            this._data = data;
+            this._sphere = sphere;
             
-            self._clickable = true; //Todo
+            this._clickable = true; //Todo
 
             var info_texture = '/images/objects/info.png';
+            var self = this;
             var texture = THREE.ImageUtils.loadTexture( info_texture, {}, function () {
                 self._sphere.render();
             });
             var material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
-            var sprite = self._info = new THREE.Sprite( material );
+            var sprite = this._info = new THREE.Sprite( material );
             sprite.userData.clickaction = {
                 type: "show_popup",
                 data: {
@@ -40,19 +39,19 @@
             };
             var lat = math.eval(data.lat);
             var long = math.eval(data.long);
-            sprite.position.add(self._sphere.getCartesian(800,lat,long));
+            sprite.position.add(this._sphere.getCartesian(800,lat,long));
             sprite.scale.set( 64, 64, 1.0 ); // imageWidth, imageHeight
             sprite.userData.belongsTo = id;
             sprite.userData.type = "info";
 
-            return self;
+            return this;
         },
 
         getInfo: function () {
-            return self._info;
+            return this._info;
         },
         isClickable: function () {
-            return self._clickable;
+            return this._clickable;
         }
     };
 

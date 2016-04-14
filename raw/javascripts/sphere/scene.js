@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Scene = {
         _scene: null,
@@ -19,10 +18,9 @@
         _quadmaterial: null,
 
         init: function (sphereObj) {
-            self = this;
-            self._sphere = sphereObj;
+            this._sphere = sphereObj;
 
-            var rtTexture0 = self._texture[0] = new THREE.WebGLRenderTarget(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height, {
+            var rtTexture0 = this._texture[0] = new THREE.WebGLRenderTarget(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height, {
                 minFilter: THREE.LinearMipMapLinearFilter,
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBFormat
@@ -30,14 +28,14 @@
             rtTexture0.wrapS = rtTexture0.wrapT = THREE.RepeatWrapping;
             rtTexture0.repeat.set(1, -1);
 
-            var rtTexture1 = self._texture[1] = rtTexture0.clone();
+            var rtTexture1 = this._texture[1] = rtTexture0.clone();
 
             // Main screen
-            self._camera = new THREE.OrthographicCamera(sphereObj.getViewerSize().width / -2, sphereObj.getViewerSize().width / 2, sphereObj.getViewerSize().height / 2, sphereObj.getViewerSize().height / -2, -10000, 10000);
-            self._camera.position.z = 1000;
-            self._camera.scale.y = -1;
-            self._quadgeometry = new THREE.PlaneGeometry(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height);
-            self._quadmaterial = new THREE.ShaderMaterial({
+            this._camera = new THREE.OrthographicCamera(sphereObj.getViewerSize().width / -2, sphereObj.getViewerSize().width / 2, sphereObj.getViewerSize().height / 2, sphereObj.getViewerSize().height / -2, -10000, 10000);
+            this._camera.position.z = 1000;
+            this._camera.scale.y = -1;
+            this._quadgeometry = new THREE.PlaneGeometry(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height);
+            this._quadmaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
 
                 uniforms: {
@@ -94,27 +92,27 @@
 
             });
 
-            self._quadmaterial.uniforms.mixRatio.value = 0;
+            this._quadmaterial.uniforms.mixRatio.value = 0;
 
-            var quad = new THREE.Mesh(self._quadgeometry, self._quadmaterial);
+            var quad = new THREE.Mesh(this._quadgeometry, this._quadmaterial);
 
-            self._scene = new THREE.Scene();
-            self._scene.add(quad);
-            self._scene.add(self._camera);
+            this._scene = new THREE.Scene();
+            this._scene.add(quad);
+            this._scene.add(this._camera);
             
-            return self;
+            return this;
         },
         getTexture: function (i) {
-            return self._texture[i];
+            return this._texture[i];
         },
         getScene: function () {
-            return self._scene;
+            return this._scene;
         },
         getCamera: function () {
-            return self._camera;
+            return this._camera;
         },
         setMixRatioValue: function (value) {
-            self._quadmaterial.uniforms.mixRatio.value = value;
+            this._quadmaterial.uniforms.mixRatio.value = value;
         }
     };
 

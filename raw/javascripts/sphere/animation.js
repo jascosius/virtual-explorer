@@ -8,7 +8,6 @@
     }
     var sphere = window.explore.sphere;
     var $ = window.$;
-    var self = null;
 
     sphere.Animation = {
 
@@ -23,32 +22,31 @@
         _ANIMATION_STEPS: 20,
         _ANIMATION_TIMEOUT: 1000/60,
         init: function (sphere, oldLong, newLong, oldCube, newCube, onReady) {
-            self = this;
-            self._sphere = sphere;
-            self._oldLong = (oldLong + Math.PI) % (2 * Math.PI);
-            self._newLong = newLong;
-            self._oldCube = oldCube;
-            self._newCube = newCube;
-            self._onReady = onReady;
+            this._sphere = sphere;
+            this._oldLong = (oldLong + Math.PI) % (2 * Math.PI);
+            this._newLong = newLong;
+            this._oldCube = oldCube;
+            this._newCube = newCube;
+            this._onReady = onReady;
 
-            return self;
+            return this;
         },
         animate: function () {
-            var nonActiveSceneNumber = self._sphere.getNonActiveSceneNumber();
-            self._step++;
-            sphere.scene.setMixRatioValue(Math.abs(nonActiveSceneNumber - self._step / self._ANIMATION_STEPS));
+            var nonActiveSceneNumber = this._sphere.getNonActiveSceneNumber();
+            this._step++;
+            sphere.scene.setMixRatioValue(Math.abs(nonActiveSceneNumber - this._step / this._ANIMATION_STEPS));
 
-            var oldCubePosition = self._sphere.getCartesian(self._step * 30, 0, self._oldLong);
-            var newCubePosition = self._sphere.getCartesian(self._ANIMATION_STEPS * 30 - self._step * 30, 0, self._newLong);
+            var oldCubePosition = this._sphere.getCartesian(this._step * 30, 0, this._oldLong);
+            var newCubePosition = this._sphere.getCartesian(this._ANIMATION_STEPS * 30 - this._step * 30, 0, this._newLong);
             
-            self._oldCube.setPosition(oldCubePosition.x,oldCubePosition.y,oldCubePosition.z);
-            self._newCube.setPosition(newCubePosition.x,newCubePosition.y,newCubePosition.z);
-            if (self._step !== self._ANIMATION_STEPS) {
-                setTimeout(self.animate, self._ANIMATION_TIMEOUT);
+            this._oldCube.setPosition(oldCubePosition.x,oldCubePosition.y,oldCubePosition.z);
+            this._newCube.setPosition(newCubePosition.x,newCubePosition.y,newCubePosition.z);
+            if (this._step !== this._ANIMATION_STEPS) {
+                setTimeout(this.animate.bind(this), this._ANIMATION_TIMEOUT);
             } else {
-                self._onReady();
+                this._onReady();
             }
-            self._sphere.render();
+            this._sphere.render();
         }
     };
 
