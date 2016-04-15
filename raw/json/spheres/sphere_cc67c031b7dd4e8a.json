@@ -12,17 +12,17 @@
     {
       "long": "188/360*PI*2",
       "lat": "-3/90*PI/2",
-      "content": "lms6"
+      "onClick": {"type": "showPopup", "content": "lms6"}
     }
   ],
   "arrows": [
     {
       "long": "2*PI*190/360",
-      "next_sphere": "d875d5d81bbbc835"
+      "onClick": {"type": "newSphere", "nextSphere": "d875d5d81bbbc835"}
     },
     {
       "long": "2*PI*0/360",
-      "next_sphere": "a2b94700bd90c86a"
+      "onClick": {"type": "newSphere", "nextSphere": "a2b94700bd90c86a"}
     }
   ],
   "objects": []

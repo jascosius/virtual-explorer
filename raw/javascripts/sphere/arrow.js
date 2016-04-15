@@ -62,18 +62,12 @@
             plane.rotation.x = rotationX;
             plane.rotation.y = rotationY;
             plane.rotation.z = rotationZ;
-            if (data.next_sphere !== undefined) {
+            if (data.onClick !== undefined) {
                 this._clickable = true;
+                data.sphereId = id;
                 plane.userData.clickaction = {
-                    type: "change_sphere",
-                    data: {
-                        this_sphere: id,
-                        this_arrow: name,
-                        this_long: long,
-                        this_lat: lat,
-                        next_sphere: data.next_sphere,
-                        next_camera_long: data.next_camera_long
-                    }
+                    type: data.onClick.type,
+                    data: data
                 }
             }
             plane.userData.belongsTo = id;

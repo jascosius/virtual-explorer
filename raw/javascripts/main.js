@@ -5,7 +5,6 @@
     }
     var explore = window.explore;
     var $ = window.$;
-    console.log('ja');
 
     if (explore.config === undefined) {
         explore.config = {};

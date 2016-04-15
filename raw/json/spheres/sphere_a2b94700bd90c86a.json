@@ -11,15 +11,15 @@
   "arrows": [
     {
       "long": "2*PI*170/360",
-      "next_sphere": "cc67c031b7dd4e8a"
+      "onClick": {"type": "newSphere", "nextSphere": "cc67c031b7dd4e8a"}
     },
     {
       "long": "2*PI*260/360",
-      "next_sphere": "db352ed5a0fee174"
+      "onClick": {"type": "newSphere", "nextSphere": "db352ed5a0fee174"}
     },
     {
       "long": "2*PI*50/360",
-      "next_sphere": "26b4efc709d16b20"
+      "onClick": {"type": "newSphere", "nextSphere":"26b4efc709d16b20"}
     }
   ],
   "objects": []

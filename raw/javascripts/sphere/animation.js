@@ -20,7 +20,7 @@
         _step: 0,
         
         _ANIMATION_STEPS: 20,
-        _ANIMATION_TIMEOUT: 1000/60,
+        _ANIMATION_TIMEOUT: 10000/60,
         init: function (sphere, oldLong, newLong, oldCube, newCube, onReady) {
             this._sphere = sphere;
             this._oldLong = (oldLong + Math.PI) % (2 * Math.PI);
@@ -28,6 +28,12 @@
             this._oldCube = oldCube;
             this._newCube = newCube;
             this._onReady = onReady;
+
+            console.log(this._sphere);
+            console.log(this._oldLong);
+            console.log(newLong);
+            console.log(oldCube);
+            console.log(newCube);
 
             return this;
         },

@@ -11,11 +11,11 @@
   "arrows": [
     {
       "long": "2*PI*305/360",
-      "next_sphere": "111db22a4a0b1f6a"
+      "onClick": {"type": "newSphere", "nextSphere": "111db22a4a0b1f6a"}
     },
     {
       "long": "2*PI*215/360",
-      "next_sphere": "db352ed5a0fee174"
+      "onClick": {"type": "newSphere", "nextSphere":"db352ed5a0fee174"}
     }
   ],
   "objects": []

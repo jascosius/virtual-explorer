@@ -58,7 +58,9 @@
         },
         addCube: function (cube) {
             this._cube = cube;
-            this._scene.add(cube.getCube());
+            if(cube != null) {
+                this._scene.add(cube.getCube());
+            }
         },
         getCube: function () {
             return this._cube;

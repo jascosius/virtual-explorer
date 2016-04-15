@@ -20,8 +20,6 @@
             this._id = id;
             this._data = data;
             this._sphere = sphere;
-            
-            this._clickable = true; //Todo
 
             var info_texture = '/images/objects/info.png';
             var self = this;
@@ -30,13 +28,14 @@
             });
             var material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
             var sprite = this._info = new THREE.Sprite( material );
-            sprite.userData.clickaction = {
-                type: "show_popup",
-                data: {
-                    this_sphere: id,
-                    content: data.content
+            if (data.onClick !== undefined) {
+                this._clickable = true;
+                data.sphereId = id;
+                sprite.userData.clickaction = {
+                    type: data.onClick.type,
+                    data: data
                 }
-            };
+            }
             var lat = math.eval(data.lat);
             var long = math.eval(data.long);
             sprite.position.add(this._sphere.getCartesian(800,lat,long));

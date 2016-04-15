@@ -13,14 +13,14 @@
   "arrows": [
     {
       "long": "2*PI*138/360",
-      "next_sphere": "d875d5d81bbbc835"
+      "onClick": {"type": "newSphere", "nextSphere": "d875d5d81bbbc835"}
     }
   ],
   "infos": [
     {
       "long": "2*PI*270/360",
       "lat": "PI/2*-10/90",
-      "content": "fs-infmath"
+      "onClick": {"type": "showPopup", "content": "fs-infmath"}
     }
   ],
   "objects": []

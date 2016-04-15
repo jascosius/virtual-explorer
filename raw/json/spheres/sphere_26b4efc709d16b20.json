@@ -11,8 +11,7 @@
   "arrows": [
     {
       "long": "2*PI*180/360",
-      "next_sphere": "a2b94700bd90c86a",
-      "next_camera_long": "2*PI*0/360"
+      "onClick": {"type": "newSphere", "nextSphere": "a2b94700bd90c86a", "nextCameraLong": "2*PI*0/360"}
     }
   ],
   "objects": []

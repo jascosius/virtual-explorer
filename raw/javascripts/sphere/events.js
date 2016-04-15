@@ -58,11 +58,11 @@
             explore.removeEvent(sphereDiv, 'mousedown', this._onMouseDown.bind(this));
             explore.removeEvent(sphereDiv, 'mousemove', this._onMouseMove.bind(this));
             explore.removeEvent(sphereDiv, 'mouseup', this._onMouseUp.bind(this));
-            //
-            // explore.addEvent(document, 'touchstart', onTouchStart);
-            // explore.addEvent(document, 'touchend', onMouseUp);
-            // explore.addEvent(document, 'touchmove', onTouchMove);
-            //
+            
+            explore.removeEvent(sphereDiv, 'touchstart', this._onTouchStart.bind(this));
+            explore.removeEvent(sphereDiv, 'touchend', this._onMouseUp.bind(this));
+            explore.removeEvent(sphereDiv, 'touchmove', this._onTouchMove.bind(this));
+            
             explore.removeEvent(sphereDiv, 'mousewheel', this._onMouseWheel.bind(this));
             explore.removeEvent(sphereDiv, 'DOMMouseScroll', this._onMouseWheel.bind(this));
         },
@@ -109,10 +109,11 @@
 
             if (this._clickedObjects[0] !== undefined) {
                 this._clickedObjects[0].material.color.setHex(0xffffff);
-                if(this._clickedObjects[0].userData.clickaction.type === "change_sphere") {
+                if(this._clickedObjects[0].userData.clickaction.type === "newSphere") {
                     this._sphere.loadNewSphere(this._clickedObjects[0].userData.clickaction.data);
-                } else if (this._clickedObjects[0].userData.clickaction.type === "show_popup") {
-                    explore.popup.showPopup(this._clickedObjects[0].userData.clickaction.data.content);
+                } else if (this._clickedObjects[0].userData.clickaction.type === "showPopup") {
+
+                    explore.popup.showPopup(this._clickedObjects[0].userData.clickaction.data.onClick.content);
                 }
                 this._clickedObjects[0] = undefined;
             }
@@ -165,7 +166,6 @@
                     this._mousedown = true;
                     this._oldMouse.x = this._mouse.x;
                     this._oldMouse.y = this._mouse.y;
-                    console.log('move start');
                 }
             }
 

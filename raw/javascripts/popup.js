@@ -45,6 +45,7 @@
                 element.style.display = 'none';
                 $("#infoPopup").empty();
                 explore.removeEvent(sphereDiv, 'mouseup', this._eventFunction);
+                explore.removeEvent(sphereDiv, 'touchend', this._eventFunction);
             } else {
                 var path = "/infos/" + explore.config.languages[explore.config.lang].lang + "/" + file + ".html";
                 $.get(path, function (html) {
@@ -52,6 +53,7 @@
                 });
                 element.style.display = 'block';
                 explore.addEvent(sphereDiv, 'mouseup', this._eventFunction);
+                explore.addEvent(sphereDiv, 'touchend', this._eventFunction);
             }
         },
         
