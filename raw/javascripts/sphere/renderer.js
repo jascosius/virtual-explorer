@@ -20,7 +20,6 @@
 
 
             if (this._isWebGLSupported()) {
-                console.log("ja");
                 this._renderer = new THREE.WebGLRenderer()
             } else {
                 window.location = "/error/webgl";

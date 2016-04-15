@@ -29,12 +29,6 @@
             this._newCube = newCube;
             this._onReady = onReady;
 
-            console.log(this._sphere);
-            console.log(this._oldLong);
-            console.log(newLong);
-            console.log(oldCube);
-            console.log(newCube);
-
             return this;
         },
         animate: function () {
