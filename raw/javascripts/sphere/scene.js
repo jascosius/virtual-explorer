@@ -25,8 +25,8 @@
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBFormat
             });
-            rtTexture0.wrapS = rtTexture0.wrapT = THREE.RepeatWrapping;
-            rtTexture0.repeat.set(1, -1);
+            rtTexture0.texture.wrapS = rtTexture0.texture.wrapT = THREE.RepeatWrapping;
+            rtTexture0.texture.repeat.set(1, -1);
 
             var rtTexture1 = this._texture[1] = rtTexture0.clone();
 

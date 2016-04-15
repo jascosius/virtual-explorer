@@ -23,7 +23,7 @@
             this._data = data;
             this._sphere = sphere;
 
-            var size = 30;
+            var size = 60;
             if (data.size !== undefined)
                 size = math.eval(data.size);
             var info_texture = '/images/objects/info.png';
@@ -36,7 +36,7 @@
             var texture = THREE.ImageUtils.loadTexture( info_texture, {}, function () {
                 self._sphere.render();
             });
-            var material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
+            var material = new THREE.SpriteMaterial( { map: texture} );
             var sprite = this._info = new THREE.Sprite( material );
 
             sprite.position.add(this._sphere.getCartesian(800,lat,long));

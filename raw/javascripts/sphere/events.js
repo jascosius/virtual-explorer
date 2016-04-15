@@ -14,7 +14,7 @@
     sphere.Events = {
         _LONG_OFFSET: 2,
         _LAT_OFFSET: 2,
-        _ZOOM_SPEED: 2,
+        _ZOOM_SPEED: 3,
         _TOUCH_ZOOM_SPEED: 3,
 
         _sphere: null,
@@ -26,6 +26,7 @@
         _touchzoomDist: 0,
         _zoomLvl: 0,
         _sphereDiv: false,
+        _events: [],
 
         _clickedObjects: [],
 
@@ -35,39 +36,39 @@
             this._oldMouse = new THREE.Vector2();
             this._raycaster = new THREE.Raycaster();
 
-            var sphereDiv = this._sphereDiv = document.getElementById("sphere");
-
-
-            explore.addEvent(window,'resize',this._sphere.fitToContainer.bind(this._sphere));
-            explore.addEvent(sphereDiv, 'mousedown', this._onMouseDown.bind(this));
-            explore.addEvent(sphereDiv, 'mousemove', this._onMouseMove.bind(this));
-            explore.addEvent(sphereDiv, 'mouseup', this._onMouseUp.bind(this));
-
-            explore.addEvent(sphereDiv, 'touchstart', this._onTouchStart.bind(this));
-            explore.addEvent(sphereDiv, 'touchend', this._onMouseUp.bind(this));
-            explore.addEvent(sphereDiv, 'touchmove', this._onTouchMove.bind(this));
-
-            explore.addEvent(sphereDiv, 'mousewheel', this._onMouseWheel.bind(this));
-            explore.addEvent(sphereDiv, 'DOMMouseScroll', this._onMouseWheel.bind(this));
+            this._handleEvents(explore.addEvent,true);
 
             return this;
         },
+
+        _handleEvents: function (func,define) {
+            if(define) {
+                this._fitToCountainerFunc = this._sphere.fitToContainer.bind(this._sphere);
+                this._onMouseDownFunc = this._onMouseDown.bind(this);
+                this._onMouseMoveFunc = this._onMouseMove.bind(this);
+                this._onMouseUpFunc = this._onMouseUp.bind(this);
+                this._onTouchStartFunc = this._onTouchStart.bind(this);
+                this._onTouchMoveFunc = this._onTouchMove.bind(this);
+                this._onMouseWheelFunc = this._onMouseWheel.bind(this);
+            }
+            var sphereDiv = this._sphereDiv = document.getElementById("sphere");
+            func(window,'rezize',this._fitToCountainerFunc);
+            func(sphereDiv,'mousedown',this._onMouseDownFunc);
+            func(window,'mousemove',this._onMouseMoveFunc);
+            func(window,'mouseup',this._onMouseUpFunc);
+            func(sphereDiv,'touchstart',this._onTouchStartFunc);
+            func(window,'touchmove',this._onTouchMoveFunc);
+            func(window,'touchend',this._onMouseUpFunc);
+            func(sphereDiv,'mousewheel',this._onMouseWheelFunc);
+            func(sphereDiv,'DOMMouseScroll',this._onMouseWheelFunc);
+        },
+
         removeEvents: function () {
-            var sphereDiv = document.getElementById("sphere");
-            explore.removeEvent(window,'resize',this._sphere.fitToContainer.bind(this._sphere));
-            explore.removeEvent(sphereDiv, 'mousedown', this._onMouseDown.bind(this));
-            explore.removeEvent(sphereDiv, 'mousemove', this._onMouseMove.bind(this));
-            explore.removeEvent(sphereDiv, 'mouseup', this._onMouseUp.bind(this));
-            
-            explore.removeEvent(sphereDiv, 'touchstart', this._onTouchStart.bind(this));
-            explore.removeEvent(sphereDiv, 'touchend', this._onMouseUp.bind(this));
-            explore.removeEvent(sphereDiv, 'touchmove', this._onTouchMove.bind(this));
-            
-            explore.removeEvent(sphereDiv, 'mousewheel', this._onMouseWheel.bind(this));
-            explore.removeEvent(sphereDiv, 'DOMMouseScroll', this._onMouseWheel.bind(this));
+            this._handleEvents(explore.removeEvent,false);
         },
 
         _onMouseDown: function (evt) {
+            console.log('mousedown');
             var viewerSize = this._sphere.getViewerSize();
             this._mouse.x = ( evt.clientX / viewerSize.width ) * 2 - 1;
             this._mouse.y = -( evt.clientY / viewerSize.height ) * 2 + 1;
@@ -97,19 +98,19 @@
                 }
             }
             evt.preventDefault();
-            var viewerSize = this._sphere.getViewerSize();
             var x = ( evt.clientX / viewerSize.width ) * 2 - 1;
             var y = -( evt.clientY / viewerSize.height ) * 2 + 1;
-            this._move(x,y);
+            this._move(x, y);
         },
 
         _onMouseUp: function (evt) {
+            console.log('mouseup');
             this._mousedown = false;
             this._touchzoom = false;
 
             if (this._clickedObjects[0] !== undefined) {
                 this._clickedObjects[0].material.color.setHex(0xffffff);
-                if(this._clickedObjects[0].userData.clickaction.type === "newSphere") {
+                if (this._clickedObjects[0].userData.clickaction.type === "newSphere") {
                     this._sphere.loadNewSphere(this._clickedObjects[0].userData.clickaction.data);
                 } else if (this._clickedObjects[0].userData.clickaction.type === "showPopup") {
 
@@ -128,13 +129,13 @@
 
             if (this._mousedown) {
 
-                var lat0 = this._stayBetween((y-oldMouse.y)*-this._LAT_OFFSET + subScene0.getLat(),-Math.PI/2.0,Math.PI/2.0);
-                var long0 = this._getAngleMeasure((x-oldMouse.x)*this._LONG_OFFSET) + subScene0.getLong();
-                subScene0.setLatLong(lat0,long0);
+                var lat0 = this._stayBetween((y - oldMouse.y) * -this._LAT_OFFSET + subScene0.getLat(), -Math.PI / 2.0, Math.PI / 2.0);
+                var long0 = this._getAngleMeasure((x - oldMouse.x) * this._LONG_OFFSET) + subScene0.getLong();
+                subScene0.setLatLong(lat0, long0);
 
-                var lat1 = this._stayBetween((y-oldMouse.y)*-this._LAT_OFFSET + subScene1.getLat(),-Math.PI/2.0,Math.PI/2.0);
-                var long1 = this._getAngleMeasure((x-oldMouse.x)*this._LONG_OFFSET) + subScene1.getLong();
-                subScene1.setLatLong(lat1,long1);
+                var lat1 = this._stayBetween((y - oldMouse.y) * -this._LAT_OFFSET + subScene1.getLat(), -Math.PI / 2.0, Math.PI / 2.0);
+                var long1 = this._getAngleMeasure((x - oldMouse.x) * this._LONG_OFFSET) + subScene1.getLong();
+                subScene1.setLatLong(lat1, long1);
 
                 oldMouse.x = x;
                 oldMouse.y = y;
@@ -155,7 +156,7 @@
             }
         },
 
-        _onTouchStart: function(evt) {
+        _onTouchStart: function (evt) {
             // Move
             var viewerSize = this._sphere.getViewerSize();
             if (evt.touches.length == 1) {
