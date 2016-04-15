@@ -1,35 +1,35 @@
-doctype html
-html
-    head
-        title Virtual Explorer
-        link(rel='stylesheet', href='/stylesheets/lib/leaflet.css')
-        link(rel='stylesheet', href='/stylesheets/lib/MarkerCluster.css')
-        link(rel='stylesheet', href='/stylesheets/lib/MarkerCluster.Default.css')
-        link(rel='stylesheet', href='/stylesheets/style.css')
-        script(src='/javascripts/lib/jquery-2.1.4.min.js')
-        script(src='/javascripts/lib/i18next-1.11.0.min.js')
-        script(src='/javascripts/lib/leaflet.js')
-        script(src='/javascripts/lib/leaflet.markercluster.js')
-        script(src='/javascripts/lib/leaflet-canvasicon.js')
-        script(src='/javascripts/lib/three.min.js')
-        script(src='/javascripts/lib/math.min.js')
-        script(src='/javascripts/lib/marked.min.js')
-        script(src='/javascripts/script.js')
-    body
-        script if (window.explore === undefined) {window.explore = {};} window.explore.loadingData = {id: "#{id}", type: "#{type}"};
-        #explore.fullsize
-            #infoPopup.overlay
-            #menu_fullscreen.overlay
-                a(onclick='explore.toggleFullscreen()')
-                    img(id='menu_fullscreen_img' alt='fullscreen' src='/images/menu/enter_fullscreen.png'  width='58' height='50')
-            #menu_resolution.overlay
-                a(onclick='explore.changeResolution()')
-                    img(id='menu_resolution_img' alt='resolution' src='/images/menu/res_small.png' width='58' height='50')
-            #menu_language.overlay
-                a(onclick='explore.changeLanguage()')
-                    img(id='menu_language_img' alt='language' src='/images/menu/lang_en.png' width='58' height='50')
-            #menu_map.overlay
-                a(onclick='explore.loadMap(null,true)')
-                    img(id='menu_map_img' alt='map' src='/images/menu/map.png' width='58' height='50')
-            #menu_loading.overlay
-                img(id='menu_loading_img' alt='loading' src='/images/menu/loading.gif' width='115' height='23')
+extends layout
+block header
+    link(rel='stylesheet', href='/stylesheets/lib/leaflet.css')
+    link(rel='stylesheet', href='/stylesheets/lib/MarkerCluster.css')
+    link(rel='stylesheet', href='/stylesheets/lib/MarkerCluster.Default.css')
+    script(src='/javascripts/lib/jquery-2.1.4.min.js')
+    script(src='/javascripts/lib/i18next-1.11.0.min.js')
+    script(src='/javascripts/lib/leaflet.js')
+    script(src='/javascripts/lib/leaflet.markercluster.js')
+    script(src='/javascripts/lib/leaflet-canvasicon.js')
+    script(src='/javascripts/lib/three.min.js')
+    script(src='/javascripts/lib/math.min.js')
+    script(src='/javascripts/lib/marked.min.js')
+    script(src='/javascripts/script.js')
+    script if (window.explore === undefined) {window.explore = {};} window.explore.loadingData = {id: "#{id}", type: "#{type}"};
+block content
+    noscript
+        h1 Error
+        p JavaScript must be enabled to use this website!
+    #explore.fullsize
+        #infoPopup.overlay
+        #menu_fullscreen.overlay
+            a(onclick='explore.toggleFullscreen()')
+                img(id='menu_fullscreen_img' alt='fullscreen' src='/images/menu/enter_fullscreen.png'  width='58' height='50')
+        #menu_resolution.overlay
+            a(onclick='explore.changeResolution()')
+                img(id='menu_resolution_img' alt='resolution' src='/images/menu/res_small.png' width='58' height='50')
+        #menu_language.overlay
+            a(onclick='explore.changeLanguage()')
+                img(id='menu_language_img' alt='language' src='/images/menu/lang_en.png' width='58' height='50')
+        #menu_map.overlay
+            a(onclick='explore.loadMap(null,true)')
+                img(id='menu_map_img' alt='map' src='/images/menu/map.png' width='58' height='50')
+        #menu_loading.overlay
+            img(id='menu_loading_img' alt='loading' src='/images/menu/loading.gif' width='115' height='23')

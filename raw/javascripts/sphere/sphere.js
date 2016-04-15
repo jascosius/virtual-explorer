@@ -40,16 +40,7 @@
 
             // Is canvas supported?
             if (!this._isCanvasSupported()) {
-                this._container.textContent = 'Canvas is not supported, update your browser!';
-                this._onReady();
-                return;
-            }
-
-            // Is Three.js loaded?
-            if (window.THREE === undefined) {
-                console.log('PhotoSphereViewer: Three.js is not loaded.');
-                this._onReady();
-                return;
+                window.location = "/error/canvas";
             }
 
             sphere.scene = Object.create(sphere.Scene).init(this);

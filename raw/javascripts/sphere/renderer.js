@@ -13,14 +13,20 @@
         _sphere: null,
         _renderer: null,
         _subScene: [],
-        init: function (sphereObj,subScene0,subScene1) {
+        init: function (sphereObj, subScene0, subScene1) {
             this._sphere = sphereObj;
             this._subScene[0] = subScene0;
             this._subScene[1] = subScene1;
 
-            this._renderer = (this._isWebGLSupported()) ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
+
+            if (this._isWebGLSupported()) {
+                console.log("ja");
+                this._renderer = new THREE.WebGLRenderer()
+            } else {
+                window.location = "/error/webgl";
+            }
             this.updateSize();
-            
+
             return this;
         },
         getDomElement: function () {

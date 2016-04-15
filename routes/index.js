@@ -7,7 +7,11 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/:type/:id', function(req, res, next) {
-  res.render('explore', { type: req.params.type, id: req.params.id });
+  if(req.params.type == "error") {
+    res.render('jserror', {id: req.params.id});
+  } else {
+    res.render('explore', {type: req.params.type, id: req.params.id});
+  }
 });
 
 module.exports = router;

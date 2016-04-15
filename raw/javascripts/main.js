@@ -5,6 +5,7 @@
     }
     var explore = window.explore;
     var $ = window.$;
+    console.log('ja');
 
     if (explore.config === undefined) {
         explore.config = {};
@@ -164,11 +165,7 @@
             removeMap();
         };
         explore.popup.showPopup();
-        var url = location.pathname;
-        var expectedUrl = "/sphere/" + id;
-        if (url !== expectedUrl) {
-            history.pushState({type: 'sphere', id: id}, "Sphere", "/sphere/" + id);
-        }
+        history.pushState({type: 'sphere', id: id}, "Sphere", "/sphere/" + id);
 
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
             explore.sphere.sphere = Object.create(explore.sphere.Sphere).init(data, onReady, startAnimation);
@@ -205,11 +202,7 @@
         } else {
             onReady();
         }
-        var url = location.pathname;
-        var expectedUrl = "/map/" + id;
-        if (url !== expectedUrl) {
-            history.pushState({type: 'map', id: id}, "Map", "/map/" + id);
-        }
+        history.pushState({type: 'map', id: id}, "Map", "/map/" + id);
 
         $.getJSON("/json/maps/map_" + id + ".json", function (data) {
             $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
