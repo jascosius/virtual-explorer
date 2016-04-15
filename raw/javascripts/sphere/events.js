@@ -52,7 +52,7 @@
                 this._onMouseWheelFunc = this._onMouseWheel.bind(this);
             }
             var sphereDiv = this._sphereDiv = document.getElementById("sphere");
-            func(window,'rezize',this._fitToCountainerFunc);
+            func(window,'resize',this._fitToCountainerFunc);
             func(sphereDiv,'mousedown',this._onMouseDownFunc);
             func(window,'mousemove',this._onMouseMoveFunc);
             func(window,'mouseup',this._onMouseUpFunc);
@@ -68,7 +68,6 @@
         },
 
         _onMouseDown: function (evt) {
-            console.log('mousedown');
             var viewerSize = this._sphere.getViewerSize();
             this._mouse.x = ( evt.clientX / viewerSize.width ) * 2 - 1;
             this._mouse.y = -( evt.clientY / viewerSize.height ) * 2 + 1;
@@ -104,7 +103,6 @@
         },
 
         _onMouseUp: function (evt) {
-            console.log('mouseup');
             this._mousedown = false;
             this._touchzoom = false;
 
