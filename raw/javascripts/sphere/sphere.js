@@ -165,7 +165,7 @@
             var infosArray = [];
             for (var key in infos) {
                 var info = infos[key];
-                infosArray.push(Object.create(sphere.Info).init(id, info, this));
+                infosArray.push(Object.create(sphere.Info).init(id, key, info, this));
 
             }
             return infosArray
