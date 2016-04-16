@@ -15,7 +15,8 @@
     },
     {
       "long": "2*PI*0/360",
-      "onClick": {"type": "newSphere", "nextSphere": "cc67c031b7dd4e8a", "rotationZ": "2*PI*18/360"}
+      "rotationZ": "2*PI*18/360",
+      "onClick": {"type": "newSphere", "nextSphere": "cc67c031b7dd4e8a"}
     }
   ],
   "objects": []
