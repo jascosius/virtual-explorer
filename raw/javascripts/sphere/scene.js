@@ -1,3 +1,6 @@
+/**
+ * This class handles the main scene, which animates the two sub scenes
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -17,9 +20,15 @@
         _quadgeometry: null,
         _quadmaterial: null,
 
+        /**
+         * Initializes a scene object
+         * @param sphereObj {Sphere} - sphere object
+         * @returns {window.explore.sphere.Scene}
+         */
         init: function (sphereObj) {
             this._sphere = sphereObj;
 
+            //Initialize two textures to render the two sub scenes onto
             var rtTexture0 = this._texture[0] = new THREE.WebGLRenderTarget(sphereObj.getViewerSize().width, sphereObj.getViewerSize().height, {
                 minFilter: THREE.LinearMipMapLinearFilter,
                 magFilter: THREE.LinearFilter,
@@ -102,15 +111,33 @@
             
             return this;
         },
+        /**
+         * Get the texture for the i. sub scene
+         * @param i {number}
+         * @returns {object}
+         */
         getTexture: function (i) {
             return this._texture[i];
         },
+        /**
+         * Returns the scene wrapped by this class
+         * @returns {object}
+         */
         getScene: function () {
             return this._scene;
         },
+        /**
+         * Returns the camera in this scene
+         * @returns {object}
+         */
         getCamera: function () {
             return this._camera;
         },
+        /**
+         * Set the value how transparent to show which texture
+         * Used to animate the walk between to spheres
+         * @param value
+         */
         setMixRatioValue: function (value) {
             this._quadmaterial.uniforms.mixRatio.value = value;
         }

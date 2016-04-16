@@ -1,3 +1,6 @@
+/**
+ * Class to show a grid to adjust arrows and info markes
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -16,21 +19,37 @@
         _LABELRATE: 3,
         _DISTANCE: 1000,
 
+        /**
+         * Initializes the grid
+         * @param sphere {Sphere} - sphere object
+         * @returns {window.explore.sphere.Grid}
+         */
         init: function (sphere) {
             this._sphere = sphere;
             return this;
         },
 
+        /**
+         * Shows the grid
+         */
         showGrid: function () {
             this._addGrid(0);
             this._addGrid(1);
             this._sphere.render();
         },
+        /**
+         * Removes the grid
+         */
         removeGrid: function() {
             this._delGrid(0);
             this._delGrid(1);
             this._sphere.render();
         },
+        /**
+         * Adds a grid in one scene
+         * @param index {number} - number of the scene to add the grid
+         * @private
+         */
         _addGrid: function (index) {
             var step = 2 * Math.PI / this._PARTS;
             var dashed;
@@ -94,6 +113,17 @@
             this._sphere.getSubScene(index).getScene().add(grid);
             this._sphere.getSubScene(index).getScene().add(label);
         },
+
+        /**
+         * Creates a label for the grid
+         * @param text {string} - Text on the label
+         * @param radius {number} - Distance of the label from the center
+         * @param lat {number} - Position of the label (latitude)
+         * @param long {number} - Position of the label (longitude)
+         * @param color {number} - Color of the text
+         * @returns {THREE.Mesh}
+         * @private
+         */
         _createGridLabel: function (text, radius, lat, long, color) {
             var canvas1 = document.createElement('canvas');
             var context1 = canvas1.getContext('2d');
@@ -127,6 +157,15 @@
             mesh1.userData.type = "grid";
             return mesh1;
         },
+        /**
+         * Creates a line for the grid
+         * @param src {THREE.Vector3} - starting point of the line
+         * @param dst {THREE.Vector3} - ending point of the line
+         * @param colorHex {number} - coler of the line
+         * @param dashed {boolean} - Is the line dashed
+         * @returns {THREE.Line}
+         * @private
+         */
         _buildGridLine: function (src, dst, colorHex, dashed) {
             var geom = new THREE.Geometry(),
                 mat;
@@ -147,6 +186,11 @@
             return line;
 
         },
+        /**
+         * Deletes the grid in one scene
+         * @param index {number} - number of the scene to delete the grid
+         * @private
+         */
         _delGrid: function (index) {
             var scene = this._sphere.getSubScene(index).getScene();
             for (var i = 0; i < scene.children.length;) {

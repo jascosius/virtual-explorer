@@ -1,3 +1,6 @@
+/**
+ * Class to animate the enter and exit of a sphere
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -23,9 +26,22 @@
         _ANIMATION_STEPS: 30,
         _ANIMATION_TIMEOUT: 1000/60,
         _START_POSITION: -900,
+
+        /**
+         * Initializes the openSphereAnimation object
+         * @param sphere {Sphere} - sphere object
+         * @param fromLat {number} - latitude to start the animation
+         * @param toLat {number} - latitude to end the animation
+         * @param long {number} - longitude of the animation
+         * @param cube {Cube} - cube to animate
+         * @param rewind {boolean} - rewind the animation (to exit sphere)
+         * @param onReady {function} - called if animation finished
+         * @returns {window.explore.sphere.OpenSphereAnimation}
+         */
         init: function (sphere, fromLat, toLat, long, cube, rewind, onReady) {
             this._sphere = sphere;
             this._fromLat = fromLat;
+            //Set default values
             if(fromLat == null) {
                 if(!rewind) {
                     this._fromLat = - Math.PI / 2 + 0.1;
@@ -48,7 +64,11 @@
 
             return this;
         },
+        /**
+         * Starts the animation
+         */
         animate: function () {
+            //Calculates the difference between the start and the end
             var diff = Math.abs(this._toLat - this._fromLat);
             var multiplicator = this._step / this._ANIMATION_STEPS;
 
@@ -57,8 +77,10 @@
                 multiplicatorY = multiplicator;
             }
 
+            //Calculates the new position of the cube
             var newYPosition = multiplicatorY * this._START_POSITION;
 
+            //Calculates teh new latitude of the camera
             var newLat = null;
             if(this._toLat < this._fromLat) {
                 newLat = this._fromLat - multiplicator * diff;

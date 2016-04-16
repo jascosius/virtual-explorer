@@ -1,3 +1,6 @@
+/**
+ * Class to handle info marker shown in a sphere
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -12,17 +15,26 @@
     sphere.Info = {
         _info: null,
         _data: null,
-        _id: null,
-        _name: null,
+        _id: "",
+        _name: "",
         _sphere: null,
         _clickable: false,
 
+        /**
+         * Initializes an info marker
+         * @param id {string} - ID of the sphere which holds this info marker
+         * @param name {string} - Name (number) of this info marker
+         * @param data {object} - JavaScript object corresponding to the JSON description of this info marker
+         * @param sphere {Sphere} - sphere object
+         * @returns {window.explore.sphere.Info}
+         */
         init: function (id, name, data, sphere) {
             this._id = id;
             this._name = name;
             this._data = data;
             this._sphere = sphere;
 
+            //Sets defaults or values found in 'data'
             var size = 60;
             if (data.size !== undefined)
                 size = math.eval(data.size);
@@ -32,6 +44,7 @@
             var lat = math.eval(data.lat);
             var long = math.eval(data.long);
 
+            //Initializes the three.js object for this info marker
             var self = this;
             var texture = THREE.ImageUtils.loadTexture( info_texture, {}, function () {
                 self._sphere.render();
@@ -42,6 +55,7 @@
             sprite.position.add(this._sphere.getCartesian(800,lat,long));
             sprite.scale.set( size, size, 1.0 );
 
+            //Checks if info marker is clickable and sets data
             if (data.onClick !== undefined) {
                 this._clickable = true;
                 data.sphereId = id;

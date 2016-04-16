@@ -1,3 +1,6 @@
+/**
+ * Class which handles the marker on a map
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -11,14 +14,21 @@
     
     map.Marker = {
         _marker: null,
+
+        _PREVIEW_FRAMES_PER_SECOND: 8, //Speed of the animated preview images
+        /**
+         * Initializes a Marker object
+         * @param sphereObj {object} - JavaScript object corresponding to the JSON which describes the sphere of the marker
+         * @param mapObj {object} - JavaScript object corresponding to the JSON which describes the map
+         * @returns {Window.explore.map.Marker}
+         */
         init: function(sphereObj,mapObj) {
             // Animation constants
-            var PREVIEW_FRAMES_PER_SECOND = 8;
-            var PREVIEW_ANIM_TIMEOUT = 1000 / PREVIEW_FRAMES_PER_SECOND;
+            var PREVIEW_ANIM_TIMEOUT = 1000 / this._PREVIEW_FRAMES_PER_SECOND;
 
             var resolution = window.explore.config.resolutions[window.explore.config.res].preview;
 
-            var iconCount = sphereObj.images.preview[resolution].count; //Todo: Dynamic resolution
+            var iconCount = sphereObj.images.preview[resolution].count;
             var count = 1;
             var image = new Image;
             var iconSize = parseInt(resolution);
@@ -36,6 +46,7 @@
 
             var self = this;
 
+            //Set icon of the marker (uses a canvas to animate the preview)
             var icon = L.canvasIcon({
                 iconSize: new L.Point(iconSize, iconSize),
                 iconAnchor: [iconSize / 2, iconSize / 2],
@@ -91,10 +102,21 @@
             });
             return this;
         },
+
+        /**
+         * Returns 'num' with length 'size' (leading zeros)
+         * @param num
+         * @param size
+         * @returns {string}
+         */
         pad: function(num, size) {
             var s = "000000000" + num;
             return s.substr(s.length-size);
         },
+        /**
+         * Returns the leaflet marker wrapped by this class
+         * @returns {null}
+         */
         getMarker: function() {
             return this._marker;
         }

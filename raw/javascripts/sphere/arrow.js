@@ -1,3 +1,6 @@
+/**
+ * Class to handle arrows shown in a sphere
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -11,18 +14,27 @@
 
     sphere.Arrow = {
         _arrow: null,
-        _name: null,
+        _name: "",
         _data: null,
-        _id: null,
+        _id: "",
         _sphere: null,
         _clickable: false,
 
+        /**
+         * Initializes a arrow
+         * @param id {string} - ID of the sphere which holds this arrow
+         * @param name {string} - Name (number) of this arrow
+         * @param data {object} - JavaScript object corresponding to the JSON description of the arrow
+         * @param sphere {Sphere} - sphere object
+         * @returns {window.explore.sphere.Arrow}
+         */
         init: function (id, name, data, sphere) {
             this._id = id;
             this._name = name;
             this._data = data;
             this._sphere = sphere;
 
+            //Sets defaults or values found in 'data'
             var size = 30;
             if (data.size !== undefined)
                 size = math.eval(data.size);
@@ -46,6 +58,7 @@
             if (data.rotationZ !== undefined)
                 rotationZ = -rotationZ - math.eval(data.rotationZ);
 
+            //Initializes the three.js object for the arrow
             var planeGeometry = new THREE.PlaneGeometry(size, size);
             var self = this;
             var planeTexture = THREE.ImageUtils.loadTexture(arrow_texture, {}, function () {
@@ -62,6 +75,8 @@
             plane.rotation.x = rotationX;
             plane.rotation.y = rotationY;
             plane.rotation.z = rotationZ;
+            
+            //Checks if arrow is clickable and sets data
             if (data.onClick !== undefined) {
                 this._clickable = true;
                 data.sphereId = id;

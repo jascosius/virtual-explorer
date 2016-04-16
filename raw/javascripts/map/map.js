@@ -1,3 +1,6 @@
+/**
+ * Class which handles the map
+ */
 (function (window) {
     "use strict";
     if (window.explore === undefined) {
@@ -10,10 +13,16 @@
     var $ = window.$;
 
     map.Map = {
-        _data: null, //Object with map information
-        _spheres: null, //Object with sphere information
+        _data: null,
+        _spheres: null,
         _map: null, //The leaflet map
         _markers: null, //Group of all markers on the map
+        /**
+         * Initializes a Map object
+         * @param data {object} - JavaScript object corresponding to the JSON to describe the map
+         * @param spheres {object} - JavaScript object corresponding to the JSON to describe the spheres on the map
+         * @returns {window.explore.map.Map}
+         */
         init: function (data, spheres) {
             this._data = data;
             this._spheres = spheres;
