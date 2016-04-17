@@ -2,7 +2,7 @@
   "menu": {
     "fullscreen": {
       "enter": "Fullscreen",
-      "leave": "Exit fullscreen"
+      "exit": "Exit fullscreen"
     },
     "resolution": {
       "small": "Change resolution",

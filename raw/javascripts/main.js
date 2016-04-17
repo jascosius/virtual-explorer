@@ -123,7 +123,7 @@
      */
     explore.fullscreenToggled = function () {
         if (!window.screenTop && !window.screenY) {
-            $('#menu_fullscreen_img').attr("src", "/images/menu/exit_fullscreen.png").attr("title", $.i18n.t('menu.fullscreen.leave'));
+            $('#menu_fullscreen_img').attr("src", "/images/menu/exit_fullscreen.png").attr("title", $.i18n.t('menu.fullscreen.exit'));
         } else {
             $('#menu_fullscreen_img').attr("src", "/images/menu/enter_fullscreen.png").attr("title", $.i18n.t('menu.fullscreen.enter'));
         }
