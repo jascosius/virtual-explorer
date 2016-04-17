@@ -31,7 +31,7 @@
 
             //redirect if WebGL is not supported
             if (this._isWebGLSupported()) {
-                this._renderer = new THREE.WebGLRenderer()
+                this._renderer = new THREE.WebGLRenderer();
             } else {
                 window.location = "/error/webgl";
             }
@@ -53,7 +53,7 @@
          */
         _isWebGLSupported: function () {
             var canvas = window.document.createElement('canvas');
-            return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
+            return !!(window.WebGLRenderingContext);
         },
         /**
          * Render the scenes
