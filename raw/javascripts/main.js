@@ -262,7 +262,7 @@
         };
 
         //Initiate animation to exit sphere
-        if(animation){
+        if(animation && explore.sphere.sphere != null){
             var sphere = explore.sphere.sphere;
             sphere.getSubScene().deleteObjects(false);
             var openSphereAnimation = Object.create(explore.sphere.OpenSphereAnimation).init(sphere, sphere.getSubScene().getLat(), null, sphere.getSubScene().getLong(), sphere.getSubScene().getCube(), true, onReady);
