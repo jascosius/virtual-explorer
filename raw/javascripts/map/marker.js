@@ -95,7 +95,7 @@
             marker.on('click', function (e) {
                 stopAnimation();
                 window.explore.startLoading();
-                window.explore.loadSphere(sphereObj.id,true);
+                window.explore.loadSphere(sphereObj.id,true,true);
                 mapObj.on('zoomend',window.explore.disableMap);
                 mapObj.options.maxZoom = mapObj.getZoom() + 1;
                 mapObj.setZoom(mapObj.getZoom() + 1);

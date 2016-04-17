@@ -163,14 +163,14 @@
     window.onpopstate = function (event) {
         if (event.state !== null) {
             if (event.state.type === 'map') {
-                explore.loadMap(event.state.id);
+                explore.loadMap(event.state.id,false,false);
             } else if (event.state.type === 'sphere') {
-                explore.loadSphere(event.state.id, false);
+                explore.loadSphere(event.state.id, false,false);
             } else {
-                explore.loadMap();
+                explore.loadMap(null,false,false);
             }
         } else {
-            explore.loadMap();
+            explore.loadMap(null,false,false);
         }
     };
 
@@ -201,7 +201,7 @@
      * @param id {string} - ID of the sphere to load
      * @param startAnimation {bool} - animate the entrance into the sphere
      */
-    explore.loadSphere = function (id, startAnimation) {
+    explore.loadSphere = function (id, startAnimation,pushHistory) {
         explore.loadingData.id = id;
         explore.loadingData.type = "sphere";
         //Make sure no other sphere exists
@@ -219,7 +219,9 @@
         //Make sure no popup is shown
         explore.popup.showPopup();
         //Update browser history
-        history.pushState({type: 'sphere', id: id}, "Sphere", "/sphere/" + id);
+        if(pushHistory) {
+            history.pushState({type: 'sphere', id: id}, "Sphere", "/sphere/" + id);
+        }
 
         $.getJSON("/json/spheres/sphere_" + id + ".json", function (data) {
             explore.sphere.sphere = Object.create(explore.sphere.Sphere).init(data, onReady, startAnimation);
@@ -231,7 +233,7 @@
      * @param id {string} - ID of the map to load
      * @param animation {bool} - animate the exit of the sphere (only if called from sphere)
      */
-    explore.loadMap = function (id,animation) {
+    explore.loadMap = function (id,animation,pushHistory) {
         //Make sure no other map is existing
         removeMap();
 
@@ -269,7 +271,9 @@
         //Make sure no popup is shown
         explore.popup.showPopup();
         //Update browser history
-        history.pushState({type: 'map', id: id}, "Map", "/map/" + id);
+        if(pushHistory) {
+            history.pushState({type: 'map', id: id}, "Map", "/map/" + id);
+        }
 
         $.getJSON("/json/maps/map_" + id + ".json", function (data) {
             $.getJSON("/json/maps/map_spheres_" + id + ".json", function (spheres) {
@@ -325,20 +329,11 @@
     explore.load = function (addHistory) {
         explore.startLoading();
         if (explore.loadingData.type === "sphere") {
-            if(addHistory) {
-                history.pushState({
-                    type: 'sphere',
-                    id: explore.loadingData.id
-                }, "Sphere", "/sphere/" + explore.loadingData.id);
-            }
-            explore.loadSphere(explore.loadingData.id, false);
+            explore.loadSphere(explore.loadingData.id, false,addHistory);
         } else if (explore.loadingData.type === "map") {
-            if(addHistory) {
-                history.pushState({type: 'map', id: explore.loadingData.id}, "Map", "/map/" + explore.loadingData.id);
-            }
-            explore.loadMap(explore.loadingData.id);
+            explore.loadMap(explore.loadingData.id,addHistory);
         } else {
-            explore.loadMap();
+            explore.loadMap(null,false,false);
         }
     };
 
