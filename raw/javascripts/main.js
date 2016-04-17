@@ -199,7 +199,8 @@
     /**
      * Loads a sphere
      * @param id {string} - ID of the sphere to load
-     * @param startAnimation {bool} - animate the entrance into the sphere
+     * @param startAnimation {boolean} - animate the entrance into the sphere
+     * @param pushHistory {boolean} - add new history entry
      */
     explore.loadSphere = function (id, startAnimation,pushHistory) {
         explore.loadingData.id = id;
@@ -231,7 +232,8 @@
     /**
      * loads a map
      * @param id {string} - ID of the map to load
-     * @param animation {bool} - animate the exit of the sphere (only if called from sphere)
+     * @param animation {boolean} - animate the exit of the sphere (only if called from sphere)
+     * @param pushHistory {boolean} - add new history entry
      */
     explore.loadMap = function (id,animation,pushHistory) {
         //Make sure no other map is existing

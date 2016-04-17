@@ -80,7 +80,7 @@
          */
         getInitial: function() {
             var initial = 0;
-            if (this._data.initialView.long !== undefined) { //todo: add lat
+            if (this._data.initialView.long !== undefined) {
                 initial = math.eval(this._data.initialView.long);
             }
             return initial;
