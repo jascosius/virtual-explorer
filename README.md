@@ -27,12 +27,14 @@ The raw files are stored in the folder *raw*. These files are processed by grunt
 * *config.json*: Configuration file for available resolutions.
 * *javascripts/main.js*: Configuration file for available resolutions and languages.
 
+You can see the positions of objects inside a sphere by typing *explore.sphere.sphere.showGrid();* in the JavaScript-Console.
+
 ### Grunt
 
 Grunt processes the files in the *raw* folder. There are the following (main) grunt tasks:
 * *grunt all*: runs all grunt tasks. Use this before the first server run. This needs *[Blender](https://www.blender.org/)*, *[Hugin](http://hugin.sourceforge.net/)* and *[Panotools](http://search.cpan.org/~bpostle/Panotools-Script-0.25/)*, which has to be in your path.
 * *grunt init*: runs all grunt tasks except the image processing.
-* *grunt*: runs the grunt tasks to update the javascript and the css.
+* *grunt*: runs the grunt tasks to update the JavaScript and the CSS.
 
 ## Documentation
 For a more detailed documentation read the [documentation](/readme/documentation-ger.pdf) (german).
