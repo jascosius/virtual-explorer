@@ -30,19 +30,19 @@ The raw files are stored in the folder *raw*. These files are processed by grunt
 ### Grunt
 
 Grunt processes the files in the *raw* folder. There are the following (main) grunt tasks:
-* *grunt all*: runs all grunt tasks. Use this before the first server run. This needs *Blender*, *Panotools* and *Hugin* which has to be installed on your computer.
+* *grunt all*: runs all grunt tasks. Use this before the first server run. This needs *[Blender](https://www.blender.org/)*, *[Hugin](http://hugin.sourceforge.net/)* and *[Panotools](http://search.cpan.org/~bpostle/Panotools-Script-0.25/)*, which has to be in your path.
 * *grunt init*: runs all grunt tasks except the image processing.
 * *grunt*: runs the grunt tasks to update the javascript and the css.
 
 ## Documentation
-For a more detailed documentation read the [documentation](/readme/documentation-ger.pdf) (GER).
+For a more detailed documentation read the [documentation](/readme/documentation-ger.pdf) (german).
 
 ## References
 
 This project uses the following external packages:
 
 * [i18next](http://i18next.com)
-* [jquery](https://jquery.com)
+* [jQuery](https://jquery.com)
 * [leaflet](http://leafletjs.com)
 * [leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster)
 * [leaflet-canvasicon](https://github.com/sashakavun/leaflet-canvasicon)
