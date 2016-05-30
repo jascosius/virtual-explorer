@@ -14,6 +14,7 @@ This project is the result of a master project at the University of Kiel. It wil
 
 The webserver uses node.js to run. Make sure you install node.js and the packages listed in *package.json*.
 The default configuration will run by default as an example, just use *grunt all* to prepare the *public* folder.
+Start the webserver with *node bin/www*. The webserver will run on port 3000.
 
 ### Configuration
 The raw files are stored in the folder *raw*. These files are processed by grunt which outputs the results into the *public* folder. In the *raw* folder are the following important files/folder:
