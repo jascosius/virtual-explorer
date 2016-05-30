@@ -8,7 +8,7 @@ The user can use a map to see the positions of all available spheres, have a loo
 
 ![Screenshot of the map](/readme/map.png)
 
-This project is the result of a master project at the University of Kiel. It will not be active developed in the near feature.
+This project is the result of a master project at the University of Kiel. It will not be active developed in the near future.
 
 ## Installation
 
