@@ -1,4 +1,7 @@
-/*global L */
+/*
+ https://github.com/sashakavun/leaflet-canvasicon
+ 
+global L */
 (function () {
     'use strict';
 
